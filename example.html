@@ -1,0 +1,99 @@
+<html>
+	<head>
+		<style>
+			a.test {font-weight : bold; }
+		</style>
+	</head>
+	<body>
+
+		<script type="text/javascript">
+			document.write("Hey Kathy!\n");
+		</script>
+
+		<p id="result">Hoo boy!</p>
+
+		<a href="http://jquery.com/">jQuery</a>
+		<script src="jquery.js"></script>
+		<div id="insertTest"></div>
+
+		<script>
+			var wikipediaHTMLResult = function(data) {
+				document.write("<p>Inside callback</p>");
+				document.write("Text data: " /*+ readData*/);
+				var readData = $('<div>' + data.parse.text.* + '</div>');
+				// handle redirects
+				document.write("Text data: " /*+ readData*/);
+				var redirect = readData.find('li:contains("REDIRECT") a').text();
+				
+				if(redirect != '') {
+					callWikipediaAPI(redirect);
+					return;
+				}
+				var box = readData.find('.infobox');
+				var binomialName = box.find('.binomial').text();
+				var fishName = box.find('th').first().text();
+				var imageURL = null;
+
+				// Check if page has images
+				if(data.parse.images.length >= 1) {
+					imageURL = box.find('img').first().attr('src');
+				}
+				$('#insertTest').append('<div><img src="'+ imageURL + '"/>'+ fishName +' <i>('+ binomialName +')</i></div>');
+			};
+			function callWikipediaAPI(wikipediaPage) {
+				// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
+				$.getJSON('http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?', {page:wikipediaPage, prop:'text|images', uselang:'en'}, wikipediaHTMLResult);
+			}
+			callWikipediaAPI('Philosophy');
+
+
+
+			$("a").addClass("test");
+			$(document).ready(function(){
+				$("a").click(function(event){
+					event.preventDefault();
+					$(this).hide("slow");
+			    });
+			});
+			document.write("<p>Script is running</p>");
+		</script>
+		<script>
+/*			$("a").addClass("test");
+//			window.onload = function(){ alert("welcome"); }
+//			$(document).ready(function(){
+// 				$("a").click(function(event){
+//	       			alert("Thanks for visiting!");
+//				});
+//			});
+			$(document).ready(function(){
+				$("a").click(function(event){
+					event.preventDefault();
+					$(this).hide("slow");
+			    });
+			});
+//			var info = "hello world!";
+//			var info = $.get('http://www.wikipedia.org/w/api.php?action=query&prop=revisions$rvprop=content&format=xml&titles=Main%20Page', function() {
+//				alert('Get1 was performed.');
+//			});
+//			document.write("<p>" + jqxhr + "</p>");
+			var wikipediaPageResult;
+			
+			$.getJSON("http://en.wikipedia.org/w/api.php?action=query&amp;format=json&amp;callback=?", {titles:'Main Page', prop: "revisions", rvprop:"content"}, function(){
+				alert("Get0 was performed"); }, wikipediaPageResult);
+//			var info = $.get('http://www.google.com', function() {
+//				alert('Get1 was performed.');
+//			});
+			var jqxhr = $.get('/Users/iangardiner/NewsSleuth/example.html', function(data) {
+				alert("Get2 was performed: " + data);
+				$('body').append("Name: " + data);
+			});
+			document.write("<p>" + jqxhr + "</p>");
+//			document.write("<p>" + $('#result').load('http://www.wikipedia.org/w/api.php?action=query&prop=revisions$rvprop=content&format=xml&titles=Main%20Page', function() {
+//				alert('Load was performed.');
+//			}) + "</p>");
+*/
+		</script>
+
+	</body>
+
+</html>
