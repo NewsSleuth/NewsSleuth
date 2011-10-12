@@ -19,10 +19,80 @@
 		<script>
 			var wikipediaHTMLResult = function(data) {
 				document.write("<p>Inside callback</p>");
-				document.write("Text data: " /*+ readData*/);
-				var readData = $('<div>' + data.parse.text.* + '</div>');
+				document.write("Text data: " + data);
+				var readData;
+				var i = 0;
+				for(x in data){
+//					document.write(data[x] + " " + x + " ");
+					for(y in data[x]){
+//						document.write(data[x][y] + " " + x + y + " ");
+						for(z in data[x][y]){
+//							document.write(data[x][y][z] + x + y + z + " ");
+							readData += data[x][y][z];
+						}
+					}
+				}
+				var arrayData = jQuery.makeArray(readData);
+				var newData = new Array();
+				var ignore = false;
+				//document.write("<p>" + readData + "</p>");
+				var i = 0;
+				//document.write(arrayData);
+				for(x in readData){
+					if(i > 100000){
+						break;
+					}
+					i++;
+					if(readData[x]=== '<'){
+						//readData[x] = '&lt;';
+						//document.write(" " + readData[x]);
+					//delete readData[x];
+						//readData[x] = "Volvo";
+						//newData[x] = "<p>&lt;";
+						ignore = true;
+						//document.write("<p>less than</p>" + readData[x]);
+					}
+					else if(readData[x] === '>'){
+						//readData[x] = '&gt;';
+						//document.write(readData[x]);
+						//newData[x] = "&gt;</p>";
+						ignore = false;
+						//document.write("<p>greater than</p>" + readData[x]);
+					}
+					else if(readData[x]==='"'){
+						//readData[x] = '&quot;';
+						//document.write(readData[x]);
+						//readData[x] = 'a';
+						if(ignore){
+							newData[x] = "";
+						}
+						else{
+							newData[x] = "&quot;";
+						}
+						//document.write("<p>quotation mark</p>" + readData[x]);
+					}
+					else{
+						//document.write("<p>Hey look at me!</p>");
+						if(ignore){
+							newData[x] = "";
+						}
+						else{
+							newData[x] = readData[x];
+						}
+					}
+				}
+				i = 0;
+				for(x in newData){
+					document.write(newData[x]);
+					i++;
+				}
+				document.write("<p>"+i+"</p>");
+//				document.write("<p>" + data.parse + "</p>");
+//				document.write("<p>" + data.parse.title + "</p>");
+//				document.write("<p>\"" + data.parse.text.* + "\"</p>");
+/*				var readData = $('<div>' + data.parse.text.* + '</div>');
 				// handle redirects
-				document.write("Text data: " /*+ readData*/);
+				document.write("Text data: " + readData);
 				var redirect = readData.find('li:contains("REDIRECT") a').text();
 				
 				if(redirect != '') {
@@ -39,13 +109,12 @@
 					imageURL = box.find('img').first().attr('src');
 				}
 				$('#insertTest').append('<div><img src="'+ imageURL + '"/>'+ fishName +' <i>('+ binomialName +')</i></div>');
-			};
+*/			};
 			function callWikipediaAPI(wikipediaPage) {
 				// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 				$.getJSON('http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?', {page:wikipediaPage, prop:'text|images', uselang:'en'}, wikipediaHTMLResult);
 			}
-			callWikipediaAPI('Philosophy');
-
+			callWikipediaAPI('Gregg Hartsuff');
 
 
 			$("a").addClass("test");
