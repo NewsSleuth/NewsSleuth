@@ -1,0 +1,147 @@
+SCHEDULE
+
+WEEK 1
+Sept. 18-24
+
+	Ian
+		Design phase
+
+	Malvika
+		Design phase
+
+	Eric
+		Design phase
+
+WEEK 2
+Sept. 25-Oct. 1
+
+	Ian
+		Research Wikipedia API
+
+	Malvika
+		Research algorithms for text extraction
+
+	Eric
+		Start working on interface
+
+WEEK 3
+Oct. 2-8
+
+	Ian
+		Get any specific content from Wikipedia
+
+	Malvika
+		Write code for general author extraction
+
+	Eric
+		Continue working on add-on capability
+
+WEEK 4
+Oct. 9-15
+
+	Ian
+		Begin designing search algorithm
+
+	Malvika
+		Write code for RSS feed extractions
+
+	Eric
+		Continue working on interface, create pop-up window
+
+WEEK 5
+Oct. 16-22
+
+	Ian
+		Incorporate code into Firefox add-on. Begin testing code for information extraction
+
+	Malvika
+		Decide on specific news sources to implement. Incorporate code into Firefox add-on
+
+	Eric
+		Continue working on interface, adding functionality such as hotkeys for user, insertion of information into page
+
+WEEK 6
+Oct. 23-29
+
+	Ian
+		Integrate extraction code with interface code: call function with hotkey, insert text into pop-up window
+
+	Malvika
+		Write specific code for news sources- create files containing domains to treat as news
+
+	Eric
+		Finish up features of add-on and test: cache for author, publisher information; proper insertion of text into web pages;
+		proper execution of pop-up; ability to add/remove domains from list of news sites
+
+WEEK 7
+Oct. 30-Nov 5
+
+	Ian
+		Test and debug
+
+	Malvika
+		Integrate code fully with add-on, wikipedia code; test and debug
+
+	Eric
+		Test and debug code with wiki and author extraction
+
+WEEK 8
+Nov. 6-12
+
+	Ian
+		Refine extraction algorithm
+
+	Malvika
+		Test integrated code; refine author/publisher extraction
+
+	Eric
+		Polish interface; debug
+
+WEEK 9
+Nov. 13-19
+
+	Ian
+		Continue to refine and speed up extraction
+
+	Malvika
+		Continue to refine author extraction, improve accuracy
+
+	Eric
+		Package interface; make everything ready to download, install
+
+WEEK 10
+Nov. 20-26
+
+	Ian
+		Refine presentation
+
+	Malvika
+		Test and debug
+
+	Eric
+		Test and debug
+
+WEEK 11
+Nov. 27-Dec. 3
+
+	Ian
+		Deploy
+
+	Malvika
+		Deploy
+
+	Eric
+		Deploy
+
+WEEK 12
+Dec. 4-10
+
+	Ian
+		Final testing, debugging, and presentation
+
+	Malvika
+		Final testing, debugging, and presentation
+
+	Eric
+		Final testing, debugging, and presentation
+
