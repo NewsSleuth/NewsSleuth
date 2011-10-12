@@ -1,0 +1,4 @@
+content  DisplayText         chrome/content/
+locale   DisplayText  en-US  chrome/locale/en-US/
+
+overlay  chrome://browser/content/browser.xul chrome://DisplayText/content/browser.xul
