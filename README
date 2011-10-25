@@ -5,6 +5,7 @@ Malvika Deshmukh	malvi@umich.edu
 Eric Samuelson		sameric@umich.edu
 copyright 2011
 
+RUNNING AN EXTENSION IN FIREFOX
 
 To install a Firefox extension, create a ~/Profiles directory, a directory for a new profile ("helloworld-dev") and extension subdirectory.
 
@@ -13,6 +14,20 @@ Add a file with the path to the extension inside the ~/Profiles/helloworld-dev/e
 Name the file the same name as the extension ("ian@gardiner" - This name can be found in the chrome/content/browser.xul file).
 
 Launch firefox: (arch -i386) /Applications/Firefox.app/Contents/MacOS/firefox-bin -profile ~/Profiles/helloworld-dev/
+		/usr/bin/firefox -no-remote -profile ~/Profiles/NewsSleuth-dev
 
-You need to have the environment variable MOZ_NO_REMOTE=1 in order to use two profiles at the same time.
+You need to have the environment variable MOZ_NO_REMOTE=1 in order to use two profiles at the same time, or else run firefox with the 
+-no-remote flag.
+
+To be able to use all the features of the extension, do the following in Firefox:
+
+Enter about:config in the address bar, and click 'yes I'm sure'
+
+Set these variables to true:
+	extensions.logging.enabled
+	javascript.options.ShowInConsole
+	browser.dom.window.dump.enabled
+
+The last one you will have to create.
+
 
