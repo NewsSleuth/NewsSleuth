@@ -1,14 +1,41 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/css"
+  href="chrome://DisplayText/content/button.css"?>
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript"
           src="chrome://DisplayText/content/browser.js"/>
+  <script type="application/javascript"
+          src="chrome://DisplayText/content/button.js"/>
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
             oncommand="DisplayText.onCommand(event)"/>
   </statusbar>
+
+
+  <menupopup id="menu_ToolsPopup">
+    <menuitem id="example-item" oncommand="SetPreferences.onCommand(event);" label="News Sleuth Preferences" accesskey="n"/>
+  </menupopup>
+  
   <popup id="contentAreaContextMenu">
-    <menuitem id="context-item1" label="Item 1" oncommand="alert('Item1');"/>
-    <menuitem id="context-item2" label="Item 2" oncommand="alert('Item2');"/>
+    <menuitem id="context-item1" label="Display Site List" oncommand="DisplaySiteList.onCommand(event)"/>
+    <menuitem id="context-item2" label="Add Site" oncommand="AddSite.onCommand(event)"/>
+    <menuitem id="context-item3" label="Remove Site" oncommand="RemoveSite.onCommand(event)"/>
   </popup>
+
+  <toolbarpalette id="BrowserToolbarPalette">
+    <toolbarbutton id="custom-button-1"/>
+  </toolbarpalette>
+
+
+
+  <!-- button details -->
+  <toolbarbutton id="custom-button-1"
+    label="Custom"
+    tooltiptext="Show info in pop-up window"
+    oncommand="CustomButton.onCommand(event)"
+    class="toolbarbutton-1 chromeclass-toolbar-additional custombutton"
+  />
+
 
 </overlay>
 
