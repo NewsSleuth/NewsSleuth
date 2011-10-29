@@ -1,8 +1,7 @@
 let DisplayText = {
-	onCommand: function(event) {
-		dump("iangardiner.loadjQuery()\n");
-		var iangardiner;
-		jquery = loadjQuery(iangardiner);
+	onCommand: function(event){
+
+//jquery = loadjQuery(iangardiner);
 	 
 		// Append text to end of web page
 /*		var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
@@ -26,7 +25,7 @@ let DisplayText = {
 
 		dump("about to call wikipedia\n");
 		
-		callWikipediaAPI("Philosophy");
+		callWikipediaAPI("Gregg Hartsuff");
 
 	}
 };
@@ -85,7 +84,7 @@ var wikipediaHTMLResult = function(data) {
 	document.write("<p>"+i+"</p>");
 */};
 function callWikipediaAPI(wikipediaPage) {
-	dump("var jQuery\n");
+/*	dump("var jQuery\n");
 	var jQuery = jquery;
 	var $ = function(selector,context){
 		   return new jQuery.fn.init(selector,context||window._content.document);
@@ -94,31 +93,72 @@ function callWikipediaAPI(wikipediaPage) {
 	$.fn = $.prototype = jQuery.fn;
 	dump("iangardiner\n");
 	env = window._content.document;
-
+*/
 
 	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
-	jqxhr = jquery.getJSON('http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?', {page:wikipediaPage, prop:"text|images", uselang:"en"}, function() {dump("success?\n");} )
+	$.getJSON("http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?", {page:wikipediaPage, prop:"text|images", uselang:"en"}, function() {dump("success?\n");} )
 		.error(function() { dump("error?\n"); } );
-	jqxhr.error(function() {dump("error?\n");} );
-	dump(jqxhr + "\n");
-	for(x in jqxhr){
-		dump(x + "\n");
-		dump(jqxhr[x] + "\n");
-	}
-	var info = jquery.get('http://www.wikipedia.org/w/api.php?action=query&prop=revisions$rvprop=content&format=xml&titles=Main%20Page', function(data) {
+//	jqxhr.error(function() {dump("error?\n");} );
+//	dump(jqxhr + "\n");
+	jqxhr = $.get('http://www.wikipedia.org/w/api.php?action=raw&prop=revisions$rvprop=content&format=xml&titles=Philosophy', function(data) {
+			dump("success2?\n");
+			for(x in data){
+				dump(x + "\n");
+				dump(jqxhr[x] + "\n");
+				}
+			dump("title: " + data.title + "\n");
+			}, 'xml');
+	$.ajax({
+		url: "http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?",
+		dataType: 'json',
+		data: {page:wikipediaPage, prop:"text|images", uselang:"en"},
+		success: function() {dump("success in ajax");},
+		error: function() {dump("error in ajax");}
+	});
+	var url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?";
+	var page = "baseball"
+
+	$.getJSON(url, { 
+		  page: page, 
+	    prop:"text|images", 
+		  uselang:"en"
+	  }, function(data) {
+	    var $container = $("body")
+
+	  // append title
+	  $container.append(data['parse']['title']);
+
+    // append page text
+    $container.append(data['parse']['text']['*']);    
+
+  // append images
+	  var images = data['parse']['images'];
+    $.each(images, function(i, src){
+    // note: the path of these images is somewhat obscured
+    // filenames are all that is supplied (no path)
+    $container.append(src)
+	dump("container: " + $container + "\n");
+	  })
+});
+
+//	for(x in jqxhr){
+//		dump(x + "\n");
+//		dump(jqxhr[x] + "\n");
+//	}
+/*	var info = jquery.get('http://www.wikipedia.org/w/api.php?action=query&prop=revisions$rvprop=content&format=xml&titles=Main%20Page', function(data) {
 			dump('Get1 was performed.\n');
 			for(x in data){
 				dump("\n\ndata from element " + x + ":\n" + data[x] + "\n");
 				for(y in data[x]){
 					dump("data from element " + y + " in " + x + ":\n" + data[x][y] + "\n");
-/*					for(z in data[x][y]){
+					for(z in data[x][y]){
 						dump(data[x][y][z] + x + y + z + "\n");
 					}
-*/				}
+				}
 			}
 		});
-
+*/
 /*	for(x in info){
 		dump(x + "\n");
 		//dump(info[x] + "\n");
