@@ -18,11 +18,11 @@
 					dataType: "xml",
 					success: parseRSS
 				});
-				var $title = $("meta[property='og:title']").attr("content");
-				var $author = null;
+				
 			});
 			
-			
+			var $title = $("meta[property='og:title']").attr("content");
+			var $author = null;
 			function parseRSS(xml) {
 	
 				$(xml).find("item").find("title").each(function() {
