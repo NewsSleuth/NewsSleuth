@@ -1,4 +1,5 @@
 $(document).ready(function(){
+	alert("extraction.js is running");
 	extract();
 //<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	function extract() {
