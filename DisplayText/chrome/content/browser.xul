@@ -8,8 +8,9 @@
           src="chrome://DisplayText/content/button.js"/>
   <script type="application/javascript"
           src="chrome://DisplayText/defaults/preferences/prefs.js"/>
-  <script type="application/javascript"
-           src="chrome://DisplayText/content/extraction.js"/>
+  
+  
+  
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
             oncommand="DisplayText.onCommand(event)"/>
