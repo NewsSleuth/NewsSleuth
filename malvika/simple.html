@@ -4,38 +4,12 @@
 		<title>Testing</title>
 		<script type="text/javascript" src="jquery.js"></script>
 
-		<meta id="ctl00_ogtitle" name="ogtitle" property="og:title" content="Muammar Gaddafi killed in Sirte" />
-		<link id="ctl00_lnkRss" rel="alternate" type="application/rss+xml" title="Aljazeer English"href="/Services/Rss/?PostingId=2007731105943979989" />
+		<meta id="ctl00_ogtitle" name="ogtitle" property="ogtitle" content="Muammar Gaddafi killed in Sirte" />
+		<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	</head>
 	<body>
+		<h1 class="article-title">Quo Vadis, OWS?</h1>
 		<div id="out1"></div>
-
-		<script type="text/javascript">
-			$(document).ready(function(){
-				$.ajax({
-					type: "GET",
-					url: "qaddafi_rss.xml",
-					dataType: "xml",
-					success: parseRSS
-				});
-			});
-			
-			var $title = $("meta[property='og:title']").attr("content");
-			var $author = null;
-			function parseRSS(xml) {
-	
-				$(xml).find("item").find("title").each(function() {
-					
-					if ($(this).text()==$title) {
-						$('#out1').append("found match<br/>");
-						$('#out1').append($title+"<br/>");
-						
-						$author = $(this).siblings("pubDate");
-						$('#out1').append($author.text()+"<br/><br/>");
-					};
-				});
-				$('#out1').append($author.text()+"<br/><br/>");
-			}
-      </script>
+		<script type="text/javascript" src="extraction.js"></script>
   </body>
 </html>

@@ -6,6 +6,11 @@
           src="chrome://DisplayText/content/browser.js"/>
   <script type="application/javascript"
           src="chrome://DisplayText/content/button.js"/>
+  <script type="application/javascript"
+          src="chrome://DisplayText/defaults/preferences/prefs.js"/>
+  
+  
+  
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
             oncommand="DisplayText.onCommand(event)"/>
@@ -16,7 +21,7 @@
     <menuitem id="example-item" oncommand="SetPreferences.onCommand(event);" label="News Sleuth Preferences" accesskey="n"/>
   </menupopup>
   
-  <popup id="contentAreaContextMenu">
+    <popup id="contentAreaContextMenu">
     <menuitem id="context-item1" label="Display Site List" oncommand="DisplaySiteList.onCommand(event)"/>
     <menuitem id="context-item2" label="Add Site" oncommand="AddSite.onCommand(event)"/>
     <menuitem id="context-item3" label="Remove Site" oncommand="RemoveSite.onCommand(event)"/>
