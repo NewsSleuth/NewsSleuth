@@ -1,13 +1,66 @@
+function TitleLocation ( ) { return "h1"; }
+function AuthorTag ( ) {return "AuthorInfo"; }
+function AuthorId (  ) {return "AuthorParagraph"; }
+function AuthorClass ( ) {return "InfoClass"}
+function HideClass ( ) { return "HideClass"; }
+function HideId ( ) { return "mylink"; }
+function HideParagraphId ( ) { return "HideParagraph"; }
+
 var DisplayText = {
 	onCommand: function(event) {
+	
+		content.document.write("<script type='text/javascript' src='jquery.js'></script> <script type='text/javascript' src='extration.js'></script>");
+	
 		// Append text to end of web page
-		var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
+	/*	var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
 		content.document.body.appendChild(headertext)
-	 
+	 */
 		// Add event listener for mouse click
-		//content.document.addEventListener("mousedown", mouseHandler, true);
+		//content.document.addEventListener("mousedown", mouseHandler, true);	
+
+//		var value = myExtension.RetrieveAuthorInfo( );
+//		alert (value);
+		//findAndReplace("Ethan Samuel Bronner","something");
 	}
 };
+
+
+function findAndReplace(searchText, replacement, searchNode) {
+    if (!searchText || typeof replacement === 'undefined') {
+        // Throw error here if you want...
+        return;
+    }
+    var regex = typeof searchText === 'string' ?
+                new RegExp(searchText, 'g') : searchText,
+        childNodes = (searchNode || content.document.body).childNodes,
+        cnLength = childNodes.length,
+        excludes = 'html,head,style,title,link,meta,script,object,iframe';
+    while (cnLength--) {
+        var currentNode = childNodes[cnLength];
+        if (currentNode.nodeType === 1 &&
+            (excludes + ',').indexOf(currentNode.nodeName.toLowerCase() + ',') === -1) {
+				arguments.callee(searchText, replacement, currentNode);
+        }
+        if (currentNode.nodeType !== 3 || !regex.test(currentNode.data) ) {
+            continue;
+        }
+		alert (currentNode.parentNode.tagName);
+		
+        var parent = currentNode.parentNode,
+            frag = (function(){
+			    var html = currentNode.data.replace(regex, replacement),
+                    wrap = content.document.createElement('div'),
+                    frag = content.document.createDocumentFragment();
+                wrap.innerHTML = html;
+                while (wrap.firstChild) {
+                    frag.appendChild(wrap.firstChild);
+                }
+                return frag;
+            })();
+        parent.insertBefore(frag, currentNode);
+        parent.removeChild(currentNode);
+    }
+}
 
  function mouseHandler(event)
  {
@@ -15,8 +68,9 @@ var DisplayText = {
 	if (!event) event = window.event;
 	var elementId = (event.target || event.srcElement).id;
 	var elementTag	= (event.target || event.srcElement).tagName;
-	var elementClass = (event.target || event.srcElement).className;
+	var elementClass = (event.target || event.srcElement).className;	
 	alert (elementTag);
+	
 	var doc = content.document;
 	var selectedElement = doc.getElementById(elementId);
 	//selectedElement.parentNode.removeChild(selectedElement);
@@ -24,93 +78,183 @@ var DisplayText = {
 //alert(elementId);
  }
 
- 
+
  
 // Adds event listener to run every time a new page loads
-var myExtension = {  
+var myExtension = {
+	AuthorInfo: null,
     init: function() {  
         // The event can be DOMContentLoaded, pageshow, pagehide, load or unload.  
         if(gBrowser) gBrowser.addEventListener("DOMContentLoaded", this.onPageLoad, false);
+			
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefService)
+				.getBranch("NewsSleuth.");
+		var firstrun = prefs.getBoolPref("firstrun");
+		if (firstrun) {
+			alert("firstrun");
+	
+			var toolbarId = "nav-bar";
+			var id = "custom-button-1";
+			var afterId = "stop";
+			if (!document.getElementById(id)) {  
+				var toolbar = document.getElementById(toolbarId);  
+	  
+				var before = toolbar.firstChild;  
+				if (afterId) {  
+					let elem = document.getElementById(afterId);  
+					if (elem && elem.parentNode == toolbar)  
+						before = elem.nextElementSibling;  
+				}  
+	  
+				toolbar.insertItem(id, before);  
+				toolbar.setAttribute("currentset", toolbar.currentSet);  
+				document.persist(toolbar.id, "currentset");  
+	  
+				if (toolbarId == "addon-bar")  
+					toolbar.collapsed = false;
+			}
+			prefs.setBoolPref("firstrun", false);
+		}  
     },  
 	
     onPageLoad: function(aEvent) {  
+		var doc = aEvent.originalTarget; // doc is document that triggered the event  
+		var win = doc.defaultView;       // win is the window for the doc
+		
+		// Return if not top window
+		if (win != win.top) return;	
+	
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefService)
+				.getBranch("NewsSleuth.");
+		prefs.setBoolPref("newpage", true);
+		
 		if ( DisplayOnLoad ( ) )
 		{
-			var doc = aEvent.originalTarget; // doc is document that triggered the event  
-			var win = doc.defaultView;       // win is the window for the doc
-			
-			// Return if not top window
-			if (win != win.top) return;  
-			
 			// Check if page is on list of URLs
 			var onList = CheckList( );
 			if (onList)
 			{
+				AddPageStyle ( );
+				// Display Author info
 				DisplayAuthorInfo ( true );
 			}
 			//alert("page is loaded \n" +doc.location.href);  
 		}
 		else if ( CheckList ( ) )
 		{
+			AddPageStyle ( );
 			// Display 'show' option on page
 			DisplayAuthorInfo ( false );
 		}
-    }  
+    },
+	RetrieveAuthorInfo: function( )
+	{
+		// Check if author's information has already been look up
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefService)
+			.getBranch("NewsSleuth.");
+		var NewPage = prefs.getBoolPref("newpage");
+		
+		if (!NewPage)
+		{
+			//alert("Stored: " + this.AuthorInfo);
+			return this.AuthorInfo;
+		}
+		else
+		{
+			//alert("Looking Up Info");
+			prefs.setBoolPref("newpage", false);
+			this.AuthorInfo = "Ethan Samuel Bronner (born 1954) has been Jerusalem bureau chief of The New York Times since March 2008 following four years as deputy foreign editor.";
+			return this.AuthorInfo;
+		}
+		return "Some content.";
+	}
 }  
 window.addEventListener("load", function() { myExtension.init(); }, false);  
- 
-function DisplayPopupInfo ( )
-{	
-	my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
-	var headertext2 = content.document.createTextNode("Popup window information")
-	my_window.content.document.body.appendChild(headertext2)
-}
 
-function DisplayAuthorInfo ( DisplayInfo )
+function AddPageStyle ( )
 {
-	// Displays text to webpage right after the 1st 'h1' tagged element for now
-	
-	var doc = content.document;
-	// Remove hide option if already there
-	var DelHide = doc.getElementById('mylink');
-	if (DelHide)
-		DelHide.parentNode.removeChild(DelHide);
-
-	if (DisplayInfo) 
-	{
-		// Add text after first 'h1' element of page
-		var paragraph = doc.createElement('p');
-		var theNewParagraph = doc.createElement('AuthorInfo');
-		theNewParagraph.id = 'AuthorParagraph';
-		var theTextOfTheParagraph = doc.createTextNode('Some content.');
-		theNewParagraph.appendChild(theTextOfTheParagraph);
-		paragraph.appendChild(theNewParagraph);
-		var header = doc.getElementsByTagName("h1");
-		header[0].appendChild(paragraph);
-	}
-	
-	// Add hide option after text
-	var hide = doc.createElement('a');
-	var hideElement = doc.createElement('HideElement');
-	hide.id = "mylink";
-	var hideText = doc.createTextNode('Hide');
-	hideText.id = "hideTextId";
-	hideElement.appendChild(hideText);
-	hide.appendChild(hideElement);
-	header[0].appendChild(hide);
-	//theNewParagraph.appendChild(hide);
-	
-	var hb = doc.getElementById('mylink');
-	hb.addEventListener('click', ShowText, true);
-	
 	// Add style to page
-	var ai = content.document.getElementsByTagName("Head")[0];
+	var HeadOfPage = content.document.getElementsByTagName("Head")[0];
 	var style = content.document.createElement("link");
 	style.id = "headertext-style";
 	style.type = "text/css";
 	style.rel = "stylesheet";
 	style.href = "chrome://DisplayText/content/header-text.css";
-	ai.appendChild(style);
+	HeadOfPage.appendChild(style);
+}
+function DisplayPopupInfo ( )
+{	
+	my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
+	//var contents = RetrieveAuthorInfo( );
+	var contents = myExtension.RetrieveAuthorInfo( );
+	var headertext2 = content.document.createTextNode(contents)
+	my_window.content.document.body.appendChild(headertext2)
+}
+
+
+
+function DisplayAuthorInfo ( DisplayInfo )
+{
+	var doc = content.document;
+	// Remove hide option if already there
+	var DelHide = doc.getElementById( HideParagraphId( ) );
+	if (DelHide)
+		DelHide.parentNode.removeChild(DelHide);
+	
+	// Get title element of page
+	var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
+	if (TitleElement) 
+	{
+		if (DisplayInfo) 
+		{
+			var check = doc.getElementById(AuthorId());
+			if (!check)
+			{
+				// Create new paragraph and insert text in it
+				var AuthorParagraph = doc.createElement('p');
+				AuthorParagraph.id = AuthorId( );
+				AuthorParagraph.className = AuthorClass( );
+				
+				var Info = myExtension.RetrieveAuthorInfo( );
+				var AuthorText = doc.createTextNode(Info);
+				
+				AuthorParagraph.appendChild(AuthorText);
+				TitleElement.appendChild(AuthorParagraph);
+			}
+		}
+		
+		// Add hide option after text
+		var par = doc.createElement('p');
+		par.id = HideParagraphId( );
+		var hide = doc.createElement('a');
+		hide.id = HideId( );
+		hide.className = HideClass ( );
+		
+		var hideText;
+		if (DisplayInfo)
+			hideText = doc.createTextNode('(HIDE)');
+		else
+			hideText = doc.createTextNode('Show');
+		
+		
+		hide.appendChild(hideText);
+		par.appendChild(hide);
+		
+		if (DisplayInfo)
+		{	
+			var AuthorPar = doc.getElementById(AuthorId());
+			AuthorPar.appendChild(par);
+		}
+		else
+			TitleElement.appendChild(par);
+		
+		// Add event listener to hide/show text
+		var HideElement = doc.getElementById( HideId( ) );
+		HideElement.addEventListener('click', ShowText, true);
+	}
 }
  
  
@@ -118,63 +262,39 @@ function ShowText ( )
 {
 	// Toggles showing and hiding of the author information
 	var doc = content.document;
-	var text = doc.getElementById('AuthorParagraph');
+	var text = doc.getElementsByClassName( AuthorClass( ) )[0];
 	if (!text)
-		DisplayAuthorInfo ( true );
+		DisplayAuthorInfo( true );
 	else
-	{
-		HideText ( );
-	}
+		HideText( );
 }
 
 function HideText ( )
 // Hides the author text on the page
-{	
+{
 	var doc = content.document;
-	var text = doc.getElementById('AuthorParagraph');
+	var text = doc.getElementById( AuthorId( ) );
 	if (text)
 	{
 		text.parentNode.removeChild(text);
-		//var hide = doc.getElementById('mylink');
-		//hide.nodeValue = "show";
-		var DelHide = doc.getElementById('mylink');
-		if (DelHide)
-			DelHide.parentNode.removeChild(DelHide);
-			
-		var header = doc.getElementsByTagName("h1");
-		var hide = doc.createElement('a');
-		var hideElement = doc.createElement('HideElement');
-		hide.id = "mylink";
-		var hideText = doc.createTextNode('Show');
-		hideText.id = "hideTextId";
-		hideElement.appendChild(hideText);
-		hide.appendChild(hideElement);
-		header[0].appendChild(hide);
-		var hb = doc.getElementById('mylink');
-		hb.addEventListener('click', ShowText, true);
+		DisplayAuthorInfo(false);
+//		var hideNode = doc.getElementById(HideId( )).childNodes[0];
+//		var txt = hideNode.nodeValue;
+//		hideNode.nodeValue = "Show";
 	}
 }
  
 function DisplayOnLoad ( ) 
 // Check if preferences are set to display info when page loads
 {
-	var file = GetPrefPath ( );
-	
-	if (!file.exists( ))
-		return false;
-		
-	var fileContents = FileIO.read(file);
-	var lines = fileContents.split("\n");
-	
-	if (lines[0] == "true")
-		return true;
-	else
-		return false;
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+					.getService(Components.interfaces.nsIPrefService)
+					.getBranch("NewsSleuth.");
+	return prefs.getBoolPref("DisplayOnLoad");
 }
  
 var SetPreferences = {
 	onCommand: function(event) {
-	
 		// Create pop-up window to display preferences
 		my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
 		var doc = my_window.content.document.body;
@@ -194,54 +314,32 @@ var SetPreferences = {
 		//alert (checkbox.checked);
 		doc.appendChild(checkbox);
 		doc.appendChild(label);
+	
+		// Check preferences to set initial state of checkbox
+		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefService)
+				.getBranch("NewsSleuth.");
+		var DisplayOnLoad = prefs.getBoolPref("DisplayOnLoad");
 		
-		// Retrieve preference file and create one if it doesn't exist yet
-		var file = GetPrefPath ( );
-		if (!file.exists( ))
-		{
-			FileIO.create(file);
-			file = GetPrefPath ( );
-			var initChecked = true;
-			FileIO.write(file, initChecked, 'a');
-		}
-		
-		var fileContents = FileIO.read(file);
-		var lines = fileContents.split("\n");
-		
-		// Set initial state of checkbox to match preference stored in prefFile
-		var cb = doc.getElementsByTagName('input')[0];
-		if (lines[0] == "true")
-			cb.checked = true;
-		else
-			cb.checked = false;
+		var checkBox = doc.getElementsByTagName('input')[0];
+		checkBox.checked = DisplayOnLoad;
 		
 		// Add event handler for when box is checked
+		var cb = doc.getElementsByTagName('input')[0];
 		cb.addEventListener('click', ClickHandler, true);
 	}
 }
  function ClickHandler() 
  // Handles event for when the preference checkbox is clicked
  {
-	var checkbox = my_window.content.document.getElementsByTagName('input');
-	var checked = checkbox[0].checked;
+	var checkbox = my_window.content.document.getElementsByTagName('input')[0];
+	var checked = checkbox.checked;
 	
-	// Write new preference to file
-	var file = GetPrefPath( );
-	if (!file.exists( ))
-		return;
-		
-	var fileContents = FileIO.read(file);
-	var lines = fileContents.split("\n");
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+				.getService(Components.interfaces.nsIPrefService)
+				.getBranch("NewsSleuth.");
 	
-	var pref;
-	if (checked) {
-		pref = "true";
-		//alert ('true');
-	} else {
-		pref = "false";
-		//alert ('false');
-	}
-	FileIO.write(file, pref);	
+	prefs.setBoolPref("DisplayOnLoad", checked);
 }
 
 function CheckList ( )
@@ -296,7 +394,7 @@ function GetHost ( )
 	return source;
 }
 
-let DisplaySiteList = {
+var DisplaySiteList = {
 	onCommand: function(event) {		
 		// Find Path to SiteList.txt
 		var file = GetPath( );
@@ -335,7 +433,7 @@ function GetPrefPath( )
 	return file;
 }
 
-let AddSite = {
+var AddSite = {
 	onCommand: function(event) {
 	
 		var file = GetPath ( );		
@@ -370,7 +468,7 @@ let AddSite = {
 	}
 }
 
-let RemoveSite = {
+var RemoveSite = {
 	onCommand: function(event) {
 		var file = GetPath( );
 		if (!file.exists())
@@ -382,7 +480,7 @@ let RemoveSite = {
 		var fileContents = FileIO.read(file);
 		var lines = fileContents.split("\n");
 		var first = true;
-		for (var i = 0; i < lines.length; i++)
+		for (var i = 0; i < lines.length - 1; i++)
 		{
 			if ( URL != lines[i] )
 			{

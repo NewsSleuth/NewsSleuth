@@ -3,7 +3,7 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>helloworld@myksdffdsw.masdfasdf</em:id>
-    <em:name>DisplayText</em:name>
+    <em:name>News Sleuth</em:name>
     <em:version>0.1</em:version>
 	
 	 <em:iconURL>chrome://DisplayText/skin/icon.png</em:iconURL>

@@ -3,5 +3,4 @@ var CustomButton = {
 		HideText ( );
 		DisplayPopupInfo( );
 	}
-
 }
