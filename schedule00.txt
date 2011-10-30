@@ -1,4 +1,5 @@
 SCHEDULE
+FYI: Final presentation & demos begin on Dec 5th
 
 WEEK 1
 Sept. 18-24
@@ -43,7 +44,7 @@ Oct. 9-15
 		Begin designing search algorithm
 
 	Malvika
-		Write code for RSS feed extractions
+		read title from RSS and match with current page title
 
 	Eric
 		Continue working on interface, create pop-up window
@@ -55,7 +56,7 @@ Oct. 16-22
 		Incorporate code into Firefox add-on. Begin testing code for information extraction
 
 	Malvika
-		Decide on specific news sources to implement. Incorporate code into Firefox add-on
+		show source and author & integrate with Ian's part
 
 	Eric
 		Continue working on interface, adding functionality such as hotkeys for user, insertion of information into page
@@ -67,7 +68,7 @@ Oct. 23-29
 		Integrate extraction code with interface code: call function with hotkey, insert text into pop-up window
 
 	Malvika
-		Write specific code for news sources- create files containing domains to treat as news
+		write functions to auto-find rss feed on same page and verify from user
 
 	Eric
 		Finish up features of add-on and test: cache for author, publisher information; proper insertion of text into web pages;
@@ -80,7 +81,7 @@ Oct. 30-Nov 5
 		Test and debug
 
 	Malvika
-		Integrate code fully with add-on, wikipedia code; test and debug
+		get top-level domain and find rss feed on that page if possible
 
 	Eric
 		Test and debug code with wiki and author extraction
@@ -92,7 +93,8 @@ Nov. 6-12
 		Refine extraction algorithm
 
 	Malvika
-		Test integrated code; refine author/publisher extraction
+		implement user-specified domain/address for which to find RSS feed
+		& user-specified RSS feed
 
 	Eric
 		Polish interface; debug
@@ -104,7 +106,7 @@ Nov. 13-19
 		Continue to refine and speed up extraction
 
 	Malvika
-		Continue to refine author extraction, improve accuracy
+		test for many different sites, build up list of initially known news sources
 
 	Eric
 		Package interface; make everything ready to download, install
@@ -116,7 +118,7 @@ Nov. 20-26
 		Refine presentation
 
 	Malvika
-		Test and debug
+		Deploy
 
 	Eric
 		Test and debug
@@ -128,7 +130,7 @@ Nov. 27-Dec. 3
 		Deploy
 
 	Malvika
-		Deploy
+		work on presentation/demo
 
 	Eric
 		Deploy
@@ -140,7 +142,7 @@ Dec. 4-10
 		Final testing, debugging, and presentation
 
 	Malvika
-		Final testing, debugging, and presentation
+		PRESENT
 
 	Eric
 		Final testing, debugging, and presentation
