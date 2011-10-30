@@ -4,9 +4,9 @@ let DisplayText = {
 //jquery = loadjQuery(iangardiner);
 	 
 		// Append text to end of web page
-/*		var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
+		var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
 		content.document.body.appendChild(headertext)
-*/	 
+	 
 		// Create a new window to display text
 		my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
 		//my_window = window.open("", "mywindow1");
@@ -101,7 +101,7 @@ function callWikipediaAPI(wikipediaPage) {
 		.error(function() { dump("error?\n"); } );
 //	jqxhr.error(function() {dump("error?\n");} );
 //	dump(jqxhr + "\n");
-	jqxhr = $.get('http://www.wikipedia.org/w/api.php?action=raw&prop=revisions$rvprop=content&format=xml&titles=Philosophy', function(data) {
+/*	jqxhr = $.get('http://www.wikipedia.org/w/api.php?action=raw&prop=revisions$rvprop=content&format=xml&titles=Philosophy', function(data) {
 			dump("success2?\n");
 			for(x in data){
 				dump(x + "\n");
@@ -109,38 +109,31 @@ function callWikipediaAPI(wikipediaPage) {
 				}
 			dump("title: " + data.title + "\n");
 			}, 'xml');
-	$.ajax({
+*/	$.ajax({
 		url: "http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?",
 		dataType: 'json',
 		data: {page:wikipediaPage, prop:"text|images", uselang:"en"},
 		success: function() {dump("success in ajax");},
 		error: function() {dump("error in ajax");}
 	});
-	var url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&callback=?";
-	var page = "baseball"
 
-	$.getJSON(url, { 
-		  page: page, 
-	    prop:"text|images", 
-		  uselang:"en"
-	  }, function(data) {
-	    var $container = $("body")
 
-	  // append title
-	  $container.append(data['parse']['title']);
-
-    // append page text
-    $container.append(data['parse']['text']['*']);    
-
-  // append images
-	  var images = data['parse']['images'];
-    $.each(images, function(i, src){
-    // note: the path of these images is somewhat obscured
-    // filenames are all that is supplied (no path)
-    $container.append(src)
-	dump("container: " + $container + "\n");
-	  })
-});
+	var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
+	remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: "Alphabet"}, function (res){ 
+		dump("inside callback for jsmwapi");
+	    for(var page in res.query.pages){
+	        alert(res.query.pages[page].title);
+			for(x in res.query.pages[page]){
+				dump(x + "\n\t" + res.query.pages[page][x] + "\n");
+			}
+			for(x in res.query.pages[page]["revisions"]){
+				dump(x + "\n\t" + res.query.pages[page]["revisions"][x] + "\n");
+				for(y in res.query.pages[page]["revisions"][x]){
+					dump(y + "\n\t" + res.query.pages[page]["revisions"][x][y] + "\n");
+				}
+			}
+		}
+	});
 
 //	for(x in jqxhr){
 //		dump(x + "\n");

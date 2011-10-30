@@ -1,0 +1,12 @@
+AuthorInfo {
+	font-family: Georgia, Times, serif;
+	color:black;
+	border-style:solid;
+	border-width:2px;
+	background-color:#d0e4fe;
+}
+
+HideElement {
+	color:black;
+	font-size:50%;
+}
