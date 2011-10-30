@@ -7,7 +7,7 @@ $(document).ready(function(){
 		if ($title==null) {
 			$title = $("h1").first().text(); //if og:title didn't work, get title from first h1
 		};
-//		$('#out1').append("Title1: "+$title+"<br/>");
+//		$('#out1').append("Title: "+$title+"<br/>");
 
 		var $author = null;
 		var $source = null;	//should get source from copyright too
@@ -26,7 +26,7 @@ $(document).ready(function(){
 		function parseRSS(xml) {
 			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
-//			$('#out1').append("Sourcei: "+$source+"<br/>");
+//			$('#out1').append("Source: "+$source+"<br/>");
 
 			$(xml).find("item").find("title").each(function() {
 				if ($(this).text()==$title) {
@@ -34,9 +34,11 @@ $(document).ready(function(){
 //					$('#out1').append($(this).text()+"<br/>");
 					
 					$author = $(this).siblings("dc\\:creator").text();
-//					$('#out1').append("Authori: "+$author+"<br/><br/>");
+//					$('#out1').append("Author: "+$author+"<br/><br/>");
 				};
 			});
+			alert("Author: "+$author+"\nSource: "+$source);
+			
 		}	
 	}
 	
