@@ -152,7 +152,7 @@ var myExtension = {
 			DisplayAuthorInfo ( false );
 		}
     },
-	RetrieveAuthorInfo: function( )
+	RetrieveAuthorInfo: function(TitleElement, code)
 	{
 		// Check if author's information has already been look up
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -167,6 +167,9 @@ var myExtension = {
 		}
 		else
 		{
+			if(code === 1){
+				callWikipediaAPI("Bruce Springsteen", TitleElement, this);
+			}
 			//alert("Looking Up Info");
 			prefs.setBoolPref("newpage", false);
 			this.AuthorInfo = "Ethan Samuel Bronner (born 1954) has been Jerusalem bureau chief of The New York Times since March 2008 following four years as deputy foreign editor.";
@@ -192,7 +195,7 @@ function DisplayPopupInfo ( )
 {	
 	my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
 	//var contents = RetrieveAuthorInfo( );
-	var contents = myExtension.RetrieveAuthorInfo( );
+	var contents = myExtension.RetrieveAuthorInfo(my_window, 0);
 	var headertext2 = content.document.createTextNode(contents)
 	my_window.content.document.body.appendChild(headertext2)
 }
@@ -221,11 +224,14 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.id = AuthorId( );
 				AuthorParagraph.className = AuthorClass( );
 				
-				var Info = myExtension.RetrieveAuthorInfo( );
+				var Info = myExtension.RetrieveAuthorInfo(TitleElement, 1);
 				var AuthorText = doc.createTextNode(Info);
 				
 				AuthorParagraph.appendChild(AuthorText);
 				TitleElement.appendChild(AuthorParagraph);
+				//for(x in TitleElement){
+				//	dump(x + "\n\t" + TitleElement[x]);
+				//}
 			}
 		}
 		
