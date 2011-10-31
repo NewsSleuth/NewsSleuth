@@ -6,11 +6,14 @@ function HideClass ( ) { return "HideClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
 
+
 var DisplayText = {
 	onCommand: function(event) {
 	
-		content.document.write("<script type='text/javascript' src='jquery.js'></script> <script type='text/javascript' src='extration.js'></script>");
+
+	//content.document.write("<script type='text/javascript' src='jquery.js'></script> <script type='text/javascript' src='extraction.js'></script>");
 	
+		
 		// Append text to end of web page
 	/*	var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
 		content.document.body.appendChild(headertext)
