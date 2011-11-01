@@ -50,19 +50,21 @@ var DisplayText = {
 		var head = content.document.getElementsByTagName('h1')[0];
 		if (head)
 		{
-			var d = content.document.createElement('div');
-			d.id = "out1";
+						
+			var a = content.document.createElement("script");
+			a.type = "text/javascript";
+			a.src = "chrome://DisplayText/content/jquery.js";
 			
-			var cont = content.document.createElement("script");
-			cont.type = "text/javascript";
-			cont.src = "chrome://DisplayText/content/jquery.js";
+			var b = content.document.createElement("script");
+			b.type = "text/javascript";
+			b.src = "chrome://DisplayText/content/lookup.js";
 		
 			var c = content.document.createElement("script");
 			c.type = "text/javascript";
 			c.src = "chrome://DisplayText/content/extraction.js";
 			
-			head.appendChild(d);
-			head.appendChild(cont);
+			head.appendChild(a);
+			head.appendChild(b);
 			head.appendChild(c);
 		}
 		else
