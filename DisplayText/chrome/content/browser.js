@@ -168,7 +168,7 @@ var myExtension = {
 		else
 		{
 			if(code === 1){
-				callWikipediaAPI("Bruce Springsteen", TitleElement, this);
+				callWikipediaAPI("Bill Clinton", TitleElement, this);
 			}
 			//alert("Looking Up Info");
 			prefs.setBoolPref("newpage", false);
@@ -229,9 +229,12 @@ function DisplayAuthorInfo ( DisplayInfo )
 				
 				AuthorParagraph.appendChild(AuthorText);
 				TitleElement.appendChild(AuthorParagraph);
-				//for(x in TitleElement){
-				//	dump(x + "\n\t" + TitleElement[x]);
-				//}
+//				for(x in TitleElement){
+//					dump(x);
+					//for(y in TitleElement){
+					//	dump("\t" + y + "\n\t" + TitleElement[x][y] + "\n");
+					//}
+//				}
 			}
 		}
 		
@@ -790,6 +793,8 @@ var FileIO = {
 										this.sep : '');
 			}
 			return str;
-		}
-	
+			}
 	}
+	
+
+

@@ -59,12 +59,12 @@ function callWikipediaAPI(wikipediaPage, TitleElement, author) {
 					//data[count++] = res.query.pages[page]["revisions"][0][i][j];
 				}
 			}
+			dump(data);
 			var result = parseFirstThou(data);
+			result = removeBrackets(result);
 			dump("result:\n" + result + "\n");
 			result = firstP(result);
 			dump("first paragraph: \n" + result + "\n");
-			author.AuthorInfo = result;
-			//TitleElement.
 			dump("changed AuthorInfo\n");
 		}
 	});
@@ -84,8 +84,11 @@ function parseFirstThou(data){
 	var brackets = 0;
 	var braces = 0;
 	var tag = 0;
-	var file = 0;
-	for(var i = 0; count < 3000 && i < data.length; i++){
+	var commentIgnore = false;
+	var comment = 0;
+	var fileIgnore = false;
+	var limit = 100000
+	for(var i = 0; count < limit && i < data.length; i++){
 		
 		if(data[i] === '\'' && data[i+1] === '\'' && data[i+2] === '\''){
 			apostropheIgnore = true;
@@ -95,6 +98,9 @@ function parseFirstThou(data){
 		}
 		if(data[i-1] === '}' && data[i-2] === '}'){
 			braces--;
+			if(data[i-3] === '}'){
+				braces += .5;
+			}
 		}
 		if(data[i] === '{' && data[i+1] ==='{'){
 			braces++;
@@ -102,14 +108,32 @@ function parseFirstThou(data){
 		if(data[i-1] === '>' && data[i-2] === 'f' && data[i-3] === 'e' && data[i-4] === 'r' && data[i-5] === '/' && data[i-6] === '<'){
 			tag--;
 		}
-		if(data[i] === '<' && data[i+1] === 'r' && data[i+2] === 'e' && data[i+3] === 'f' && data[i+4] === '>'){
+		if(tag > 0 && data[i-1] === '>' && data[i-2] === '/'){
+			tag--;
+		}
+		if(data[i] === '<' && data[i+1] === 'r' && data[i+2] === 'e' && data[i+3] === 'f'){
 			tag++;
 		}
 		if(data[i] === '[' && data[i+1] === '['){
 			brackets++;
+			if(data[i+2] === 'F' && data[i+3] === 'i' && data[i+4] === 'l' && data[i+5] === 'e' && data[i+6] === ':'){
+				fileIgnore = true;
+			}
 		}
 		if(data[i-1] === ']' && data[i-2] === ']'){
 			brackets--;
+			if(data[i-3] === ']'){
+				brackets += .5;
+			}
+			if(brackets === 0){
+				fileIgnore = false;
+			}
+		}
+		if(data[i] === '<' && data[i+1] === '!' && data[i+2] === '-' && data[i+3] === '-'){
+			comment++;
+		}
+		if(data[i-1] === '>' && data[i-2] === '-' && data[i-3] === '-'){
+			comment--;
 		}
 		if(braces === 0){
 			braceIgnore = false;
@@ -119,26 +143,69 @@ function parseFirstThou(data){
 			tagIgnore = false;
 		}
 		else tagIgnore = true;
+		if(comment === 0){
+			commentIgnore = false;
+		}
+		else commentIgnore = true;
 		if(brackets === 0){
 			bracketIgnore = false;
 		}
 		else{
-			if(tagIgnore === false && braceIgnore === false && apostropheIgnore === false){
+			if(tagIgnore === false && fileIgnore === false && braceIgnore === false && apostropheIgnore === false){
 			}
 			else{
 				bracketIgnore = true;
 			}
 		}
 
-		if(tagIgnore === false && bracketIgnore === false && braceIgnore === false && apostropheIgnore === false){
+		if(fileIgnore === false && tagIgnore === false && bracketIgnore === false && braceIgnore === false && apostropheIgnore === false && commentIgnore === false){
 			result = String.concat(result, data[i]);
 			count++;
 		}
 	}
+	dump("\ni: " + i + "\n");
 	dump("\ncount: " + count + "\n");
 	return result;
 }
 
+function removeBrackets(data){
+
+	dump("removing brackets\n");
+	var result = new String("");
+	var placeholder = new String("");
+	var brackets = 0;
+	var bracketIgnore = false;
+
+	for(var i = 0; i < data.length; i++){
+		if(data[i] === '[' && data[i+1] === '['){
+			brackets++;
+		}
+		if(data[i-1] === ']' && data[i-2] === ']'){
+			brackets--;
+			if(brackets === 0){
+				result = String.concat(result, placeholder);
+				placeholder = new String("");
+			}
+		}
+		if(brackets > 0){
+			bracketIgnore = true;
+		}else bracketIgnore = false;
+		if(bracketIgnore === false){
+			result = String.concat(result, data[i]);
+		}
+		else{
+			if(data[i] === '[' || data[i] === ']'){
+			}
+			else if(data[i] === '|'){
+				placeholder = new String("");
+			}
+			else{
+				placeholder = String.concat(placeholder, data[i]);
+			}
+		}
+	}
+	return result;
+}
 
 function firstP(data){
 	var result = new String("");
