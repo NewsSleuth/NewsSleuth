@@ -59,6 +59,8 @@ jQuery(document).ready(function($){
 
 			});
 			alert("Author: "+$author+"\nSource: "+$source);
+			//added
+			callWikipediaAPI($author, false);
 		};
 	};
 		

@@ -231,7 +231,7 @@ function callWikipediaAPI(wikipediaPage, popup) {
 			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
 			var NamePara = content.document.createElement('p');
 			NamePara.id = "popupName";
-			var NameText = content.document.createTextNode("Bill Clinton");
+			var NameText = content.document.createTextNode(wikipediaPage);
 			NamePara.appendChild(NameText);
 			
 			var InfoPara = content.document.createElement('p');
