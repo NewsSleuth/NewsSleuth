@@ -11,7 +11,7 @@ To install a Firefox extension, create a ~/Profiles directory, a directory for a
 
 Add a file with the path to the extension inside the ~/Profiles/helloworld-dev/extension directory.
 
-Name the file the same name as the extension ("ian@gardiner" - This name can be found in the chrome/content/browser.xul file).
+Name the file the same name as the extension ("ian@gardiner" - This name can be found in the install.rdf file).
 
 Launch firefox: (arch -i386) /Applications/Firefox.app/Contents/MacOS/firefox-bin -profile ~/Profiles/helloworld-dev/
 		/usr/bin/firefox -no-remote -profile ~/Profiles/NewsSleuth-dev
