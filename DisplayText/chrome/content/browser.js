@@ -6,12 +6,50 @@ function HideClass ( ) { return "HideClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
 
+
 var DisplayText = {
 	onCommand: function(event) {
+			
+	/*		my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
+			var style = my_window.content.document.createElement("link");
+			style.id = "headertext-style";
+			style.type = "text/css";
+			style.rel = "stylesheet";
+			style.href = "chrome://DisplayText/content/header-text.css";
+			
+			var NamePara = my_window.content.document.createElement('p');
+			NamePara.className = AuthorClass();
+			var NameText = my_window.content.document.createTextNode("Bill Clinton");
+			NamePara.appendChild(NameText);
+			
+			var InfoPara = my_window.content.document.createElement('p');
+			InfoPara.id = "popupInfo";
+			InfoPara.className = AuthorClass();
+			var content = my_window.content.document.createTextNode("content here");
+			InfoPara.appendChild(content);
+			
+			var a = my_window.content.document.createElement('p');
+			a.appendChild(NamePara);
+			a.appendChild(InfoPara);			
+
+			my_window.content.document.body.appendChild(style);
+			my_window.content.document.body.appendChild(a);
+	 
+		return;
+*/
+		// Delete author info and 'hide' text that have been appended to 'title' element
+		var doc = content.document;
+		var DelShow = doc.getElementById( HideParagraphId( ) );
+		if (DelShow)
+			DelShow.parentNode.removeChild(DelShow);
+		var AuthorParagraph = doc.getElementById(AuthorId());
+		if (AuthorParagraph)
+			AuthorParagraph.parentNode.removeChild(AuthorParagraph);
+		
 	
 		var head = content.document.getElementsByTagName('h1')[0];
 		if (head)
-		{	
+		{
 			var d = content.document.createElement('div');
 			d.id = "out1";
 			
@@ -480,53 +518,32 @@ function DisplayOnLoad ( )
  
 var SetPreferences = {
 	onCommand: function(event) {
-		// Create pop-up window to display preferences
-		my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
-		var doc = my_window.content.document.body;
-		
-		// Create check box
-		var checkbox = content.document.createElement("input");
-		checkbox.type = "checkbox";
-		checkbox.name = "checkboxName";
-		checkbox.id = "myID";
-		checkbox.checked = checkbox.defaultChecked = true; // make it checked now and by default
 
-		// Create label for checkbox
-		var label = content.document.createElement('label');
-		label.htmlFor = "id";
-		label.appendChild(content.document.createTextNode('Display info when page loads'));
-		
-		//alert (checkbox.checked);
-		doc.appendChild(checkbox);
-		doc.appendChild(label);
-	
+
 		// Check preferences to set initial state of checkbox
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 				.getService(Components.interfaces.nsIPrefService)
 				.getBranch("NewsSleuth.");
 		var DisplayOnLoad = prefs.getBoolPref("DisplayOnLoad");
-		
-		var checkBox = doc.getElementsByTagName('input')[0];
-		checkBox.checked = DisplayOnLoad;
-		
-		// Add event handler for when box is checked
-		var cb = doc.getElementsByTagName('input')[0];
-		cb.addEventListener('click', ClickHandler, true);
+
+		if (DisplayOnLoad)
+		{
+			var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+			window.openDialog(
+					'chrome://DisplayText/content/menubox.xul',	
+					'showmore',
+					strWindowFeatures,
+					"testing");
+		} else {
+			var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+			window.openDialog(
+					'chrome://DisplayText/content/menubox2.xul',	
+					'showmore',
+					strWindowFeatures);			
+		}
 	}
 }
- function ClickHandler() 
- // Handles event for when the preference checkbox is clicked
- {
-	var checkbox = my_window.content.document.getElementsByTagName('input')[0];
-	var checked = checkbox.checked;
 	
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefService)
-				.getBranch("NewsSleuth.");
-	
-	prefs.setBoolPref("DisplayOnLoad", checked);
-}
-
 function CheckList ( )
 // Checks user's list of sites they want author information displayed for
 {
