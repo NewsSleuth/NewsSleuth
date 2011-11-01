@@ -1,0 +1,20 @@
+﻿<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://DisplayText/content/header-text.css" type="text/css"?>
+
+<dialog id="checkemail" title="Example Dialog"
+xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+buttons="accept"
+buttonlabelaccept="Accept">
+
+
+  <groupbox>
+    <caption label="News Sleuth Preferences"/>
+    <checkbox label="Display Author's Info When Page Loads" checked="false" oncommand="checkbox.onCommand(this.checked)"/>
+  </groupbox>
+
+
+  <script type="application/x-javascript"
+  src="chrome://DisplayText/content/menubox.js"></script>
+
+</dialog>

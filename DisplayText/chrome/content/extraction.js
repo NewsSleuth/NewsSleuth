@@ -29,7 +29,7 @@ jQuery(document).ready(function($){
 		var $source = null;	//should get source from copyright too
 		var $rss = null
 		$rss = $("link[type='application/rss+xml']").attr("href");
-		$('#out1').append("RSS: "+$rss+"<br/>");
+//		$('#out1').append("RSS: "+$rss+"<br/>");
 		alert("RSS: "+$rss);
 	
 	

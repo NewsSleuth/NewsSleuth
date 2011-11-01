@@ -10,14 +10,6 @@ p.InfoClass {
 	line-height: 15px;
 }
 
-p.popupName {
-	border-bottom:2px #8F0000;
-}
-
-p.popupInfo {
-	font-size: 24px;
-}
-
 a.HideClass {
 	color:#8F0000;
 	font-size:12px;
