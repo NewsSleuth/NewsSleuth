@@ -45,7 +45,7 @@ var DisplayText = {
 		var AuthorParagraph = doc.getElementById(AuthorId());
 		if (AuthorParagraph)
 			AuthorParagraph.parentNode.removeChild(AuthorParagraph);
-		
+		//dummy
 	
 		var head = content.document.getElementsByTagName('h1')[0];
 		if (head)

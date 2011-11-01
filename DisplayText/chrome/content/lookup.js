@@ -168,12 +168,12 @@ function callWikipediaAPI(wikipediaPage) {
 	
 	// Check if author's information has already been stored for this page
 	// If not on a newpage than info should be stored in 'StoredInfo'
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-		.getService(Components.interfaces.nsIPrefService)
-		.getBranch("NewsSleuth.");
-	var NewPage = prefs.getBoolPref("newpage");
+//	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+//		.getService(Components.interfaces.nsIPrefService)
+//		.getBranch("NewsSleuth.");
+//	var NewPage = prefs.getBoolPref("newpage");
 
-	if (NewPage)
+	if (true)
 	{
 		//alert("Looking up info");
 		var result;
@@ -259,7 +259,7 @@ function callWikipediaAPI(wikipediaPage) {
 	}
 	
 	
-	
+	//dummy
 	dump("gotJSON()\n");
 }
 

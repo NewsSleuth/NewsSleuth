@@ -29,6 +29,7 @@ jQuery(document).ready(function($){
 		var $source = null;	//should get source from copyright too
 		var $rss = null
 		$rss = $("link[type='application/rss+xml']").attr("href");
+//		$rss = "http://www.umich.edu/~malvi/tariq.xml" //for demo
 //		$('#out1').append("RSS: "+$rss+"<br/>");
 		alert("RSS: "+$rss);
 	
@@ -69,6 +70,6 @@ jQuery(document).ready(function($){
 	};
 		
 
-	
+	//dummy
 
 });
