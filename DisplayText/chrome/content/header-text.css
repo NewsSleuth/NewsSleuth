@@ -1,5 +1,5 @@
 p.InfoClass {
-	font-size: 75%;
+	font-size: 14px;
 	padding-top:5px;
 	padding-left: 5px; 
 	padding-right: 5px;
@@ -7,9 +7,19 @@ p.InfoClass {
 	border:2px solid gray;
 	margin:0px;
 	border-color: #8F0000;
+	line-height: 15px;
+}
+
+p.popupName {
+	border-bottom:2px #8F0000;
+}
+
+p.popupInfo {
+	font-size: 24px;
 }
 
 a.HideClass {
 	color:#8F0000;
-	font-size:50%;
+	font-size:12px;
+	padding-top:3px;
 }
