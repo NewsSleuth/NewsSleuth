@@ -245,8 +245,27 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.className = AuthorClass( );
 				
 				TitleElement.appendChild(AuthorParagraph);
-				
-				callWikipediaAPI("Bill Clinton", false);
+	var head = content.document.getElementsByTagName('h1')[0];
+		if (head)
+		{
+			var d = content.document.createElement('div');
+			d.id = "out1";
+			
+			var cont = content.document.createElement("script");
+			cont.type = "text/javascript";
+			cont.src = "chrome://DisplayText/content/jquery.js";
+		
+			var c = content.document.createElement("script");
+			c.type = "text/javascript";
+			c.src = "chrome://DisplayText/content/extraction.js";
+			
+			head.appendChild(d);
+			head.appendChild(cont);
+			head.appendChild(c);
+		}
+		else
+			alert("no head");			
+//				callWikipediaAPI("Bill Clinton", false);
 			}
 		}
 		else 

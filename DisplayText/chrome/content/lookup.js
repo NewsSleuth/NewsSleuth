@@ -156,7 +156,7 @@ function firstP(data){
 }
 
 function callWikipediaAPI(wikipediaPage, popup) {
-
+	alert("calling wikiAPI");
 	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	

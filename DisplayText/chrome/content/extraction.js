@@ -59,6 +59,7 @@ jQuery(document).ready(function($){
 
 			});
 			alert("Author: "+$author+"\nSource: "+$source);
+			callWikipediaAPI("Bill Clinton", false);
 		};
 	};
 		

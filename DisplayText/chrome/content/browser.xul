@@ -18,8 +18,9 @@
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/extraction.js"/>
 
-  <script typr="application/javascript"
+  <script type="application/javascript"
           src="chrome://DisplayText/content/api.js"/>
+  
 
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
