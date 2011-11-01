@@ -20,7 +20,12 @@
 
   <script typr="application/javascript"
           src="chrome://DisplayText/content/api.js"/>
-  
+
+  <statusbar id="status-bar">
+    <button label="Display Text!" insertafter="statusbar-display"
+            oncommand="DisplayText.onCommand(event)"/>
+  </statusbar>
+
   <menupopup id="menu_ToolsPopup">
     <menuitem id="example-item" oncommand="SetPreferences.onCommand(event);" label="News Sleuth Preferences" accesskey="n"/>
   </menupopup>
