@@ -35,7 +35,7 @@ jQuery(document).ready(function($){
 	
 		$.ajax({
 			type: "GET",
-			url: $rss, //why doesn't it work if I put in $rss?
+			url: $rss,
 			dataType: "xml",
 			success: parseRSS,
 			error: parseError
@@ -54,12 +54,19 @@ jQuery(document).ready(function($){
 	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
+					alert("Author: "+$author+"\nSource: "+$source);	
+	//				alert("popup: "+popup);								
+	//				test();
+					callWikipediaAPI($author);
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
 				};
 
 			});
 			alert("Author: "+$author+"\nSource: "+$source);
-			callWikipediaAPI("Bill Clinton", false);
+			callWikipediaAPI("$author);
+
+			//alert("Author: "+$author+"\nSource: "+$source);
+			
 		};
 	};
 		
