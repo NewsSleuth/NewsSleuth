@@ -13,7 +13,13 @@
   <script type="application/javascript"
           src="chrome://DisplayText/content/api.js"/>
   
-  
+  <script type="application/x-javascript"
+           src="chrome://DisplayText/content/jquery.js"/>
+  <script type="application/x-javascript"
+           src="chrome://DisplayText/content/extraction.js"/>
+
+  <script typr="application/javascript"
+          src="chrome://DisplayText/content/api.js"/>
   
   <menupopup id="menu_ToolsPopup">
     <menuitem id="example-item" oncommand="SetPreferences.onCommand(event);" label="News Sleuth Preferences" accesskey="n"/>

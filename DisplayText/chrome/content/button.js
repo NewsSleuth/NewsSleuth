@@ -1,6 +1,7 @@
 var CustomButton = {
 	onCommand: function (event) {
 		HideText ( );
-		DisplayPopupInfo( );
+		callWikipediaAPI("Bill Clinton", true);
+//		DisplayPopupInfo( );
 	}
 }

@@ -6,13 +6,29 @@ function HideClass ( ) { return "HideClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
 
-
 var DisplayText = {
 	onCommand: function(event) {
 	
-
-	//content.document.write("<script type='text/javascript' src='jquery.js'></script> <script type='text/javascript' src='extraction.js'></script>");
-	
+		var head = content.document.getElementsByTagName('h1')[0];
+		if (head)
+		{	
+			var d = content.document.createElement('div');
+			d.id = "out1";
+			
+			var cont = content.document.createElement("script");
+			cont.type = "text/javascript";
+			cont.src = "chrome://DisplayText/content/jquery.js";
+		
+			var c = content.document.createElement("script");
+			c.type = "text/javascript";
+			c.src = "chrome://DisplayText/content/extraction.js";
+			
+			head.appendChild(d);
+			head.appendChild(cont);
+			head.appendChild(c);
+		}
+		else
+			alert("no head");
 		
 		// Append text to end of web page
 	/*	var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
@@ -27,6 +43,7 @@ var DisplayText = {
 	}
 };
 
+var StoredInfo = null;
 
 function findAndReplace(searchText, replacement, searchNode) {
     if (!searchText || typeof replacement === 'undefined') {
@@ -85,7 +102,6 @@ function findAndReplace(searchText, replacement, searchNode) {
  
 // Adds event listener to run every time a new page loads
 var myExtension = {
-	AuthorInfo: null,
     init: function() {  
         // The event can be DOMContentLoaded, pageshow, pagehide, load or unload.  
         if(gBrowser) gBrowser.addEventListener("DOMContentLoaded", this.onPageLoad, false);
@@ -128,6 +144,7 @@ var myExtension = {
 		// Return if not top window
 		if (win != win.top) return;	
 	
+		// Set 'newpage' pref to true
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 				.getService(Components.interfaces.nsIPrefService)
 				.getBranch("NewsSleuth.");
@@ -140,43 +157,17 @@ var myExtension = {
 			if (onList)
 			{
 				AddPageStyle ( );
-				// Display Author info
-				DisplayAuthorInfo ( true );
+				// Display Author info on page
+				DisplayAuthorInfo (true);
 			}
-			//alert("page is loaded \n" +doc.location.href);  
 		}
 		else if ( CheckList ( ) )
 		{
 			AddPageStyle ( );
 			// Display 'show' option on page
-			DisplayAuthorInfo ( false );
+			DisplayAuthorInfo (false);
 		}
-    },
-	RetrieveAuthorInfo: function(TitleElement, code)
-	{
-		// Check if author's information has already been look up
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-			.getService(Components.interfaces.nsIPrefService)
-			.getBranch("NewsSleuth.");
-		var NewPage = prefs.getBoolPref("newpage");
-		
-		if (!NewPage)
-		{
-			//alert("Stored: " + this.AuthorInfo);
-			return this.AuthorInfo;
-		}
-		else
-		{
-			if(code === 1){
-				callWikipediaAPI("Bill Clinton", TitleElement, this);
-			}
-			//alert("Looking Up Info");
-			prefs.setBoolPref("newpage", false);
-			this.AuthorInfo = "Ethan Samuel Bronner (born 1954) has been Jerusalem bureau chief of The New York Times since March 2008 following four years as deputy foreign editor.";
-			return this.AuthorInfo;
-		}
-		return "Some content.";
-	}
+    }
 }  
 window.addEventListener("load", function() { myExtension.init(); }, false);  
 
@@ -191,26 +182,17 @@ function AddPageStyle ( )
 	style.href = "chrome://DisplayText/content/header-text.css";
 	HeadOfPage.appendChild(style);
 }
-function DisplayPopupInfo ( )
-{	
-	my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
-	//var contents = RetrieveAuthorInfo( );
-	var contents = myExtension.RetrieveAuthorInfo(my_window, 0);
-	var headertext2 = content.document.createTextNode(contents)
-	my_window.content.document.body.appendChild(headertext2)
-}
-
-
 
 function DisplayAuthorInfo ( DisplayInfo )
 {
 	var doc = content.document;
-	// Remove hide option if already there
-	var DelHide = doc.getElementById( HideParagraphId( ) );
-	if (DelHide)
-		DelHide.parentNode.removeChild(DelHide);
+	// Remove 'show' option if on page - will be replaced by 'hide' 
+	//			inside bordered element
+	var DelShow = doc.getElementById( HideParagraphId( ) );
+	if (DelShow)
+		DelShow.parentNode.removeChild(DelShow);
 	
-	// Get title element of page
+	// Get title element of page and call function to display info
 	var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
 	if (TitleElement) 
 	{
@@ -224,54 +206,56 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.id = AuthorId( );
 				AuthorParagraph.className = AuthorClass( );
 				
-				var Info = myExtension.RetrieveAuthorInfo(TitleElement, 1);
-				var AuthorText = doc.createTextNode(Info);
-				
-				AuthorParagraph.appendChild(AuthorText);
 				TitleElement.appendChild(AuthorParagraph);
-//				for(x in TitleElement){
-//					dump(x);
-					//for(y in TitleElement){
-					//	dump("\t" + y + "\n\t" + TitleElement[x][y] + "\n");
-					//}
-//				}
+				
+				callWikipediaAPI("Bill Clinton", false);
 			}
 		}
-		
-		// Add hide option after text
-		var par = doc.createElement('p');
-		par.id = HideParagraphId( );
-		var hide = doc.createElement('a');
-		hide.id = HideId( );
-		hide.className = HideClass ( );
-		
-		var hideText;
-		if (DisplayInfo)
-			hideText = doc.createTextNode('(HIDE)');
-		else
-			hideText = doc.createTextNode('Show');
-		
-		
-		hide.appendChild(hideText);
-		par.appendChild(hide);
-		
-		if (DisplayInfo)
-		{	
-			var AuthorPar = doc.getElementById(AuthorId());
-			AuthorPar.appendChild(par);
+		else 
+		{
+			DisplayHideOrShow (false);
 		}
-		else
-			TitleElement.appendChild(par);
 		
-		// Add event listener to hide/show text
-		var HideElement = doc.getElementById( HideId( ) );
-		HideElement.addEventListener('click', ShowText, true);
 	}
 }
- 
+
+function DisplayHideOrShow ( hide )
+{
+	// Add 'hide' or 'show' option on page
+	var doc = content.document;
+	var HideParagraph = doc.createElement('p');
+	HideParagraph.id = HideParagraphId( );
+	var HideElement = doc.createElement('a');
+	HideElement.id = HideId( );
+	HideElement.className = HideClass ( );
+	
+	var hideText;
+	if (hide)
+		hideText = doc.createTextNode('(HIDE)');
+	else
+		hideText = doc.createTextNode('Show');
+	
+	HideElement.appendChild(hideText);
+	HideParagraph.appendChild(HideElement);
+	
+	if (hide)
+	{	
+		var AuthorPar = doc.getElementById(AuthorId());
+		AuthorPar.appendChild(HideParagraph);
+	}
+	else
+	{
+		var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
+		TitleElement.appendChild(HideParagraph);
+	}
+	
+	// Add event listener to hide/show text
+	HideElement.addEventListener('click', ShowText, true);
+}
  
 function ShowText ( )
 {
+	// Called when user clicks 'hide' or 'show' 
 	// Toggles showing and hiding of the author information
 	var doc = content.document;
 	var text = doc.getElementsByClassName( AuthorClass( ) )[0];
@@ -290,13 +274,10 @@ function HideText ( )
 	{
 		text.parentNode.removeChild(text);
 		DisplayAuthorInfo(false);
-//		var hideNode = doc.getElementById(HideId( )).childNodes[0];
-//		var txt = hideNode.nodeValue;
-//		hideNode.nodeValue = "Show";
 	}
 }
  
-function DisplayOnLoad ( ) 
+function DisplayOnLoad ( )
 // Check if preferences are set to display info when page loads
 {
 	var prefs = Components.classes["@mozilla.org/preferences-service;1"]

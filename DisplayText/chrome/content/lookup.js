@@ -1,77 +1,3 @@
-let DisplayText = {
-	onCommand: function(event){
-
-//jquery = loadjQuery(iangardiner);
-	 
-		// Append text to end of web page
-		var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
-		content.document.body.appendChild(headertext)
-	 
-		// Create a new window to display text
-/*		my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
-		//my_window = window.open("", "mywindow1");
-		var headertext2 = content.document.createTextNode("Popup window information")
-		my_window.content.document.body.appendChild(headertext2)
-*/
-		dump("Text displayed\n");
-
-		// Add text after first 'h1' element of page
-		var doc = content.document;
-		var theNewParagraph = doc.createElement('p');
-		var theTextOfTheParagraph = doc.createTextNode('Some content.');
-		theNewParagraph.appendChild(theTextOfTheParagraph);
-		var header = doc.getElementsByTagName("h1");
-		//header[0].appendChild(theNewParagraph);
-
-		dump("about to call wikipedia\n");
-		
-		callWikipediaAPI("Bill Clinton");
-
-	}
-};
-
-
-function callWikipediaAPI(wikipediaPage, TitleElement, author) {
-
-	dump("callWikipediaAPI\n");
-	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
-
-	var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
-	remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: wikipediaPage}, function (res, TitleElement, author){ 
-		dump("inside callback for jsmwapi\n");
-	    for(var page in res.query.pages){
-	        //alert(res.query.pages[page].title);
-			dump("page: " + page);
-			for(x in res.query.pages[page]){
-				dump(x + "\n\t" + res.query.pages[page][x] + "\n");
-			}
-			for(x in res.query.pages[page]["revisions"]){
-				dump("\t" + x + "\n\t\t" + res.query.pages[page]["revisions"][x] + "\n");
-				for(y in res.query.pages[page]["revisions"][x]){
-					//dump("\t\t" + y + "\n\t\t" + res.query.pages[page]["revisions"][x][y] + "\n");
-				}
-			}
-			var data;
-			var count = 0;
-			for(i in res.query.pages[page]["revisions"][0]){
-				data = res.query.pages[page]["revisions"][0][i];
-				for(j in res.query.pages[page]["revisions"][0][i]){
-					//data[count++] = res.query.pages[page]["revisions"][0][i][j];
-				}
-			}
-			dump(data);
-			var result = parseFirstThou(data);
-			result = removeBrackets(result);
-			dump("result:\n" + result + "\n");
-			result = firstP(result);
-			dump("first paragraph: \n" + result + "\n");
-			dump("changed AuthorInfo\n");
-		}
-	});
-
-	dump("gotJSON()\n");
-}
-
 function parseFirstThou(data){
 
 	var result = new String("");
@@ -227,6 +153,108 @@ function firstP(data){
 		}
 	}
 	return result;
+}
+
+function callWikipediaAPI(wikipediaPage, popup) {
+
+	dump("callWikipediaAPI\n");
+	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
+	
+	// Check if author's information has already been stored for this page
+	// If not on a newpage than info should be stored in 'StoredInfo'
+	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+		.getService(Components.interfaces.nsIPrefService)
+		.getBranch("NewsSleuth.");
+	var NewPage = prefs.getBoolPref("newpage");
+
+	if (NewPage)
+	{
+		//alert("Looking up info");
+		var result;
+		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
+		remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: wikipediaPage}, function (res){ 
+			dump("inside callback for jsmwapi\n");
+			for(var page in res.query.pages){
+				//alert(res.query.pages[page].title);
+				dump("page: " + page);
+				for(x in res.query.pages[page]){
+					dump(x + "\n\t" + res.query.pages[page][x] + "\n");
+				}
+				for(x in res.query.pages[page]["revisions"]){
+					dump("\t" + x + "\n\t\t" + res.query.pages[page]["revisions"][x] + "\n");
+					for(y in res.query.pages[page]["revisions"][x]){
+						//dump("\t\t" + y + "\n\t\t" + res.query.pages[page]["revisions"][x][y] + "\n");
+					}
+				}
+				var data;
+				var count = 0;
+				for(i in res.query.pages[page]["revisions"][0]){
+					data = res.query.pages[page]["revisions"][0][i];
+					for(j in res.query.pages[page]["revisions"][0][i]){
+						//data[count++] = res.query.pages[page]["revisions"][0][i][j];
+					}
+				}
+				result = parseFirstThou(data);
+				result = removeBrackets(result);
+				dump("result:\n" + result + "\n");
+				result = firstP(result);
+				dump("first paragraph: \n" + result + "\n");
+				
+				StoredInfo = result;
+				prefs.setBoolPref("newpage", false);
+				
+				if (popup)
+				{
+					my_window = window.open("", "mywindow1", "status=1,width=500,height=400");
+					var headertext2 = content.document.createTextNode(result);
+					my_window.content.document.body.appendChild(headertext2);
+				}
+				else
+				{
+					// Display content on page
+					var doc = content.document;
+					var AuthorParagraph = doc.getElementById(AuthorId());
+					var AuthorText = doc.createTextNode(result);
+					
+					AuthorParagraph.appendChild(AuthorText);
+					DisplayHideOrShow (true);
+				}
+			}
+		});
+	
+	}
+	else
+	{
+		//alert("Stored: " + StoredInfo);
+		if (popup)
+		{
+			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
+			var NamePara = content.document.createElement('p');
+			NamePara.id = "popupName";
+			var NameText = content.document.createTextNode("Bill Clinton");
+			NamePara.appendChild(NameText);
+			
+			var InfoPara = content.document.createElement('p');
+			InfoPara.id = "popupInfo";
+			var headertext2 = content.document.createTextNode(StoredInfo);
+			InfoPara.appendChild(headertext2);
+			
+			my_window.content.document.body.appendChild(NamePara);			
+			my_window.content.document.body.appendChild(headertext2);
+			//my_window.content.document.bgColor = '#0000FF';
+		}
+		else
+		{
+			var AuthorText = content.document.createTextNode(StoredInfo);
+			var AuthorParagraph = content.document.getElementById(AuthorId());
+			AuthorParagraph.appendChild(AuthorText);
+			DisplayHideOrShow (true);
+		}
+	}
+	
+	
+	
+	dump("gotJSON()\n");
 }
 
 
