@@ -162,22 +162,23 @@ function test() {
 
 function callWikipediaAPI(wikipediaPage) {
 	popup = false;
-	alert("Calling Wiki: "+wikipediaPage);
 	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	
 	// Check if author's information has already been stored for this page
 	// If not on a newpage than info should be stored in 'StoredInfo'
-//	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-//		.getService(Components.interfaces.nsIPrefService)
-//		.getBranch("NewsSleuth.");
-//	var NewPage = prefs.getBoolPref("newpage");
-
-	if (true)
+/*	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+		.getService(Components.interfaces.nsIPrefService)
+		.getBranch("NewsSleuth.");
+	var NewPage = prefs.getBoolPref("newpage");
+*/
+	var NewPage = true;
+	if (NewPage)
 	{
 		//alert("Looking up info");
 		var result;
-		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
+		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php"/*, "local"*/);
+		dump("inside if block\n");
 		remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: wikipediaPage}, function (res){ 
 			dump("inside callback for jsmwapi\n");
 			for(var page in res.query.pages){
@@ -207,8 +208,7 @@ function callWikipediaAPI(wikipediaPage) {
 				dump("first paragraph: \n" + result + "\n");
 				
 				StoredInfo = result;
-//				prefs.setBoolPref("newpage", false);
-				alert(result);
+				//prefs.setBoolPref("newpage", false);
 				
 				if (popup)
 				{
@@ -223,7 +223,7 @@ function callWikipediaAPI(wikipediaPage) {
 					var AuthorParagraph = doc.getElementById(AuthorId());
 					var AuthorText = doc.createTextNode(result);
 					
-					
+					dump(AuthorParagraph + "\n");
 					AuthorParagraph.appendChild(AuthorText);
 					DisplayHideOrShow (true);
 				}
@@ -239,7 +239,7 @@ function callWikipediaAPI(wikipediaPage) {
 			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
 			var NamePara = content.document.createElement('p');
 			NamePara.id = "popupName";
-			var NameText = content.document.createTextNode("Bill Clinton");
+			var NameText = content.document.createTextNode(wikipediaPage);
 			NamePara.appendChild(NameText);
 			
 			var InfoPara = content.document.createElement('p');
@@ -265,4 +265,24 @@ function callWikipediaAPI(wikipediaPage) {
 	dump("gotJSON()\n");
 }
 
+function fixAuthor(data){
 
+	for(x in data){
+		dump(x + "\n\t" + data[x]);
+	}
+	dump("\n" + data.length + "\n");
+	var res = new String("");
+	dump(data.charAt(0));
+	res = String.concat(res, String.toUpperCase(data.charAt(0)));
+	for(var i = 1; i < data.length; i++){
+		if(data.charAt(i-1) === ' '){
+			res = String.concat(res, String.toUpperCase(data.charAt(i)));
+		}
+		else{
+			res = String.concat(res, String.toLowerCase(data.charAt(i)));
+		}
+	}
+	dump("res: " + res + "\n");
+	return res;
+}
+function AuthorId (  ) {return "AuthorParagraph"; }

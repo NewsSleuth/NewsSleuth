@@ -11,6 +11,7 @@ jQuery(document).ready(function($){
 	extract();
 //<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	function extract() {
+		dump("inside extract()\n");
 		var $title = null;
 		$title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if ($title==null) {
@@ -57,9 +58,11 @@ jQuery(document).ready(function($){
 				};
 
 			});
-			//alert("Author: "+$author+"\nSource: "+$source);
-			
-			//callWikipediaAPI($source, popup);
+			alert("Author: "+$author+"\nSource: "+$source);
+			//added
+			$author = fixAuthor($author);
+			dump("$author: " + $author + "\n");
+			callWikipediaAPI($author/*"Tariq Ali"*/, false);
 		};
 	};
 		
