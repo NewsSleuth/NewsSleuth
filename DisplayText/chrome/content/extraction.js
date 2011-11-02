@@ -30,13 +30,14 @@ jQuery(document).ready(function($){
 		var $source = null;	//should get source from copyright too
 		var $rss = null
 		$rss = $("link[type='application/rss+xml']").attr("href");
+//		$rss = "http://www.umich.edu/~malvi/tariq.xml" //for demo
 //		$('#out1').append("RSS: "+$rss+"<br/>");
 		alert("RSS: "+$rss);
 	
 	
 		$.ajax({
 			type: "GET",
-			url: $rss, //why doesn't it work if I put in $rss?
+			url: $rss,
 			dataType: "xml",
 			success: parseRSS,
 			error: parseError
@@ -55,6 +56,10 @@ jQuery(document).ready(function($){
 	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
+					alert("Author: "+$author+"\nSource: "+$source);	
+	//				alert("popup: "+popup);								
+	//				test();
+					callWikipediaAPI($author);
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
 				};
 
@@ -68,6 +73,6 @@ jQuery(document).ready(function($){
 	};
 		
 
-	
+	//dummy
 
 });

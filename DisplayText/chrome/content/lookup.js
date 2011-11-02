@@ -155,9 +155,14 @@ function firstP(data){
 	return result;
 }
 
-function callWikipediaAPI(wikipediaPage, popup) {
+function test() {
+  alert('Hello world');
+}
 
-	dump("callWikipediaAPI: " + wikipediaPage + "\n");
+
+function callWikipediaAPI(wikipediaPage) {
+	popup = false;
+	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	
 	// Check if author's information has already been stored for this page
@@ -256,7 +261,7 @@ function callWikipediaAPI(wikipediaPage, popup) {
 	}
 	
 	
-	
+	//dummy
 	dump("gotJSON()\n");
 }
 
