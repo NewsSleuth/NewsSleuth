@@ -58,6 +58,10 @@ var DisplayText = {
 			var b = content.document.createElement("script");
 			b.type = "text/javascript";
 			b.src = "chrome://DisplayText/content/lookup.js";
+			
+			var b = content.document.createElement("script");
+			b.type = "text/javascript";
+			b.src = "chrome://DisplayText/content/lookup.js";
 		
 			var c = content.document.createElement("script");
 			c.type = "text/javascript";
@@ -150,8 +154,8 @@ var myExtension = {
 				.getService(Components.interfaces.nsIPrefService)
 				.getBranch("NewsSleuth.");
 		var firstrun = prefs.getBoolPref("firstrun");
-		if (firstrun) {
-			alert("firstrun");
+		if (true) {
+			//alert("firstrun");
 	
 			var toolbarId = "nav-bar";
 			var id = "custom-button-1";

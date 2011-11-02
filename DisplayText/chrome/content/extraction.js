@@ -1,19 +1,13 @@
 //alert("jquery");
 jQuery.noConflict();
 jQuery(document).ready(function($){
-	alert("extraction.js is running");
-	
+//	alert("extraction.js is running");
 
-
-
-	
-	
 	function parseError() {
 	
 			alert("RSS access error!");
 	};
 
-	
 	extract();
 //<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	function extract() {
@@ -23,7 +17,7 @@ jQuery(document).ready(function($){
 			$title = $("h1").first().text(); //if og:title didn't work, get title from first h1
 		};
 //		$('#out1').append("Title: "+$title+"<br/>");
-		alert("Title: "+$title);
+//		alert("Title: "+$title);
 
 		var $author = null;
 		var $source = null;	//should get source from copyright too
@@ -31,7 +25,7 @@ jQuery(document).ready(function($){
 		$rss = $("link[type='application/rss+xml']").attr("href");
 //		$rss = "http://www.umich.edu/~malvi/tariq.xml" //for demo
 //		$('#out1').append("RSS: "+$rss+"<br/>");
-		alert("RSS: "+$rss);
+		alert("Title: "+$title+"\nRSS: "+$rss);
 	
 	
 		$.ajax({
@@ -50,7 +44,7 @@ jQuery(document).ready(function($){
 
 			$(xml).find("item").find("title").each(function() {
 				if ($(this).text()==$title) {
-					alert("title match found");
+	//				alert("title match found");
 	//					$('#out1').append("found match: ");
 	//					$('#out1').append($(this).text()+"<br/>");
 
@@ -58,7 +52,7 @@ jQuery(document).ready(function($){
 					alert("Author: "+$author+"\nSource: "+$source);	
 	//				alert("popup: "+popup);								
 	//				test();
-					callWikipediaAPI($author);
+					//callWikipediaAPI($author);
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
 				};
 

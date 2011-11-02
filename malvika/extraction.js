@@ -4,16 +4,16 @@ $(document).ready(function(){
 //<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	function extract() {
 		var $title = null;
-		$title = $("meta[property='og:title']").attr("content"); //get title from og:title
+JQ		$title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if ($title==null) {
-			$title = $("h1").first().text(); //if og:title didn't work, get title from first h1
+JQ			$title = $("h1").first().text(); //if og:title didn't work, get title from first h1
 		};
 //		$('#out1').append("Title: "+$title+"<br/>");
 
 		var $author = null;
 		var $source = null;	//should get source from copyright too
 		var $rss = null
-		$rss = $("link[type='application/rss+xml']").attr("href");
+JQ		$rss = $("link[type='application/rss+xml']").attr("href");
 //		$('#out1').append("RSS: "+$rss+"<br/>");
 		
 		$.ajax({
@@ -25,16 +25,16 @@ $(document).ready(function(){
 		});
 
 		function parseRSS(xml) {
-			$source = $(xml).find("title").first().text();
+JQ			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
 //			$('#out1').append("Source: "+$source+"<br/>");
 
-			$(xml).find("item").find("title").each(function() {
-				if ($(this).text()==$title) {
+JQ			$(xml).find("item").find("title").each(function() {
+JQ				if ($(this).text()==$title) {
 //					$('#out1').append("found match: ");
 //					$('#out1').append($(this).text()+"<br/>");
 					
-					$author = $(this).siblings("dc\\:creator").text();
+JQ					$author = $(this).siblings("dc\\:creator").text();
 //					$('#out1').append("Author: "+$author+"<br/><br/>");
 				};
 			});

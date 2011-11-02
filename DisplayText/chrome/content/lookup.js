@@ -207,7 +207,8 @@ function callWikipediaAPI(wikipediaPage) {
 				dump("first paragraph: \n" + result + "\n");
 				
 				StoredInfo = result;
-				prefs.setBoolPref("newpage", false);
+//				prefs.setBoolPref("newpage", false);
+				alert(result);
 				
 				if (popup)
 				{
@@ -221,6 +222,7 @@ function callWikipediaAPI(wikipediaPage) {
 					var doc = content.document;
 					var AuthorParagraph = doc.getElementById(AuthorId());
 					var AuthorText = doc.createTextNode(result);
+					
 					
 					AuthorParagraph.appendChild(AuthorText);
 					DisplayHideOrShow (true);
