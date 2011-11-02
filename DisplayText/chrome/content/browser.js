@@ -57,12 +57,17 @@ var DisplayText = {
 			cont.type = "text/javascript";
 			cont.src = "chrome://DisplayText/content/jquery.js";
 		
+			var wiki = content.document.createElement("script");
+			cont.type = "text/javascript";
+			cont.src = "chrome://DisplayText/content/lookup.js";
+
 			var c = content.document.createElement("script");
 			c.type = "text/javascript";
 			c.src = "chrome://DisplayText/content/extraction.js";
 			
 			head.appendChild(d);
 			head.appendChild(cont);
+			head.appendChild(wiki);
 			head.appendChild(c);
 		}
 		else
@@ -158,12 +163,12 @@ var myExtension = {
 				var toolbar = document.getElementById(toolbarId);  
 	  
 				var before = toolbar.firstChild;  
-				if (afterId) {  
+/*				if (afterId) {  
 					let elem = document.getElementById(afterId);  
 					if (elem && elem.parentNode == toolbar)  
 						before = elem.nextElementSibling;  
 				}  
-	  
+*/	  
 				toolbar.insertItem(id, before);  
 				toolbar.setAttribute("currentset", toolbar.currentSet);  
 				document.persist(toolbar.id, "currentset");  
@@ -245,8 +250,48 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.className = AuthorClass( );
 				
 				TitleElement.appendChild(AuthorParagraph);
+
+				var head = content.document.getElementsByTagName('h1')[0];
+				if (head)
+				{
+					var d = content.document.createElement('div');
+					d.id = "out1";
+					
+					var cont = content.document.createElement("script");
+					cont.type = "text/javascript";
+					cont.src = "chrome://DisplayText/content/jquery.js";
 				
-				callWikipediaAPI("Bill Clinton", false);
+					var wiki = content.document.createElement("script");
+					wiki.type = "text/javascript";
+					wiki.src = "chrome://DisplayText/content/lookup.js";
+					
+					var  api= content.document.createElement("script");
+					api.type = "text/javascript";
+					api.src = "chrome://DisplayText/content/api.js";
+					
+					var  bro= content.document.createElement("script");
+					bro.type = "text/javascript";
+					bro.src = "chrome://DisplayText/content/browser.js";
+
+					var c = content.document.createElement("script");
+					c.type = "text/javascript";
+					c.src = "chrome://DisplayText/content/extraction.js";
+					
+					head.appendChild(d);
+					head.appendChild(bro);
+					head.appendChild(api);
+					head.appendChild(wiki);
+					head.appendChild(cont);
+					head.appendChild(c);
+					
+//					jQuery.noConflict();
+//					jQuery(document).ready(function($){
+//						extract();
+//						});
+					//callWikipediaAPI("Tariq Ali", false);
+				}
+				else
+					alert("no head");
 			}
 		}
 		else 

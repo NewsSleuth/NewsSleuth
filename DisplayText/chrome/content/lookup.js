@@ -157,21 +157,23 @@ function firstP(data){
 
 function callWikipediaAPI(wikipediaPage, popup) {
 
-	dump("callWikipediaAPI\n");
+	dump("callWikipediaAPI: " + wikipediaPage + "\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	
 	// Check if author's information has already been stored for this page
 	// If not on a newpage than info should be stored in 'StoredInfo'
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+/*	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 		.getService(Components.interfaces.nsIPrefService)
 		.getBranch("NewsSleuth.");
 	var NewPage = prefs.getBoolPref("newpage");
-
+*/
+	var NewPage = true;
 	if (NewPage)
 	{
 		//alert("Looking up info");
 		var result;
-		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
+		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php"/*, "local"*/);
+		dump("inside if block\n");
 		remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: wikipediaPage}, function (res){ 
 			dump("inside callback for jsmwapi\n");
 			for(var page in res.query.pages){
@@ -201,7 +203,7 @@ function callWikipediaAPI(wikipediaPage, popup) {
 				dump("first paragraph: \n" + result + "\n");
 				
 				StoredInfo = result;
-				prefs.setBoolPref("newpage", false);
+				//prefs.setBoolPref("newpage", false);
 				
 				if (popup)
 				{
@@ -216,6 +218,7 @@ function callWikipediaAPI(wikipediaPage, popup) {
 					var AuthorParagraph = doc.getElementById(AuthorId());
 					var AuthorText = doc.createTextNode(result);
 					
+					dump(AuthorParagraph + "\n");
 					AuthorParagraph.appendChild(AuthorText);
 					DisplayHideOrShow (true);
 				}
@@ -257,4 +260,24 @@ function callWikipediaAPI(wikipediaPage, popup) {
 	dump("gotJSON()\n");
 }
 
+function fixAuthor(data){
 
+	for(x in data){
+		dump(x + "\n\t" + data[x]);
+	}
+	dump("\n" + data.length + "\n");
+	var res = new String("");
+	dump(data.charAt(0));
+	res = String.concat(res, String.toUpperCase(data.charAt(0)));
+	for(var i = 1; i < data.length; i++){
+		if(data.charAt(i-1) === ' '){
+			res = String.concat(res, String.toUpperCase(data.charAt(i)));
+		}
+		else{
+			res = String.concat(res, String.toLowerCase(data.charAt(i)));
+		}
+	}
+	dump("res: " + res + "\n");
+	return res;
+}
+function AuthorId (  ) {return "AuthorParagraph"; }
