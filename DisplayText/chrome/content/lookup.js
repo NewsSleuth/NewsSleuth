@@ -156,9 +156,9 @@ function firstP(data){
 }
 
 
-function callWikipediaAPI(wikipediaPage) {
-	popup = false;
-	alert("Calling Wiki: "+wikipediaPage);
+function callWikipediaAPI(wikipediaPage, popup) {
+//	popup = false;
+//	alert("Calling Wiki: "+wikipediaPage);
 	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	
@@ -169,6 +169,7 @@ function callWikipediaAPI(wikipediaPage) {
 		.getBranch("NewsSleuth.");
 	var NewPage = prefs.getBoolPref("newpage");
 
+//var NewPage = true;
 	if (NewPage)
 	{
 		//alert("Looking up info");

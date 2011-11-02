@@ -9,13 +9,13 @@ function HideParagraphId ( ) { return "HideParagraph"; }
 
 var DisplayText = {
 	onCommand: function(event) {
-			
-	/*		my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
+
+			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
 			var style = my_window.content.document.createElement("link");
 			style.id = "headertext-style";
 			style.type = "text/css";
 			style.rel = "stylesheet";
-			style.href = "chrome://DisplayText/content/header-text.css";
+			style.href = "chrome://DisplayText/content/popup.css";
 			
 			var NamePara = my_window.content.document.createElement('p');
 			NamePara.className = AuthorClass();
@@ -36,7 +36,7 @@ var DisplayText = {
 			my_window.content.document.body.appendChild(a);
 	 
 		return;
-*/
+
 		// Delete author info and 'hide' text that have been appended to 'title' element
 		var doc = content.document;
 		var DelShow = doc.getElementById( HideParagraphId( ) );
@@ -160,7 +160,7 @@ var myExtension = {
 				var toolbar = document.getElementById(toolbarId);  
 	  
 				var before = toolbar.firstChild;  
-				if (afterId) {  
+				if (afterId) { 
 					let elem = document.getElementById(afterId);  
 					if (elem && elem.parentNode == toolbar)  
 						before = elem.nextElementSibling;  
@@ -247,26 +247,55 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.className = AuthorClass( );
 				
 				TitleElement.appendChild(AuthorParagraph);
-	var head = content.document.getElementsByTagName('h1')[0];
+				var authordiv = content.document.getElementsByClassName("mainauthorstyle")[0];
+			var author = authordiv.innerHTML;
+			
+			author = author.substr(3,author.length);
+		//	alert(author);
+			var a = author.substr(0,1);
+			var space = author.indexOf(" ");
+			var f = author.substr(1,space).toLowerCase();
+		//	alert("f: "+f);
+			a = a.concat(f);
+			a = a.concat(author.substr(space+1,1));
+		//	alert(author.substr(space+1,1));
+			var end = author.substr(space+2, author.length).toLowerCase();
+			
+			a = a.concat(end);
+			alert(a);
+			
+			
+				callWikipediaAPI(a);
+//				extract();
+/*	var head = content.document.getElementsByTagName('h1')[0];
 		if (head)
 		{
-			var d = content.document.createElement('div');
-			d.id = "out1";
+						
+			var a = content.document.createElement("script");
+			a.type = "text/javascript";
+			a.src = "chrome://DisplayText/content/jquery.js";
 			
-			var cont = content.document.createElement("script");
-			cont.type = "text/javascript";
-			cont.src = "chrome://DisplayText/content/jquery.js";
+			var d = content.document.createElement("script");
+			d.type = "text/javascript";
+			d.src = "chrome://DisplayText/content/api.js";
+			
+			var b = content.document.createElement("script");
+			b.type = "text/javascript";
+			b.src = "chrome://DisplayText/content/lookup.js";
 		
 			var c = content.document.createElement("script");
 			c.type = "text/javascript";
 			c.src = "chrome://DisplayText/content/extraction.js";
 			
+			head.appendChild(a);
 			head.appendChild(d);
-			head.appendChild(cont);
+			head.appendChild(b);
 			head.appendChild(c);
 		}
 		else
-			alert("no head");			
+			alert("no head");
+	*/
+	
 //				callWikipediaAPI("Bill Clinton", false);
 			}
 		}

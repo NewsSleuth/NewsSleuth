@@ -3,10 +3,7 @@ jQuery.noConflict();
 jQuery(document).ready(function($){
 	alert("extraction.js is running");
 	
-
-
-
-	
+		
 	
 	function parseError() {
 	
@@ -57,16 +54,17 @@ jQuery(document).ready(function($){
 					alert("Author: "+$author+"\nSource: "+$source);	
 	//				alert("popup: "+popup);								
 	//				test();
-					callWikipediaAPI($author);
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
+//					callWikipediaAPI("Bill Clinton");
 				};
 
 			});
-			alert("Author: "+$author+"\nSource: "+$source);
-			callWikipediaAPI("$author);
+			//alert("Author: "+$author+"\nSource: "+$source);
+			//callWikipediaAPI("Bill Clinton");
 
 			//alert("Author: "+$author+"\nSource: "+$source);
 			
+
 		};
 	};
 		
