@@ -5,72 +5,18 @@ function AuthorClass ( ) {return "InfoClass"}
 function HideClass ( ) { return "HideClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
-
+var NewPage = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-
-			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
-			var style = my_window.content.document.createElement("link");
-			style.id = "headertext-style";
-			style.type = "text/css";
-			style.rel = "stylesheet";
-			style.href = "chrome://DisplayText/content/popup.css";
-			
-			var NamePara = my_window.content.document.createElement('p');
-			NamePara.className = AuthorClass();
-			var NameText = my_window.content.document.createTextNode("Bill Clinton");
-			NamePara.appendChild(NameText);
-			
-			var InfoPara = my_window.content.document.createElement('p');
-			InfoPara.id = "popupInfo";
-			InfoPara.className = AuthorClass();
-			var content = my_window.content.document.createTextNode("content here");
-			InfoPara.appendChild(content);
-			
-			var a = my_window.content.document.createElement('p');
-			a.appendChild(NamePara);
-			a.appendChild(InfoPara);			
-
-			my_window.content.document.body.appendChild(style);
-			my_window.content.document.body.appendChild(a);
-	 
-		return;
-
-		// Delete author info and 'hide' text that have been appended to 'title' element
-		var doc = content.document;
-		var DelShow = doc.getElementById( HideParagraphId( ) );
-		if (DelShow)
-			DelShow.parentNode.removeChild(DelShow);
-		var AuthorParagraph = doc.getElementById(AuthorId());
-		if (AuthorParagraph)
-			AuthorParagraph.parentNode.removeChild(AuthorParagraph);
-		
 	
-		var head = content.document.getElementsByTagName('h1')[0];
-		if (head)
-		{
-						
-			var a = content.document.createElement("script");
-			a.type = "text/javascript";
-			a.src = "chrome://DisplayText/content/jquery.js";
-			
-			var b = content.document.createElement("script");
-			b.type = "text/javascript";
-			b.src = "chrome://DisplayText/content/lookup.js";
-		
-			var c = content.document.createElement("script");
-			c.type = "text/javascript";
-			c.src = "chrome://DisplayText/content/extraction.js";
-			
-			head.appendChild(a);
-			head.appendChild(b);
-			head.appendChild(c);
-		}
-		else
-			alert("no head");
-		
-		// Append text to end of web page
+		var doc = content.document;
+		var test = doc.getElementById('popupElement');
+		alert(test.value);
+	return;
+	
+/*
+	// Append text to end of web page
 	/*	var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
 		content.document.body.appendChild(headertext)
 	 */
@@ -139,78 +85,6 @@ function findAndReplace(searchText, replacement, searchNode) {
  }
 
 
- 
-// Adds event listener to run every time a new page loads
-var myExtension = {
-    init: function() {  
-        // The event can be DOMContentLoaded, pageshow, pagehide, load or unload.  
-        if(gBrowser) gBrowser.addEventListener("DOMContentLoaded", this.onPageLoad, false);
-			
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefService)
-				.getBranch("NewsSleuth.");
-		var firstrun = prefs.getBoolPref("firstrun");
-		if (firstrun) {
-			alert("firstrun");
-	
-			var toolbarId = "nav-bar";
-			var id = "custom-button-1";
-			var afterId = "stop";
-			if (!document.getElementById(id)) {  
-				var toolbar = document.getElementById(toolbarId);  
-	  
-				var before = toolbar.firstChild;  
-				if (afterId) { 
-					let elem = document.getElementById(afterId);  
-					if (elem && elem.parentNode == toolbar)  
-						before = elem.nextElementSibling;  
-				}  
-	  
-				toolbar.insertItem(id, before);  
-				toolbar.setAttribute("currentset", toolbar.currentSet);  
-				document.persist(toolbar.id, "currentset");  
-	  
-				if (toolbarId == "addon-bar")  
-					toolbar.collapsed = false;
-			}
-			prefs.setBoolPref("firstrun", false);
-		}  
-    },  
-	
-    onPageLoad: function(aEvent) {  
-		var doc = aEvent.originalTarget; // doc is document that triggered the event  
-		var win = doc.defaultView;       // win is the window for the doc
-		
-		// Return if not top window
-		if (win != win.top) return;	
-	
-		// Set 'newpage' pref to true
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-				.getService(Components.interfaces.nsIPrefService)
-				.getBranch("NewsSleuth.");
-		prefs.setBoolPref("newpage", true);
-		
-		if ( DisplayOnLoad ( ) )
-		{
-			// Check if page is on list of URLs
-			var onList = CheckList( );
-			if (onList)
-			{
-				AddPageStyle ( );
-				// Display Author info on page
-				DisplayAuthorInfo (true);
-			}
-		}
-		else if ( CheckList ( ) )
-		{
-			AddPageStyle ( );
-			// Display 'show' option on page
-			DisplayAuthorInfo (false);
-		}
-    }
-}  
-window.addEventListener("load", function() { myExtension.init(); }, false);  
-
 function AddPageStyle ( )
 {
 	// Add style to page
@@ -247,56 +121,46 @@ function DisplayAuthorInfo ( DisplayInfo )
 				AuthorParagraph.className = AuthorClass( );
 				
 				TitleElement.appendChild(AuthorParagraph);
-				var authordiv = content.document.getElementsByClassName("mainauthorstyle")[0];
-			var author = authordiv.innerHTML;
-			
-			author = author.substr(3,author.length);
-		//	alert(author);
-			var a = author.substr(0,1);
-			var space = author.indexOf(" ");
-			var f = author.substr(1,space).toLowerCase();
-		//	alert("f: "+f);
-			a = a.concat(f);
-			a = a.concat(author.substr(space+1,1));
-		//	alert(author.substr(space+1,1));
-			var end = author.substr(space+2, author.length).toLowerCase();
-			
-			a = a.concat(end);
-			alert(a);
-			
-			
-				callWikipediaAPI(a);
-//				extract();
-/*	var head = content.document.getElementsByTagName('h1')[0];
-		if (head)
-		{
-						
-			var a = content.document.createElement("script");
-			a.type = "text/javascript";
-			a.src = "chrome://DisplayText/content/jquery.js";
-			
-			var d = content.document.createElement("script");
-			d.type = "text/javascript";
-			d.src = "chrome://DisplayText/content/api.js";
-			
-			var b = content.document.createElement("script");
-			b.type = "text/javascript";
-			b.src = "chrome://DisplayText/content/lookup.js";
-		
-			var c = content.document.createElement("script");
-			c.type = "text/javascript";
-			c.src = "chrome://DisplayText/content/extraction.js";
-			
-			head.appendChild(a);
-			head.appendChild(d);
-			head.appendChild(b);
-			head.appendChild(c);
-		}
-		else
-			alert("no head");
-	*/
-	
-//				callWikipediaAPI("Bill Clinton", false);
+
+				var popupElement = doc.getElementById("popupElement");
+				popupElement.value = "false";
+
+				var head = content.document.getElementsByTagName('h1')[0];
+				if (head)
+				{
+					var d = content.document.createElement('div');
+					d.id = "out1";
+					
+					var cont = content.document.createElement("script");
+					cont.type = "text/javascript";
+					cont.src = "chrome://DisplayText/content/jquery.js";
+				
+					var wiki = content.document.createElement("script");
+					wiki.type = "text/javascript";
+					wiki.src = "chrome://DisplayText/content/lookup.js";
+					
+					var  api= content.document.createElement("script");
+					api.type = "text/javascript";
+					api.src = "chrome://DisplayText/content/api.js";
+					
+					var  bro= content.document.createElement("script");
+					bro.type = "text/javascript";
+					bro.src = "chrome://DisplayText/content/browser.js";
+
+					var c = content.document.createElement("script");
+					c.type = "text/javascript";
+					c.src = "chrome://DisplayText/content/extraction.js";
+					
+					head.appendChild(d);
+					head.appendChild(bro);
+					head.appendChild(api);
+					head.appendChild(wiki);
+					head.appendChild(cont);
+					head.appendChild(c);
+				}
+				else
+					alert("no head");
+
 			}
 		}
 		else 

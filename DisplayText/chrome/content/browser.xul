@@ -8,18 +8,21 @@
           src="chrome://DisplayText/content/button.js"/>
   <script type="application/javascript"
           src="chrome://DisplayText/defaults/preferences/prefs.js"/>
+
+
   <script type="application/javascript"
-          src="chrome://DisplayText/content/lookup.js"/>
-  <script type="application/javascript"
-          src="chrome://DisplayText/content/api.js"/>
+          src="chrome://DisplayText/content/startup.js"/>
   
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/jquery.js"/>
+  <script type="application/javascript"
+      src="chrome://DisplayText/content/api.js"/>
+  <script type="application/javascript"
+        src="chrome://DisplayText/content/lookup.js"/>
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/extraction.js"/>
 
-  <script type="application/javascript"
-          src="chrome://DisplayText/content/api.js"/>
+
   
 
   <statusbar id="status-bar">
