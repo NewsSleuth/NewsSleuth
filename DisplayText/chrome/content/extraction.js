@@ -50,7 +50,7 @@ jQuery(document).ready(function($){
 	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
-					alert("Author: "+$author+"\nSource: "+$source);	
+	//				alert("Author: "+$author+"\nSource: "+$source);	
 	//				alert("popup: "+popup);								
 	//				test();
 					//callWikipediaAPI($author);
