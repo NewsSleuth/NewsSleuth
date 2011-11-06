@@ -1,8 +1,9 @@
 //alert("jquery");
 jQuery.noConflict();
 jQuery(document).ready(function($){
-//	alert("extraction.js is running");
-
+	
+		
+	
 	function parseError() {
 	
 			alert("RSS access error!");
@@ -45,24 +46,27 @@ jQuery(document).ready(function($){
 
 			$(xml).find("item").find("title").each(function() {
 				if ($(this).text()==$title) {
-	//				alert("title match found");
+//					alert("title match found");
 	//					$('#out1').append("found match: ");
 	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
-	//				alert("Author: "+$author+"\nSource: "+$source);	
-	//				alert("popup: "+popup);								
+//					alert("Author: "+$author+"\nSource: "+$source);	
+							
 	//				test();
 					//callWikipediaAPI($author);
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
+//					callWikipediaAPI("Bill Clinton");
 				};
 
 			});
-			alert("Author: "+$author+"\nSource: "+$source);
+
+	//		alert("Author: "+$author+"\nSource: "+$source);
 			//added
 			$author = fixAuthor($author);
 			dump("$author: " + $author + "\n");
 			callWikipediaAPI($author/*"Tariq Ali"*/, false);
+
 		};
 	};
 		

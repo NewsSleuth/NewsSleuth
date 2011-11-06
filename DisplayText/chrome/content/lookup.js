@@ -155,14 +155,10 @@ function firstP(data){
 	return result;
 }
 
-function test() {
-  alert('Hello world');
-}
 
 
-function callWikipediaAPI(wikipediaPage) {
+function callWikipediaAPI(wikipediaPage, popup) {
 	popup = false;
-	dump("callWikipediaAPI\n");
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	
 	// Check if author's information has already been stored for this page
@@ -173,6 +169,13 @@ function callWikipediaAPI(wikipediaPage) {
 	var NewPage = prefs.getBoolPref("newpage");
 */
 	var NewPage = true;
+	var doc = content.document;
+	var popupElement = doc.getElementById('popupElement');
+	if (popupElement.value === "true")
+		popup = true;
+	else
+		popup = false;
+
 	if (NewPage)
 	{
 		//alert("Looking up info");
@@ -212,14 +215,39 @@ function callWikipediaAPI(wikipediaPage) {
 				
 				if (popup)
 				{
-					my_window = window.open("", "mywindow1", "status=1,width=500,height=400");
-					var headertext2 = content.document.createTextNode(result);
-					my_window.content.document.body.appendChild(headertext2);
+					my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
+					my_window.document.bgColor = '#F1EDC2';
+					var style = my_window.content.document.createElement("link");
+					style.id = "headertext-style";
+					style.type = "text/css";
+					style.rel = "stylesheet";
+					style.href = "chrome://DisplayText/content/popup.css";
+					
+					var NamePara = my_window.content.document.createElement('p');
+					NamePara.className = "popupAuthorClass";
+					var NameText = my_window.content.document.createTextNode(wikipediaPage);
+					NamePara.appendChild(NameText);
+					
+					var InfoPara = my_window.content.document.createElement('p');
+					InfoPara.id = "popupInfo";
+					InfoPara.className = "poupInfoClass";
+					var content = my_window.content.document.createTextNode(result);
+					InfoPara.appendChild(content);
+					
+					var a = my_window.content.document.createElement('p');
+					a.appendChild(NamePara);
+					a.appendChild(InfoPara);			
+
+					my_window.content.document.body.appendChild(style);
+					my_window.content.document.body.appendChild(a);
+					
+					DisplayHideOrShow (false);
+			 
 				}
 				else
 				{
 					// Display content on page
-					var doc = content.document;
+					//var doc = content.document;
 					var AuthorParagraph = doc.getElementById(AuthorId());
 					var AuthorText = doc.createTextNode(result);
 					
@@ -233,7 +261,7 @@ function callWikipediaAPI(wikipediaPage) {
 	}
 	else
 	{
-		//alert("Stored: " + StoredInfo);
+		alert("Stored: " + StoredInfo);
 		if (popup)
 		{
 			my_window = window.open("", "mywindow1", "status=1,width=500,height=300");
