@@ -1,17 +1,26 @@
-p.InfoClass {
-	font-size: 14px;
-	padding-top:5px;
+div.InfoClass {
 	padding-left: 5px; 
 	padding-right: 5px;
-	padding-bottom: 0px;
 	border:2px solid gray;
 	margin:0px;
 	border-color: #8F0000;
-	line-height: 15px;
 }
 
-a.HideClass {
+p.InfoClass {
+	font-size: 14px;
+	padding-top:5px;
+	padding-bottom: 0px;
+}
+
+p.HideClass {
 	color:#8F0000;
 	font-size:12px;
-	padding-top:3px;
+	padding-top:0px;
+	padding-bottom:0px;
+	line-height:0px;
+}
+
+p.ShowClass {
+	color:#8F0000;
+	font-size:14px;
 }
