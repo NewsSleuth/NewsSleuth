@@ -1,12 +1,22 @@
-//alert("jquery");
 jQuery.noConflict();
 jQuery(document).ready(function($){
 	
-		
+	function XMLAccessError() {
+		alert("XML Access Error");
+		//need to recover from this
+	};
 	
-	function parseError() {
-	
-			alert("RSS access error!");
+	function YahooQuery($rss) {
+		//use Yahoo Query Api to get XML
+		var query = "select * from xml where url = "+ $rss";
+		var url = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(query) + "&format=xml";
+		$.ajax({
+			type: "GET",
+			url: $rss,
+			dataType: "xml",
+			success: parseRSS,
+			error: XMLAccessError
+		});
 	};
 
 	extract();
@@ -35,37 +45,24 @@ jQuery(document).ready(function($){
 			url: $rss,
 			dataType: "xml",
 			success: parseRSS,
-			error: parseError
-			//need to do something on failure
+			error: YahooQuery($rss)
 		});
 		
 		function parseRSS(xml) {
 			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
-	//			$('#out1').append("Source: "+$source+"<br/>");
 
 			$(xml).find("item").find("title").each(function() {
 				if ($(this).text()==$title) {
-//					alert("title match found");
-	//					$('#out1').append("found match: ");
-	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
-//					alert("Author: "+$author+"\nSource: "+$source);	
-							
-	//				test();
-					//callWikipediaAPI($author);
-	//					$('#out1').append("Author: "+$author+"<br/><br/>");
-//					callWikipediaAPI("Bill Clinton");
+
 				};
 
 			});
-
-	//		alert("Author: "+$author+"\nSource: "+$source);
-			//added
 			$author = fixAuthor($author);
 			dump("$author: " + $author + "\n");
-			callWikipediaAPI($author/*"Tariq Ali"*/, false);
+			callWikipediaAPI($author, false);
 
 		};
 	};
