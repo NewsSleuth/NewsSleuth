@@ -50,15 +50,14 @@ var myExtension = {
 				.getService(Components.interfaces.nsIPrefService)
 				.getBranch("NewsSleuth.");
 		prefs.setBoolPref("newpage", true);
-		
-		
-		var input = content.document.createElement("input");
-		input.type = "hidden";
-		input.value = "false";
-		input.id = "popupElement";
-		var head = content.document.getElementsByTagName('head')[0];
-		head.appendChild(input);
 	
+		var head = content.document.getElementsByTagName('head')[0];
+		var author = content.document.createElement('input');
+		author.type = 'hidden';
+		author.value = 'none';
+		author.id = 'HiddenAuthor';
+		head.appendChild(author);
+		author.addEventListener("click", AuthorFound, true);
 		
 		if ( DisplayOnLoad ( ) )
 		{
@@ -68,14 +67,14 @@ var myExtension = {
 			{
 				AddPageStyle ( );
 				// Display Author info on page
-				DisplayAuthorInfo (true);
+				EditPage (true);
 			}
 		}
 		else if ( CheckList ( ) )
 		{
 			AddPageStyle ( );
 			// Display 'show' option on page
-			DisplayAuthorInfo (false);
+			EditPage (false);
 		}
     }
 }  

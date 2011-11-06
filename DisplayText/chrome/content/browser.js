@@ -1,89 +1,21 @@
 function TitleLocation ( ) { return "h1"; }
+function boxId ( ) {return "InfoBoxId";}
 function AuthorTag ( ) {return "AuthorInfo"; }
 function AuthorId (  ) {return "AuthorParagraph"; }
 function AuthorClass ( ) {return "InfoClass"}
 function HideClass ( ) { return "HideClass"; }
+function ShowClass ( ) { return "ShowClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
-var NewPage = false;
+
+var StoredInfo = null;
+var popup = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-	
-		var doc = content.document;
-		var test = doc.getElementById('popupElement');
-		alert(test.value);
-	return;
-	
-/*
-	// Append text to end of web page
-	/*	var headertext = content.document.createTextNode("Random inserted information asdfas dfsadjfk")
-		content.document.body.appendChild(headertext)
-	 */
-		// Add event listener for mouse click
-		//content.document.addEventListener("mousedown", mouseHandler, true);	
-
-//		var value = myExtension.RetrieveAuthorInfo( );
-//		alert (value);
-		//findAndReplace("Ethan Samuel Bronner","something");
+		callWikipediaAPI ("Bill Clinton");
 	}
 };
-
-var StoredInfo = null;
-
-function findAndReplace(searchText, replacement, searchNode) {
-    if (!searchText || typeof replacement === 'undefined') {
-        // Throw error here if you want...
-        return;
-    }
-    var regex = typeof searchText === 'string' ?
-                new RegExp(searchText, 'g') : searchText,
-        childNodes = (searchNode || content.document.body).childNodes,
-        cnLength = childNodes.length,
-        excludes = 'html,head,style,title,link,meta,script,object,iframe';
-    while (cnLength--) {
-        var currentNode = childNodes[cnLength];
-        if (currentNode.nodeType === 1 &&
-            (excludes + ',').indexOf(currentNode.nodeName.toLowerCase() + ',') === -1) {
-				arguments.callee(searchText, replacement, currentNode);
-        }
-        if (currentNode.nodeType !== 3 || !regex.test(currentNode.data) ) {
-            continue;
-        }
-		alert (currentNode.parentNode.tagName);
-		
-        var parent = currentNode.parentNode,
-            frag = (function(){
-			    var html = currentNode.data.replace(regex, replacement),
-                    wrap = content.document.createElement('div'),
-                    frag = content.document.createDocumentFragment();
-                wrap.innerHTML = html;
-                while (wrap.firstChild) {
-                    frag.appendChild(wrap.firstChild);
-                }
-                return frag;
-            })();
-        parent.insertBefore(frag, currentNode);
-        parent.removeChild(currentNode);
-    }
-}
-
- function mouseHandler(event)
- {
-	// Displays tag for element clicked on
-	if (!event) event = window.event;
-	var elementId = (event.target || event.srcElement).id;
-	var elementTag	= (event.target || event.srcElement).tagName;
-	var elementClass = (event.target || event.srcElement).className;	
-	alert (elementTag);
-	
-	var doc = content.document;
-	var selectedElement = doc.getElementById(elementId);
-	//selectedElement.parentNode.removeChild(selectedElement);
-	
-//alert(elementId);
- }
-
 
 function AddPageStyle ( )
 {
@@ -97,7 +29,18 @@ function AddPageStyle ( )
 	HeadOfPage.appendChild(style);
 }
 
-function DisplayAuthorInfo ( DisplayInfo )
+function AuthorFound ( )
+{
+	var doc = content.document;
+	var AuthorElement = doc.getElementById('HiddenAuthor');
+	var author = AuthorElement.value;
+	author = fixAuthor(author);
+	//alert("Found Author: " + author);
+	
+	callWikipediaAPI(author);
+}
+
+function EditPage( DisplayInfo )
 {
 	var doc = content.document;
 	// Remove 'show' option if on page - will be replaced by 'hide' 
@@ -112,55 +55,29 @@ function DisplayAuthorInfo ( DisplayInfo )
 	{
 		if (DisplayInfo) 
 		{
-			var check = doc.getElementById(AuthorId());
-			if (!check)
-			{
-				// Create new paragraph and insert text in it
-				var AuthorParagraph = doc.createElement('p');
-				AuthorParagraph.id = AuthorId( );
-				AuthorParagraph.className = AuthorClass( );
-				
-				TitleElement.appendChild(AuthorParagraph);
-
-				var popupElement = doc.getElementById("popupElement");
-				popupElement.value = "false";
-
+			popup = false;
+			var AuthorElement = doc.getElementById('HiddenAuthor');
+			var author = AuthorElement.value;
+			if (author !== 'none') {
+				callWikipediaAPI(author);
+			} else {					
 				var head = content.document.getElementsByTagName('h1')[0];
 				if (head)
 				{
-					var d = content.document.createElement('div');
-					d.id = "out1";
-					
-					var cont = content.document.createElement("script");
-					cont.type = "text/javascript";
-					cont.src = "chrome://DisplayText/content/jquery.js";
-				
-					var wiki = content.document.createElement("script");
-					wiki.type = "text/javascript";
-					wiki.src = "chrome://DisplayText/content/lookup.js";
-					
-					var  api= content.document.createElement("script");
-					api.type = "text/javascript";
-					api.src = "chrome://DisplayText/content/api.js";
-					
-					var  bro= content.document.createElement("script");
-					bro.type = "text/javascript";
-					bro.src = "chrome://DisplayText/content/browser.js";
+					var jquery = content.document.createElement("script");
+					jquery.type = "text/javascript";
+					jquery.src = "chrome://DisplayText/content/jquery.js";
 
-					var c = content.document.createElement("script");
-					c.type = "text/javascript";
-					c.src = "chrome://DisplayText/content/extraction.js";
+					var ext = content.document.createElement("script");
+					ext.type = "text/javascript";
+					ext.src = "chrome://DisplayText/content/extraction.js";
+
+					head.appendChild(jquery);
+					head.appendChild(ext);
 					
-					head.appendChild(d);
-					head.appendChild(bro);
-					head.appendChild(api);
-					head.appendChild(wiki);
-					head.appendChild(cont);
-					head.appendChild(c);
 				}
 				else
 					alert("no head");
-
 			}
 		}
 		else 
@@ -171,48 +88,79 @@ function DisplayAuthorInfo ( DisplayInfo )
 	}
 }
 
+function DisplayAuthorInfo (info)
+{
+	var doc = content.document;
+
+	var div = doc.createElement('div');
+	div.id = boxId ( );
+	div.className = AuthorClass( );
+	
+	var AuthorParagraph = doc.createElement('p');
+	AuthorParagraph.id = AuthorId( );
+	AuthorParagraph.className = AuthorClass( );
+	div.appendChild(AuthorParagraph);
+	
+	var TitleElement = doc.getElementsByTagName( TitleLocation() )[0];
+//	TitleElement.appendChild(AuthorParagraph);
+	TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
+	
+	var AuthorText = doc.createTextNode(info);
+	AuthorParagraph.appendChild(AuthorText);
+	
+	dump(AuthorParagraph + "\n");
+
+	DisplayHideOrShow (true);
+}
+
 function DisplayHideOrShow ( hide )
 {
 	// Add 'hide' or 'show' option on page
 	var doc = content.document;
 	var HideParagraph = doc.createElement('p');
+//	HideParagraph.className = HideClass( );
 	HideParagraph.id = HideParagraphId( );
 	var HideElement = doc.createElement('a');
 	HideElement.id = HideId( );
-	HideElement.className = HideClass ( );
+//	HideElement.className = HideClass ( );
 	
 	var hideText;
-	if (hide)
+	if (hide) {	
 		hideText = doc.createTextNode('(HIDE)');
-	else
+		HideParagraph.className = HideClass( );
+	} else {
 		hideText = doc.createTextNode('Show');
+		HideParagraph.className = ShowClass( );
+	}
 	
 	HideElement.appendChild(hideText);
 	HideParagraph.appendChild(HideElement);
 	
 	if (hide)
-	{	
+	{
 		var AuthorPar = doc.getElementById(AuthorId());
-		AuthorPar.appendChild(HideParagraph);
+		AuthorPar.parentNode.appendChild(HideParagraph);
+//		AuthorPar.parentNode.insertBefore(HideParagraph, AuthorPar.nextSibling);
 	}
 	else
 	{
 		var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
-		TitleElement.appendChild(HideParagraph);
+		//TitleElement.appendChild(HideParagraph);
+		TitleElement.parentNode.insertBefore(HideParagraph, TitleElement.nextSibling);
 	}
 	
 	// Add event listener to hide/show text
-	HideElement.addEventListener('click', ShowText, true);
+	HideElement.addEventListener('click', HideShowHandler, true);
 }
  
-function ShowText ( )
+function HideShowHandler ( )
 {
 	// Called when user clicks 'hide' or 'show' 
 	// Toggles showing and hiding of the author information
 	var doc = content.document;
 	var text = doc.getElementsByClassName( AuthorClass( ) )[0];
 	if (!text)
-		DisplayAuthorInfo( true );
+		EditPage( true );
 	else
 		HideText( );
 }
@@ -221,11 +169,11 @@ function HideText ( )
 // Hides the author text on the page
 {
 	var doc = content.document;
-	var text = doc.getElementById( AuthorId( ) );
+	var text = doc.getElementById( boxId( ) );
 	if (text)
 	{
 		text.parentNode.removeChild(text);
-		DisplayAuthorInfo(false);
+		EditPage(false);
 	}
 }
  
@@ -240,8 +188,6 @@ function DisplayOnLoad ( )
  
 var SetPreferences = {
 	onCommand: function(event) {
-
-
 		// Check preferences to set initial state of checkbox
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 				.getService(Components.interfaces.nsIPrefService)
@@ -318,27 +264,6 @@ function GetHost ( )
 	return source;
 }
 
-var DisplaySiteList = {
-	onCommand: function(event) {		
-		// Find Path to SiteList.txt
-		var file = GetPath( );
-		
-		if (!file.exists() )
-		{
-			alert("File doesn't exist");
-		} else {
-			var fileContents = FileIO.read(file);
-			var line = fileContents.split("\n");
-			
-			// Create a new window to display text
-			my_window = window.open("", "mywindow1", "status=1,width=350,height=150");
-			var URLData = content.document.createTextNode(line);
-			my_window.content.document.body.appendChild(URLData);
-			
-		}
-	}
-}
-
 function GetPath ( )
 {
 	// Returns path to profile directory
@@ -347,14 +272,6 @@ function GetPath ( )
 	//file.append("helloworld@myksdffdsw.masdfasdf"); // subfolder of your extension (that's your extension ID) of extensions directory
 	file.append("SiteList.txt");
 	return file;	
-}
-
-function GetPrefPath( )
-{
-	// Return path to preference file
-	var file = DirIO.get("ProfD");
-	file.append("NewsSleuthPref.txt");
-	return file;
 }
 
 var AddSite = {
@@ -424,289 +341,19 @@ var RemoveSite = {
 	}
 }
 
-
-
-var FileIO = {
-
-		localfileCID  : '@mozilla.org/file/local;1',
-		localfileIID  : Components.interfaces.nsILocalFile,
-
-		finstreamCID  : '@mozilla.org/network/file-input-stream;1',
-		finstreamIID  : Components.interfaces.nsIFileInputStream,
-
-		foutstreamCID : '@mozilla.org/network/file-output-stream;1',
-		foutstreamIID : Components.interfaces.nsIFileOutputStream,
-
-		sinstreamCID  : '@mozilla.org/scriptableinputstream;1',
-		sinstreamIID  : Components.interfaces.nsIScriptableInputStream,
-
-		suniconvCID   : '@mozilla.org/intl/scriptableunicodeconverter',
-		suniconvIID   : Components.interfaces.nsIScriptableUnicodeConverter,
-
-		open   : function(path) {
-			try {
-				var file = Components.classes[this.localfileCID]
-								.createInstance(this.localfileIID);
-				file.initWithPath(path);
-				return file;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		read   : function(file, charset) {
-			try {
-				var data     = new String();
-				var fiStream = Components.classes[this.finstreamCID]
-									.createInstance(this.finstreamIID);
-				var siStream = Components.classes[this.sinstreamCID]
-									.createInstance(this.sinstreamIID);
-				fiStream.init(file, 1, 0, false);
-				siStream.init(fiStream);
-				data += siStream.read(-1);
-				siStream.close();
-				fiStream.close();
-				if (charset) {
-					data = this.toUnicode(charset, data);
-				}
-				return data;
-			} 
-			catch(e) {
-				return false;
-			}
-		},
-
-		write  : function(file, data, mode, charset) {
-			try {
-				var foStream = Components.classes[this.foutstreamCID]
-									.createInstance(this.foutstreamIID);
-				if (charset) {
-					data = this.fromUnicode(charset, data);
-				}
-				var flags = 0x02 | 0x08 | 0x20; // wronly | create | truncate
-				if (mode == 'a') {
-					flags = 0x02 | 0x10; // wronly | append
-				}
-				foStream.init(file, flags, 0664, 0);
-				foStream.write(data, data.length);
-				// foStream.flush();
-				foStream.close();
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		create : function(file) {
-			try {
-				file.create(0x00, 0664);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		unlink : function(file) {
-			try {
-				file.remove(false);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		path   : function(file) {
-			try {
-				return 'file:///' + file.path.replace(/\\/g, '\/')
-							.replace(/^\s*\/?/, '').replace(/\ /g, '%20');
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		toUnicode   : function(charset, data) {
-			try{
-				var uniConv = Components.classes[this.suniconvCID]
-									.createInstance(this.suniconvIID);
-				uniConv.charset = charset;
-				data = uniConv.ConvertToUnicode(data);
-			} 
-			catch(e) {
-				// foobar!
-			}
-			return data;
-		},
-
-		fromUnicode : function(charset, data) {
-			try {
-				var uniConv = Components.classes[this.suniconvCID]
-									.createInstance(this.suniconvIID);
-				uniConv.charset = charset;
-				data = uniConv.ConvertFromUnicode(data);
-				// data += uniConv.Finish();
-			}
-			catch(e) {
-				// foobar!
-			}
-			return data;
+var DisplaySiteList = {
+	onCommand: function(event) {		
+		// Find Path to SiteList.txt
+		var file = GetPath( );
+		
+		if (!file.exists() )
+		{
+			alert("File doesn't exist");
+		} else {
+			var fileContents = FileIO.read(file);
+			var line = fileContents.split("\n");
+			
+			DisplaySiteWindow (line);			
 		}
-
 	}
-	
-	// Example use:
-	// var dir = DirIO.open('/test');
-	// if (dir.exists()) {
-	// 	alert(DirIO.path(dir));
-	// 	var arr = DirIO.read(dir, true), i;
-	// 	if (arr) {
-	// 		for (i = 0; i < arr.length; ++i) {
-	// 			alert(arr[i].path);
-	// 		}
-	// 	}
-	// }
-	// else {
-	// 	var rv = DirIO.create(dir);
-	// 	alert('Directory create: ' + rv);
-	// }
-
-	// ---------------------------------------------
-	// ----------------- Nota Bene -----------------
-	// ---------------------------------------------
-	// Some possible types for get are:
-	// 	'ProfD'				= profile
-	// 	'DefProfRt'			= user (e.g., /root/.mozilla)
-	// 	'UChrm'				= %profile%/chrome
-	// 	'DefRt'				= installation
-	// 	'PrfDef'				= %installation%/defaults/pref
-	// 	'ProfDefNoLoc'		= %installation%/defaults/profile
-	// 	'APlugns'			= %installation%/plugins
-	// 	'AChrom'				= %installation%/chrome
-	// 	'ComsD'				= %installation%/components
-	// 	'CurProcD'			= installation (usually)
-	// 	'Home'				= OS root (e.g., /root)
-	// 	'TmpD'				= OS tmp (e.g., /tmp)
-
-	var DirIO = {
-
-		sep        : '/',
-
-		dirservCID : '@mozilla.org/file/directory_service;1',
-	
-		propsIID   : Components.interfaces.nsIProperties,
-	
-		fileIID    : Components.interfaces.nsIFile,
-
-		get    : function(type) {
-			try {
-				var dir = Components.classes[this.dirservCID]
-								.createInstance(this.propsIID)
-								.get(type, this.fileIID);
-				return dir;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		open   : function(path) {
-			return FileIO.open(path);
-		},
-
-		create : function(dir) {
-			try {
-				dir.create(0x01, 0664);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		read   : function(dir, recursive) {
-			var list = new Array();
-			try {
-				if (dir.isDirectory()) {
-					if (recursive == null) {
-						recursive = false;
-					}
-					var files = dir.directoryEntries;
-					list = this._read(files, recursive);
-				}
-			}
-			catch(e) {
-				// foobar!
-			}
-			return list;
-		},
-
-		_read  : function(dirEntry, recursive) {
-			var list = new Array();
-			try {
-				while (dirEntry.hasMoreElements()) {
-					list.push(dirEntry.getNext()
-									.QueryInterface(FileIO.localfileIID));
-				}
-				if (recursive) {
-					var list2 = new Array();
-					for (var i = 0; i < list.length; ++i) {
-						if (list[i].isDirectory()) {
-							files = list[i].directoryEntries;
-							list2 = this._read(files, recursive);
-						}
-					}
-					for (i = 0; i < list2.length; ++i) {
-						list.push(list2[i]);
-					}
-				}
-			}
-			catch(e) {
-			   // foobar!
-			}
-			return list;
-		},
-
-		unlink : function(dir, recursive) {
-			try {
-				if (recursive == null) {
-					recursive = false;
-				}
-				dir.remove(recursive);
-				return true;
-			}
-			catch(e) {
-				return false;
-			}
-		},
-
-		path   : function (dir) {
-			return FileIO.path(dir);
-		},
-
-		split  : function(str, join) {
-			var arr = str.split(/\/|\\/), i;
-			str = new String();
-			for (i = 0; i < arr.length; ++i) {
-				str += arr[i] + ((i != arr.length - 1) ? 
-										join : '');
-			}
-			return str;
-		},
-
-		join   : function(str, split) {
-			var arr = str.split(split), i;
-			str = new String();
-			for (i = 0; i < arr.length; ++i) {
-				str += arr[i] + ((i != arr.length - 1) ? 
-										this.sep : '');
-			}
-			return str;
-			}
-	}
-	
-
-
+}

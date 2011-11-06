@@ -1,9 +1,7 @@
 //alert("jquery");
 jQuery.noConflict();
 jQuery(document).ready(function($){
-//	alert("extraction.js is running");
-	
-		
+	//alert("extraction.js is running");
 	
 	function parseError() {
 	
@@ -54,19 +52,17 @@ jQuery(document).ready(function($){
 
 					$author = $(this).siblings("dc\\:creator").text();
 //					alert("Author: "+$author+"\nSource: "+$source);	
-							
-	//				test();
 	//					$('#out1').append("Author: "+$author+"<br/><br/>");
-//					callWikipediaAPI("Bill Clinton");
 				};
 
 			});
 
-	//		alert("Author: "+$author+"\nSource: "+$source);
-			//added
-			$author = fixAuthor($author);
+			//alert("Author: "+$author+"\nSource: "+$source);
+			EditAuthorElement($author);
+			$('#HiddenAuthor').trigger('click');
+			
 			dump("$author: " + $author + "\n");
-			callWikipediaAPI($author/*"Tariq Ali"*/, false);
+		//	callWikipediaAPI($author/*"Tariq Ali"*/, false);
 
 		};
 	};
@@ -75,3 +71,10 @@ jQuery(document).ready(function($){
 	//dummy
 
 });
+
+function EditAuthorElement(author)
+{
+	var AuthorElement = content.document.getElementById('HiddenAuthor');
+	//alert(AuthorElement.value);
+	AuthorElement.value = author;
+}

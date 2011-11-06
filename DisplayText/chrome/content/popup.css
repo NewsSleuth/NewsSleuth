@@ -4,6 +4,10 @@ p.popupAuthorClass {
 	border-bottom:2px solid gray;
 	border-color: #8F0000;
 }
-p.popupInfoClass {
 
+p.popupSiteClass {
+	font-size: 16px;
+	line-height: 1px;
+	padding-top:0px;
+	padding-bottom:0px;
 }
