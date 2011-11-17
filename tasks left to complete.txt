@@ -1,0 +1,25 @@
+parse page for source - Malvika
+deal with multiple RSS links - Malvika
+
+Failure modes
+	author name not found in RSS - Malvika
+	source not found - Ian
+	name not found --> prompt user - Eric
+	RSS not found - Malvika
+	disambiguation page --> no wiki page - Ian
+	no wiki page - Ian
+	no h1 header - Eric
+	
+wiki call api for source info & write to page - Ian
+logos - Eric
+	+ toolbar button
+	+ icon on popup
+	+ within add-on installer
+	+ within information box in modified DOM
+
+UI changes - Eric
+	+ change background color of info box, instead of red line
+	+ "Show" --> "Show author & source information for this article"
+
+create list of sites to test - Everyone
+	+ see testlist.txt
