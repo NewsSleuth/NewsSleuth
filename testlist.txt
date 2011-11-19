@@ -10,3 +10,4 @@ english.aljazeera.net
 cnn.com
 fox.com
 nytimes.com
+informationclearinghouse.info
