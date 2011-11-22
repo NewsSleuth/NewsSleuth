@@ -10,3 +10,127 @@ var checkbox = {
 		prefs.setBoolPref("DisplayOnLoad", checked);
 	}
 }
+
+
+var addNewSite = {
+	onCommand: function(site) {
+
+		var inputbox = document.getElementById('addsiteid');
+		inputbox.value = '';
+	
+		var wwwIndex = site.indexOf('www.');
+		if (wwwIndex === -1) 
+		{
+			// append 'www.' to beginning of site name
+			var www = 'www.'
+			site = www.concat(site);
+		}
+		else if (wwwIndex !== 0)
+		{
+			// site wasn't written properly
+			alert("Use form: 'www.nytimes.com'");
+			return;
+		}
+		// Look for domains
+		var dsize = 4;
+		var domain = site.indexOf('.com');
+		if (domain === -1)
+		{
+			domain = site.indexOf('.net');
+			if (domain === -1)
+			{
+				domain = site.indexOf('.org');
+				if (domain === -1)
+				{
+					domain = site.indexOf('.co');
+					dsize = 3;
+				}
+			}		
+		}
+		if (domain === -1)
+		{
+			alert("Use form: 'www.nytimes.com'");
+			return;
+		}
+		// cut off any part of url after domain
+		site = site.slice(0, domain + dsize);
+		//alert(site);
+		
+		// Add site to file
+		var file = GetPath ( );		
+		if ( !file.exists() )
+		{
+			FileIO.create(file);
+		}
+		
+		// Check if site is already on file
+		var fileContents = FileIO.read(file);
+		var line = fileContents.split("\n");
+		
+		for (var i=0; i < line.length; i++)
+		{
+			if ( site == line[i] )
+			{
+				alert ("site is already in file");
+				return;
+			}
+		}
+		FileIO.write(file, site + '\n', 'a');
+		
+		// Update list of sites in popup window
+		var sitebox = document.getElementById('sitebox');
+		var row = document.createElement('listitem');
+	    row.setAttribute('label', site);
+	    
+  	    list.appendChild(row);
+//		sitebox.value += site + '\n';
+		
+	}
+}
+
+function removeSiteHandle (index)
+{
+	if (index === -1)
+		return;
+
+	var list = document.getElementById('sitebox');
+	var siteItem = list.getItemAtIndex(index);
+	var site = siteItem.label;
+	
+	list.removeItemAt(index);
+	
+	var file = GetPath( );
+	if (!file.exists())
+	{
+		alert ("File doesn't exist");
+		return;
+	}
+
+	var fileContents = FileIO.read(file);
+	var lines = fileContents.split("\n");
+	var first = true;
+	for (var i = 0; i < lines.length - 1; i++)
+	{
+		if ( site != lines[i] )
+		{
+			if (first)
+			{
+				FileIO.write(file, lines[i] + '\n');
+				first = false;
+			}
+			else
+				FileIO.write(file, lines[i] + '\n', 'a');
+		} 
+		else 
+		{
+			//alert('Not writing back to file');
+		}
+	}
+	
+	// Disable button
+	document.getElementById('buttonid').disabled=true;
+}
+
+
+
+

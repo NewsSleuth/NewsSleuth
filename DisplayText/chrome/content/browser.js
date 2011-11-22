@@ -8,14 +8,53 @@ function ShowClass ( ) { return "ShowClass"; }
 function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
 
-var StoredInfo = null;
 var popup = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-		callWikipediaAPI ("Bill Clinton");
+		callWikipediaAPI('Bill Clinton');	
+	return;
+/*
+		var doc = content.document,
+			top = doc.body.parentNode,
+			bar = doc.createElement('div'),
+			text = doc.createTextNode('testing');
+			
+		bar.className = 'InfoClass';
+		
+		bar.appendChild(text);
+		top.insertBefore(bar, top.firstChild);
+		
+		var input = doc.createElement('input'),
+			button = doc.createElement('input');
+		button.type = 'button';
+		button.value = 'test';
+		
+		bar.appendChild(input);
+		bar.appendChild(button);
+		*/
+		content.document.addEventListener("mousedown", mouseHandler, true);
+		return;
+		
+		
+		var selectedText = content.getSelection().toString();
+		callWikipediaAPI(selectedText);
+		return;
 	}
 };
+var lastElement;
+function mouseHandler(event)
+ {
+	if (lastElement)
+		lastElement.classList.remove('test');
+
+	if (!event) event = window.event;
+	lastElement = event.target || event.srcElement;
+
+	lastElement.className += " test";
+	//alert(lastElement.tagName);
+ }
+
 
 function AddPageStyle ( )
 {
@@ -34,148 +73,277 @@ function AuthorFound ( )
 	var doc = content.document;
 	var AuthorElement = doc.getElementById('HiddenAuthor');
 	var author = AuthorElement.value;
+	if (author === 'none')
+	{
+		writeScripts();
+		return;
+	}
+	else if (author === 'RSS error')
+	{
+		AuthorNotFound( );
+		return;
+	}
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
 	callWikipediaAPI(author);
+	//callWikipediaAPI("Bill Clinton");
 }
 
-function EditPage( DisplayInfo )
+function AuthorNotFound ( )
 {
 	var doc = content.document;
-	// Remove 'show' option if on page - will be replaced by 'hide' 
-	//			inside bordered element
-	var DelShow = doc.getElementById( HideParagraphId( ) );
-	if (DelShow)
-		DelShow.parentNode.removeChild(DelShow);
+	var lookupDiv = doc.getElementById('lookup_id');
+		
+	var par = doc.createElement('p');
+	par.id = 'lookupLabelId';
+	var text = doc.createTextNode("Failed to access RSS feed. Enter author name for info");
+	par.appendChild(text);
+	lookupDiv.appendChild(par);
 	
-	// Get title element of page and call function to display info
-	var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
-	if (TitleElement) 
-	{
-		if (DisplayInfo) 
-		{
-			popup = false;
-			var AuthorElement = doc.getElementById('HiddenAuthor');
-			var author = AuthorElement.value;
-			if (author !== 'none') {
-				callWikipediaAPI(author);
-			} else {					
-				var head = content.document.getElementsByTagName('h1')[0];
-				if (head)
-				{
-					var jquery = content.document.createElement("script");
+	par = doc.createElement('p');
+	var input = doc.createElement('input');
+	input.label = 'Author';
+	input.id = 'authorInputId';
+	par.appendChild(input);
+	lookupDiv.appendChild(par);
+	
+	var button = doc.createElement('input');
+	button.type = 'button';
+	button.value = 'look up';
+	button.id = 'lookupButtonId';
+	lookupDiv.appendChild(button);
+	
+	button.addEventListener('click', lookUpAuthor, true);
+	input.addEventListener('keypress', function(event) { checkReturn(event); }, false);
+
+	lookupDiv.hidden = true;
+	doc.getElementById('toggle_id').click();	
+	
+}
+function checkReturn (e){
+	if (e.keyCode === 13) {
+		// return key hit
+		content.document.getElementById('lookupButtonId').click();
+	}
+}
+
+function lookUpAuthor ()
+{
+	var doc = content.document;
+	var author = doc.getElementById('authorInputId').value;
+
+	var hidden = doc.getElementById('HiddenAuthor');
+	hidden.value = author;
+	
+	var toggle = doc.getElementById('toggle_id');
+	toggle.click();
+
+	callWikipediaAPI(fixAuthor(author));
+}
+
+function findAuthor(searchText, searchNode) {
+
+    var regex = new RegExp(searchText, 'i'),
+        childNodes = (searchNode || content.document.body).childNodes,
+        cnLength = childNodes.length,
+        excludes = 'html,head,style,title,link,meta,script,object,iframe';
+    while (cnLength--) {
+        var currentNode = childNodes[cnLength];
+        if (currentNode.nodeType === 1 &&
+            (excludes + ',').indexOf(currentNode.nodeName.toLowerCase() + ',') === -1) {
+				arguments.callee(searchText, currentNode);
+        }
+        if (currentNode.nodeType !== 3 || !regex.test(currentNode.data) ) {
+            continue;
+        }
+
+		checkElement(currentNode);
+    }
+}
+
+function checkElement(node)
+{
+	var pn = node.parentNode,
+		tag = pn.tagName,
+		cName = pn.className,
+		ptag = pn.parentNode.tagName;
+	alert(tag + " "  + cName);
+	
+	var doc = content.document,
+		tElements = doc.getElementsByTagName(tag),
+		cElements = doc.getElementsByClassName(cName),
+		ptElements = doc.getElementsByTagName(ptag);
+
+	alert("number of " + tag + " elements: " + tElements.length);
+	alert("number of " + cName + " elements: " + cElements.length);
+	alert("number of " + ptag + " elements: " + ptElements.length);
+
+}
+
+function addElements( )
+{
+	var doc = content.document;
+	var top = content.document.body.parentNode;
+
+	var jquery = content.document.createElement("script");
 					jquery.type = "text/javascript";
 					jquery.src = "chrome://DisplayText/content/jquery.js";
-
-					var ext = content.document.createElement("script");
+	var ui = content.document.createElement("script");
+					ui.type = "text/javascript";
+					ui.src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js";
+	var ext = content.document.createElement("script");
 					ext.type = "text/javascript";
-					ext.src = "chrome://DisplayText/content/extraction.js";
+					ext.src = "chrome://DisplayText/content/messagebar.js";
+	top.appendChild(ui);
+	top.appendChild(jquery);
+	top.appendChild(ext);
 
-					head.appendChild(jquery);
-					head.appendChild(ext);
-					
-				}
-				else
-					alert("no head");
-			}
-		}
-		else 
-		{
-			DisplayHideOrShow (false);
-		}
+	var div = doc.createElement('div');
+	div.id = boxId( );
+	div.className = AuthorClass( );
+	var TitleElement = doc.getElementsByTagName( TitleLocation() )[0];
+	if (!doc.getElementById(boxId()))
+	{
+		TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
 		
+		var AuthorDiv = doc.createElement('div');
+		AuthorDiv.id = 'info_id';
+		var LookupDiv = doc.createElement('div');
+		LookupDiv.id = 'lookup_id';
+		var ToggleDiv = doc.createElement('div');
+		ToggleDiv.id = 'toggle_id';
+		var togglePar = doc.createElement('p');
+		togglePar.id = HideParagraphId();
+		togglePar.className = HideClass();
+		var toggleText =  doc.createTextNode('(hide)');
+		ToggleDiv.appendChild(togglePar);
+		togglePar.appendChild(toggleText);
+		
+		div.appendChild(AuthorDiv);
+		div.appendChild(LookupDiv);
+		div.appendChild(ToggleDiv);
+	}
+}
+
+function writeScripts()
+{
+	popup = false;
+								
+	var head = content.document.getElementsByTagName('h1')[0];
+	if (head)
+	{
+		
+		var ext = content.document.createElement("script");
+		ext.type = "text/javascript";
+		ext.src = "chrome://DisplayText/content/extraction.js";
+
+		head.appendChild(ext);
+		
+	}
+	else
+		alert("no head");
+}
+
+function EditPage (DisplayInfo)
+{
+	
+	// Add information box framework to page
+	addElements();
+
+	// Get title element of page and call function to display info
+	var TitleElement = content.document.getElementsByTagName( TitleLocation( ) )[0];
+	if (TitleElement && DisplayInfo) 
+	{
+		writeScripts();
 	}
 }
 
 function DisplayAuthorInfo (info)
 {
 	var doc = content.document;
-
-	var div = doc.createElement('div');
-	div.id = boxId ( );
-	div.className = AuthorClass( );
+	var div = doc.getElementById('info_id');
 	
 	var AuthorParagraph = doc.createElement('p');
 	AuthorParagraph.id = AuthorId( );
-	AuthorParagraph.className = AuthorClass( );
+//	AuthorParagraph.className = AuthorClass( );
+
 	div.appendChild(AuthorParagraph);
 	
-	var TitleElement = doc.getElementsByTagName( TitleLocation() )[0];
-//	TitleElement.appendChild(AuthorParagraph);
-	TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
-	
-	var AuthorText = doc.createTextNode(info);
-	AuthorParagraph.appendChild(AuthorText);
-	
+	// Edit the 'info' for italics and bolded author name
+	if (info === 'nopage') {
+		var AuthorElement = content.document.getElementById('HiddenAuthor');
+		var author = AuthorElement.value;
+		var contents = "No information found for ";
+		
+		var italics = doc.createElement('i');
+		var bold = doc.createElement('b');
+		var AuthorName = doc.createTextNode(fixAuthor(author));
+		bold.appendChild(AuthorName);
+		var text = doc.createTextNode(contents);
+		italics.appendChild(text);
+		italics.appendChild(bold);
+		AuthorParagraph.appendChild(italics);
+	} else {
+
+		var contents = info.toLowerCase();
+		var author = doc.getElementById('HiddenAuthor').value.toLowerCase();
+		var split = author.split(" ");
+		var firstname = split[0];
+		var lastname = split[split.length-1];
+		var index = 0;
+		var end;
+
+		//alert(firstname+" " +lastname);
+		var italics = doc.createElement('i');
+		var fIndex = contents.indexOf(firstname);
+		//alert('findex: '+fIndex);
+		if (fIndex >= 0)
+		{
+			var text = doc.createTextNode(info.slice(0, fIndex));
+			italics.appendChild(text);
+			
+			var lIndex = contents.indexOf(lastname);
+			//alert('lindex: '+lIndex);
+			if (lIndex > fIndex) {
+				var namestr = contents.slice(fIndex, lIndex);
+				var count = 0;
+				for (var i=0; i<namestr.length; i++) {
+					if (namestr[i] === ' ')
+						count++;
+				}
+				if (count <= 2)
+					end = lIndex + lastname.length;
+				else
+					end = fIndex + firstname.length;
+			} else {
+				end = fIndex + firstname.length;
+			}
+			
+			var bold = doc.createElement('b');
+			//alert(info.slice(fIndex, end));
+			text = doc.createTextNode(info.slice(fIndex, end));
+			bold.appendChild(text);
+			italics.appendChild(bold);
+			//alert(info.slice(end, info.length));
+			text = doc.createTextNode(info.slice(end, info.length));
+			italics.appendChild(text);
+		}
+		else
+		{
+			var text = doc.createTextNode(info);
+			italics.appendChild(text);
+		}		
+		
+		AuthorParagraph.appendChild(italics);
+	}
 	dump(AuthorParagraph + "\n");
 
-	DisplayHideOrShow (true);
+	// Have the information slide down rather than just appear
+	div.hidden = true;
+	div.click();
 }
 
-function DisplayHideOrShow ( hide )
-{
-	// Add 'hide' or 'show' option on page
-	var doc = content.document;
-	var HideParagraph = doc.createElement('p');
-//	HideParagraph.className = HideClass( );
-	HideParagraph.id = HideParagraphId( );
-	var HideElement = doc.createElement('a');
-	HideElement.id = HideId( );
-//	HideElement.className = HideClass ( );
-	
-	var hideText;
-	if (hide) {	
-		hideText = doc.createTextNode('(HIDE)');
-		HideParagraph.className = HideClass( );
-	} else {
-		hideText = doc.createTextNode('Show');
-		HideParagraph.className = ShowClass( );
-	}
-	
-	HideElement.appendChild(hideText);
-	HideParagraph.appendChild(HideElement);
-	
-	if (hide)
-	{
-		var AuthorPar = doc.getElementById(AuthorId());
-		AuthorPar.parentNode.appendChild(HideParagraph);
-//		AuthorPar.parentNode.insertBefore(HideParagraph, AuthorPar.nextSibling);
-	}
-	else
-	{
-		var TitleElement = doc.getElementsByTagName( TitleLocation( ) )[0];
-		//TitleElement.appendChild(HideParagraph);
-		TitleElement.parentNode.insertBefore(HideParagraph, TitleElement.nextSibling);
-	}
-	
-	// Add event listener to hide/show text
-	HideElement.addEventListener('click', HideShowHandler, true);
-}
- 
-function HideShowHandler ( )
-{
-	// Called when user clicks 'hide' or 'show' 
-	// Toggles showing and hiding of the author information
-	var doc = content.document;
-	var text = doc.getElementsByClassName( AuthorClass( ) )[0];
-	if (!text)
-		EditPage( true );
-	else
-		HideText( );
-}
-
-function HideText ( )
-// Hides the author text on the page
-{
-	var doc = content.document;
-	var text = doc.getElementById( boxId( ) );
-	if (text)
-	{
-		text.parentNode.removeChild(text);
-		EditPage(false);
-	}
-}
  
 function DisplayOnLoad ( )
 // Check if preferences are set to display info when page loads
@@ -194,21 +362,18 @@ var SetPreferences = {
 				.getBranch("NewsSleuth.");
 		var DisplayOnLoad = prefs.getBoolPref("DisplayOnLoad");
 
+		var arg;
 		if (DisplayOnLoad)
-		{
-			var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
-			window.openDialog(
-					'chrome://DisplayText/content/menubox.xul',	
-					'showmore',
-					strWindowFeatures,
-					"testing");
-		} else {
-			var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
-			window.openDialog(
-					'chrome://DisplayText/content/menubox2.xul',	
-					'showmore',
-					strWindowFeatures);			
-		}
+			arg = true;
+		else
+			arg = false;
+			
+		var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+		var win = window.openDialog(
+				'chrome://DisplayText/content/menubox.xul',	
+				'prefWindow',
+				strWindowFeatures,
+				arg);
 	}
 }
 	
@@ -242,6 +407,11 @@ function GetHost ( )
 	var url = window.content.location.href;
 	
 	// Shorten URL to just the host url
+	var start = 0;
+	var http = url.indexOf('http');
+	if (http !== -1)
+		start = 7;
+	
 	var dSize = 4;
 	var domain = url.indexOf('.com');
 	if (domain == -1)
@@ -259,8 +429,9 @@ function GetHost ( )
 		}
 	
 	}
-	var source = url.slice(0,domain + dSize);
+	var source = url.slice(start,domain + dSize);
 	//alert (source);
+	
 	return source;
 }
 
@@ -268,8 +439,11 @@ function GetPath ( )
 {
 	// Returns path to profile directory
 	var file = DirIO.get("ProfD"); 
-	//file.append("extensions"); // extensions subfolder of profile directory
-	//file.append("helloworld@myksdffdsw.masdfasdf"); // subfolder of your extension (that's your extension ID) of extensions directory
+	file.append("extensions");
+	file.append("newssleuth@news.sleuth");
+	if (!file.exists())
+		DirIO.create(file);
+
 	file.append("SiteList.txt");
 	return file;	
 }
@@ -353,7 +527,24 @@ var DisplaySiteList = {
 			var fileContents = FileIO.read(file);
 			var line = fileContents.split("\n");
 			
-			DisplaySiteWindow (line);			
+			var file = GetPath( );
+		
+			if (!file.exists() )
+			{
+				alert("File doesn't exist");
+			} else {
+				var fileContents = FileIO.read(file);		
+			}
+			var width = 500,
+				height = 350,
+				xcor = (screen.availWidth/2) - width/2;
+				ycor = (screen.availHeight/2) - height/2;
+//			var strWindowFeatures = "width=500, height=350, chrome=yes, centerscreen=true";
+			var strWindowFeatures = 'width='+width+', height='+350+', top='+ycor+', left='+xcor;
+			var win = window.openDialog(
+						'chrome://DisplayText/content/sites.xul',	
+							'prefWindow', strWindowFeatures , fileContents);
+		
 		}
 	}
 }

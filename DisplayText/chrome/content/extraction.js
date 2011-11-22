@@ -4,8 +4,9 @@ jQuery(document).ready(function($){
 	//alert("extraction.js is running");
 	
 	function parseError() {
-	
-			alert("RSS access error!");
+		EditAuthorElement('RSS error');
+		$('#HiddenAuthor').trigger('click');
+//		alert("RSS access error!");
 	};
 
 	

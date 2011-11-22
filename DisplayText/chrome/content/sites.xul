@@ -1,0 +1,53 @@
+﻿<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="chrome://DisplayText/content/header-text.css" type="text/css"?>
+
+<dialog id="checkemail" title="Preferences"
+xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
+  
+  <label value="Add site to list"/>
+  <hbox>
+    <textbox id="addsiteid" type="search" minwidth="410px" searchbutton="true" oncommand="addNewSite.onCommand(this.value)"/>
+    <button label="Add" style="min-width: 5em;" oncommand="addNewSite.onCommand(document.getElementById('addsiteid').value)"/>
+  </hbox>
+    
+  <groupbox>
+    <caption label="News Sleuth Sites"/>
+    <listbox id="sitebox" onclick="document.getElementById('buttonid').disabled=false">
+    </listbox>
+  </groupbox>
+
+  <hbox align="right">
+    <button label="Remove" id="buttonid" disabled="true" style="max-width: 5em;" oncommand="removeSiteHandle(document.getElementById('sitebox').selectedIndex)"/>
+  </hbox>  
+  <script>
+    <![CDATA[
+    // Disable the OK and Cancel btns
+    var accept = document.documentElement.getButton("accept");
+    var cancel = document.documentElement.getButton("cancel");
+    accept.parentNode.removeChild(accept);
+    cancel.parentNode.removeChild(cancel);
+
+
+    // Display sites
+    var list = document.getElementById('sitebox');
+    var line = window.arguments[0].split("\n");
+    
+    for (var i=0; i<line.length-1; i++) {
+      var site = document.createElement('listitem');
+      site.setAttribute('label', line[i]);
+
+      list.appendChild(site);
+    }
+    
+    ]]>
+  </script>
+  <script type="application/javascript"
+          src="chrome://DisplayText/content/menubox.js"></script>
+  <script type="application/javascript"
+          src="chrome://DisplayText/content/Io.js"/>
+  <script type="application/javascript"
+          src="chrome://DisplayText/content/browser.js"/>
+
+</dialog>

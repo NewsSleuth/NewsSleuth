@@ -159,14 +159,11 @@ function firstP(data){
 
 function callWikipediaAPI(wikipediaPage) {
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
-
-	// Check if author's information has already been stored for this page
-	// If not on a newpage than info should be stored in 'StoredInfo'
-	var prefs = Components.classes["@mozilla.org/preferences-service;1"]
-		.getService(Components.interfaces.nsIPrefService)
-		.getBranch("NewsSleuth.");
-	var NewPage = prefs.getBoolPref("newpage");
-	if (NewPage)
+	
+	var doc = content.document;
+	
+	var StoredInfo = doc.getElementById('HiddenInfo');	
+	if (StoredInfo.value === 'none')
 	{
 		var result;
 		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
@@ -176,6 +173,12 @@ function callWikipediaAPI(wikipediaPage) {
 			for(var page in res.query.pages){
 				//alert(res.query.pages[page].title);
 				dump("page: " + page);
+				if (page === '-1') {
+					//alert("negative page");
+					StoredInfo.value = 'nopage';
+					DisplayAuthorInfo('nopage');
+					return;
+				}
 				for(x in res.query.pages[page]){
 					dump(x + "\n\t" + res.query.pages[page][x] + "\n");
 				}
@@ -198,14 +201,12 @@ function callWikipediaAPI(wikipediaPage) {
 				dump("result:\n" + result + "\n");
 				result = firstP(result);
 				dump("first paragraph: \n" + result + "\n");
-				
-				StoredInfo = result;
-				prefs.setBoolPref("newpage", false);
-				
+
+				StoredInfo.value = result;
+							
 				if (popup)
 				{
 					AuthorWindow(wikipediaPage, result);
-					DisplayHideOrShow (false);
 				}
 				else
 				{
@@ -220,12 +221,11 @@ function callWikipediaAPI(wikipediaPage) {
 		// alert("Stored: " + StoredInfo);
 		if (popup)
 		{
-			AuthorWindow(wikipediaPage, StoredInfo);
-			DisplayHideOrShow (false);
+			AuthorWindow(wikipediaPage, StoredInfo.value);
 		}
 		else
 		{
-			DisplayAuthorInfo (StoredInfo);
+			DisplayAuthorInfo (StoredInfo.value);
 		}
 	}
 	

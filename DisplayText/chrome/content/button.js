@@ -4,12 +4,10 @@ var CustomButton = {
 
 		popup = true;
 		
-		HideText ( );
-		var DelShow = doc.getElementById( HideParagraphId( ) );
-		if (DelShow)
-			DelShow.parentNode.removeChild(DelShow);
+		//HideText ( );
+		//var toggle = doc.getElementById('info_id');
+		//toggle.click();
 
-		
 		var AuthorElement = doc.getElementById('HiddenAuthor');
 		var author = AuthorElement.value;
 		if (author !== 'none') {
@@ -26,7 +24,7 @@ var CustomButton = {
 				ext.type = "text/javascript";
 				ext.src = "chrome://DisplayText/content/extraction.js";
 
-				head.appendChild(jquery);
+				//head.appendChild(jquery);
 				head.appendChild(ext);
 			}
 			else

@@ -26,30 +26,6 @@ function AuthorWindow (author, info)
 	my_window.content.document.body.appendChild(style);
 	my_window.content.document.body.appendChild(a);
 	
-}
-
-function DisplaySiteWindow (line)
-{
-		// Create a new window to display site list
-		listWindow = window.open("", "siteListWindow", "status=1,width=350,height=150, resizable=yes, scrollbars=yes");
-
-		var style = listWindow.content.document.createElement("link");
-		style.id = "headertext-style";
-		style.type = "text/css";
-		style.rel = "stylesheet";
-		style.href = "chrome://DisplayText/content/popup.css";
-
-		var doc = content.document;
-		var head = doc.createElement('head');
-		//listWindow.content.document.body.appendChild(head);
-		//head.className = "popupSiteClass";
-		listWindow.content.document.body.appendChild(style);
-		for (var i=0; i<line.length; i++)
-		{
-			var par = doc.createElement('p');
-			var site = doc.createTextNode(line[i]);
-			par.appendChild(site);
-			par.className = "popupSiteClass";
-			listWindow.content.document.body.appendChild(par);
-		}
+	
+	popup = false;
 }

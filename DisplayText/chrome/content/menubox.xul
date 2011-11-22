@@ -9,10 +9,13 @@ buttonlabelaccept="Accept">
 
   <groupbox>
     <caption label="News Sleuth Preferences"/>
-    <checkbox label="Display Author's Info When Page Loads" checked="true" oncommand="checkbox.onCommand(this.checked)"/>
+    <checkbox label="Display Author's Info When Page Loads" id="checkBoxId" checked="true" oncommand="checkbox.onCommand(this.checked)"/>
   </groupbox>
 
-
+  <script>
+    var cb = document.getElementById('checkBoxId');
+    cb.checked = window.arguments[0];
+  </script>
   <script type="application/x-javascript"
   src="chrome://DisplayText/content/menubox.js"></script>
 

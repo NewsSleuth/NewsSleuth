@@ -1,26 +1,36 @@
-div.InfoClass {
-	padding-left: 5px; 
-	padding-right: 5px;
-	border:2px solid gray;
-	margin:0px;
-	border-color: #8F0000;
+.InfoClass {
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	background-color: #DDE7E3;
+/*	border: 2px solid gray;*/
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 1px;
+	padding-top:1px;
+	position: relative;
 }
 
 p.InfoClass {
+	font-family:"Times New Roman", Times, serif;
 	font-size: 14px;
 	padding-top:5px;
 	padding-bottom: 0px;
 }
 
 p.HideClass {
-	color:#8F0000;
+	font-family:"Times New Roman", Times, serif;
 	font-size:12px;
-	padding-top:0px;
+	color:#8F0000;
+/*	padding-top:0px;
 	padding-bottom:0px;
-	line-height:0px;
+	line-height:0px;*/
 }
 
 p.ShowClass {
 	color:#8F0000;
 	font-size:14px;
+}
+
+.test {
+	border: 2px solid gray;
 }
