@@ -1,34 +1,42 @@
-//alert("jquery");
 jQuery.noConflict();
 jQuery(document).ready(function($){
-	//alert("extraction.js is running");
+	extract();
 	
-	function parseError() {
+	function XMLAccessError() {
+//		alert("XML Access Error");
 		EditAuthorElement('RSS error');
+		// trigger extension code to start running
 		$('#HiddenAuthor').trigger('click');
-//		alert("RSS access error!");
+	};
+	
+	function YahooQuery($rss) {
+		//use Yahoo Query Api to get XML
+		var query = "select * from xml where url = "+ $rss;
+		var url = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(query) + "&format=xml";
+		$.ajax({
+			type: "GET",
+			url: $rss,
+			dataType: "xml",
+			success: parseRSS,
+			error: XMLAccessError
+		});
 	};
 
-	
-	extract();
-//<link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://www.counterpunch.org/feed/" />
 	function extract() {
 		dump("inside extract()\n");
 		var $title = null;
 		$title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if ($title==null) {
 			$title = $("h1").first().text(); //if og:title didn't work, get title from first h1
+			//what if no h1?
 		};
-//		$('#out1').append("Title: "+$title+"<br/>");
-//		alert("Title: "+$title);
+
 
 		var $author = null;
 		var $source = null;	//should get source from copyright too
 		var $rss = null
 		$rss = $("link[type='application/rss+xml']").attr("href");
-//		$rss = "http://www.umich.edu/~malvi/tariq.xml" //for demo
-//		$('#out1').append("RSS: "+$rss+"<br/>");
-//		alert("RSS: "+$rss);
+		//alert("Title: "+$title+"\nRSS: "+$rss);
 	
 	
 		$.ajax({
@@ -36,43 +44,33 @@ jQuery(document).ready(function($){
 			url: $rss,
 			dataType: "xml",
 			success: parseRSS,
-			error: parseError
-			//need to do something on failure
+			error: XMLAccessError//YahooQuery($rss)
 		});
 		
 		function parseRSS(xml) {
+			//alert("parsing XML");
 			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
-	//			$('#out1').append("Source: "+$source+"<br/>");
 
 			$(xml).find("item").find("title").each(function() {
 				if ($(this).text()==$title) {
-//					alert("title match found");
-	//					$('#out1').append("found match: ");
-	//					$('#out1').append($(this).text()+"<br/>");
 
 					$author = $(this).siblings("dc\\:creator").text();
-//					alert("Author: "+$author+"\nSource: "+$source);	
-	//					$('#out1').append("Author: "+$author+"<br/><br/>");
+					//alert("author found: "+$author);
 				};
 
 			});
-
-			//alert("Author: "+$author+"\nSource: "+$source);
-			EditAuthorElement($author);
-			$('#HiddenAuthor').trigger('click');
 			
 			dump("$author: " + $author + "\n");
-		//	callWikipediaAPI($author/*"Tariq Ali"*/, false);
-
+			// write author's name to hidden element on page for 
+			//		extension to lookup
+			EditAuthorElement($author);
+			// trigger extensions code to start running
+			$('#HiddenAuthor').trigger('click');
 		};
 	};
-		
-
-	//dummy
 
 });
-
 function EditAuthorElement(author)
 {
 	var AuthorElement = content.document.getElementById('HiddenAuthor');

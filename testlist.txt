@@ -1,0 +1,13 @@
+Need to add:
+site with no h1 header
+something that isn't actually a news site
+something not in english?
+
+Test:
+counterpunch.org
+huffpost.com
+english.aljazeera.net
+cnn.com
+fox.com
+nytimes.com
+informationclearinghouse.info
