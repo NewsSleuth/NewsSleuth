@@ -189,13 +189,9 @@ function addElements( )
 	var jquery = content.document.createElement("script");
 					jquery.type = "text/javascript";
 					jquery.src = "chrome://DisplayText/content/jquery.js";
-	var ui = content.document.createElement("script");
-					ui.type = "text/javascript";
-					ui.src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js";
 	var ext = content.document.createElement("script");
 					ext.type = "text/javascript";
 					ext.src = "chrome://DisplayText/content/messagebar.js";
-	top.appendChild(ui);
 	top.appendChild(jquery);
 	top.appendChild(ext);
 
@@ -380,12 +376,17 @@ var SetPreferences = {
 function CheckList ( )
 // Checks user's list of sites they want author information displayed for
 {
+	dump("inside CheckList()\n");
 	var URL = GetHost( );
 	
 	var file = GetPath( );
 	if ( !file.exists() )
+	{
+		dump("file doesn't exist\n");
 		return;
+	}
 	
+	dump("file exists\n");
 	// Check if url is in file
 	var fileContents = FileIO.read(file);
 	var line = fileContents.split("\n");
@@ -397,6 +398,7 @@ function CheckList ( )
 			return true;
 		}
 	}
+	dump("returning false\n");
 	//alert('Site is not in file');
 	return false;
 }
@@ -440,9 +442,9 @@ function GetPath ( )
 	// Returns path to profile directory
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+//	file.append("newssleuth@news.sleuthdir");
+//	if (!file.exists())
+//		DirIO.create(file);
 
 	file.append("SiteList.txt");
 	return file;	

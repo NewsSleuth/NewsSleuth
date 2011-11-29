@@ -30,4 +30,11 @@ Set these variables to true:
 
 The last one you will have to create.
 
+BRANCHES
 
+master, oldmaster, nlp
+
+CHANGES FROM ERIC'S CODE
+
+in browser.js and startup.js, commented out code where the program writes a directory for info files. 
+in GetPath and setUpDefaultSiteList functions respectively.

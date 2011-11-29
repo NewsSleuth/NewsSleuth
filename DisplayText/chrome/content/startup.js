@@ -2,6 +2,7 @@
 // Adds event listener to run every time a new page loads
 var myExtension = {
     init: function() {
+			  dump("init\n");
         // The event can be DOMContentLoaded, pageshow, pagehide, load or unload.  
         if(gBrowser) gBrowser.addEventListener("DOMContentLoaded", this.onPageLoad, false);
 		
@@ -45,9 +46,11 @@ var myExtension = {
 		// Return if not top window
 		if (win != win.top) return;	
 	
+					dump("onPageLoad()\n");
 		// Check if site is on list
 		if ( CheckList( ) )
 		{
+			dump("checklist\n");
 			var head = content.document.getElementsByTagName('head')[0];
 			var author = content.document.createElement('input');
 			author.type = 'hidden';
@@ -78,9 +81,9 @@ function setUpDefaultSiteList ( )
 {
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+//	file.append("newssleuth@news.sleuthdir");
+//	if (!file.exists())
+//		DirIO.create(file);
 
 	file.append("SiteList.txt");
 	
