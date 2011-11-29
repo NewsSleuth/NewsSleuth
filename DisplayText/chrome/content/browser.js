@@ -336,8 +336,10 @@ function DisplayAuthorInfo (info)
 	dump(AuthorParagraph + "\n");
 
 	// Have the information slide down rather than just appear
-	div.hidden = true;
-	div.click();
+	if(!div.hidden){
+		div.hidden = true;
+		div.click();
+	}
 }
 
  
