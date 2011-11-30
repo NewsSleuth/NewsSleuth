@@ -181,6 +181,7 @@ function firstP(data){
 
 function controversiesP(data)
 {
+	dump("inside controversiesP\n");
 	firstParagraph = firstP(data);
 	var controversyExists = false;
 	var paragraph1 = new String("");
@@ -319,10 +320,15 @@ function successDump(data)
 	{
 		DisplayAuthorInfo(data);
 	}
+	if(doAuthor){
+		doAuthor = false;
+		controversiesP(publisherData);
+	}
 }
 
 function errorDump(data)
 {
+	doAuthor = false;
 	dump("error!\n");
 }
 
@@ -366,6 +372,25 @@ function parseSummary(data)
 
 function callWikipediaAPI(authorPage, publicationPage) {
 	var wikipediaPage = authorPage;
+	if(authorPage != null && publicationPage != null){
+		publicationData = "";
+		option0 = true;
+		doAuthor = true;
+		callWikipediaAPI(authorPage, null);
+		wikipediaPage = publicationPage;
+	}
+	else if(publicationPage != null){
+		publicationData = "";
+		option1 = true;
+		wikipediaPage = publicationPage;
+	}
+	else if(authorPage != null){
+		authorData = "";
+		option2 = true;
+	}
+	else{
+		return;
+	}
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	if(wikipediaPage === null || wikipediaPage === undefined){
 		if (popup)
@@ -428,13 +453,41 @@ function callWikipediaAPI(authorPage, publicationPage) {
 						}
 						redirect = String.concat(redirect, data[i]);
 					}
-					callWikipediaAPI(redirect, publicationPage);
+					//redirect handling is broken for the time being
+					//the program is not independent of order of callbacks
+					if(option2){
+						callWikipediaAPI(redirect, null);
+					}
+					else if(option0){
+						callWikipediaAPI(null, redirect);
+					}
+					else{
+						callWikipediaAPI(null, redirect);
+					}
 					return;
 				}
 				result = parseFirstThou(data);
 				result = removeBrackets(result);
-				dump("result:\n" + result + "\n");
-				controversiesP(result);
+//				dump("result:\n" + result + "\n");
+				if(option2){
+					option2 = false;
+					dump("option2\n");
+					authorData = result;
+					if(!doAuthor){
+						controversiesP(authorData);
+					}
+				}
+				else if(option0){
+					option0 = false;
+					dump("option0\n");
+					publisherData = result;
+					controversiesP(authorData);
+				}
+				else if(option1){
+					option1 = false;
+					publisherData = result;
+					controversiesP(publisherData);
+				}
 				result = firstP(result);
 				dump("first paragraph: \n" + result + "\n");
 

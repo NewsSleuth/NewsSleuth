@@ -9,10 +9,21 @@ function HideId ( ) { return "mylink"; }
 function HideParagraphId ( ) { return "HideParagraph"; }
 
 var popup = false;
+//These variables allow us to pass the wikipedia results to callback functions.
+var authorData = new String("");
+var publisherData = new String("");
+//These variables allow the callback functions to know the state of the program,
+//since we can't pass arguments in. Option lets callWikipediaAPI know how it 
+//should call controversiesP. doAuthor lets successDump konw whether it should call
+//controversiesP.
+var option0 = false;
+var option1 = false;
+var option2 = false;
+var doAuthor = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-		callWikipediaAPI('Bill Clinton', null);	
+		callWikipediaAPI('Bill Clinton', "WSJ");	
 	return;
 /*
 		var doc = content.document,
@@ -38,7 +49,7 @@ var DisplayText = {
 		
 		
 		var selectedText = content.getSelection().toString();
-		callWikipediaAPI(selectedText, null);
+		callWikipediaAPI(selectedText, "WSJ");
 		return;
 	}
 };
@@ -86,7 +97,7 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
-	callWikipediaAPI(author, null);
+	callWikipediaAPI(author, "WSJ");
 	//callWikipediaAPI("Bill Clinton");
 }
 
@@ -139,7 +150,7 @@ function lookUpAuthor ()
 	var toggle = doc.getElementById('toggle_id');
 	toggle.click();
 
-	callWikipediaAPI(fixAuthor(author), null);
+	callWikipediaAPI(fixAuthor(author), "WSJ");
 }
 
 function findAuthor(searchText, searchNode) {
