@@ -364,7 +364,8 @@ function parseSummary(data)
 	return result;
 }
 
-function callWikipediaAPI(wikipediaPage) {
+function callWikipediaAPI(authorPage, publicationPage) {
+	var wikipediaPage = authorPage;
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
 	if(wikipediaPage === null || wikipediaPage === undefined){
 		if (popup)
@@ -427,7 +428,7 @@ function callWikipediaAPI(wikipediaPage) {
 						}
 						redirect = String.concat(redirect, data[i]);
 					}
-					callWikipediaAPI(redirect);
+					callWikipediaAPI(redirect, publicationPage);
 					return;
 				}
 				result = parseFirstThou(data);

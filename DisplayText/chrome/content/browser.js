@@ -12,7 +12,7 @@ var popup = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-		callWikipediaAPI('Bill Clinton');	
+		callWikipediaAPI('Bill Clinton', null);	
 	return;
 /*
 		var doc = content.document,
@@ -38,7 +38,7 @@ var DisplayText = {
 		
 		
 		var selectedText = content.getSelection().toString();
-		callWikipediaAPI(selectedText);
+		callWikipediaAPI(selectedText, null);
 		return;
 	}
 };
@@ -86,7 +86,7 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
-	callWikipediaAPI(author);
+	callWikipediaAPI(author, null);
 	//callWikipediaAPI("Bill Clinton");
 }
 
@@ -139,7 +139,7 @@ function lookUpAuthor ()
 	var toggle = doc.getElementById('toggle_id');
 	toggle.click();
 
-	callWikipediaAPI(fixAuthor(author));
+	callWikipediaAPI(fixAuthor(author), null);
 }
 
 function findAuthor(searchText, searchNode) {
