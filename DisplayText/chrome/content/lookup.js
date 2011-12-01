@@ -88,6 +88,11 @@ function parseFirstThou(data){
 			result = String.concat(result, data[i]);
 			count++;
 		}
+		else if(fileIgnore === false && tagIgnore === false && bracketIgnore === false && apostropheIgnore === false && commentIgnore === false){
+			if(data[i] === '{' && data[i+1] === '{' && data[i+2] === 'q' && data[i+3] === 'u' && data[i+4] === 'o' && data[i+5] === 't' && data[i+6] === 'e'){
+				result = String.concat(result, " rmvplz.");
+			}
+		}
 	}
 	dump("\ni: " + i + "\n");
 	dump("\ncount: " + count + "\n");
@@ -182,6 +187,7 @@ function firstP(data){
 function controversiesP(data)
 {
 	dump("inside controversiesP\n");
+	dump("data.length: " + data.length + "\n");
 	firstParagraph = firstP(data);
 	var controversyExists = false;
 	var paragraph1 = new String("");
@@ -250,6 +256,10 @@ function controversiesP(data)
 		if(controversyExists && !subHeading){
 			if(count < 5000){
 				headingArray[currentHeading] = String.concat(headingArray[currentHeading], data.charAt(i));
+				if(data[i] === '\n' || data[i] === '\r'){
+					headingArray[currentHeading] = String.concat(headingArray[currentHeading], ' ');
+					count++;
+				}
 				count = count+1;
 			}
 		}
@@ -274,7 +284,7 @@ function controversiesP(data)
 	dump(condensed);
 	var compression = 10;
 	//paragraph = new String("To be or not to be? That is the question. Whether 'tis nobler in the mind to suffer the slings");
-	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=20&Text1=");
+	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=10&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
 	pageUrl = String.concat(pageUrl, "&Text2=&Text3=");
 	jQuery.noConflict();
@@ -304,6 +314,7 @@ function getFirst(par, max)
 function successDump(data)
 {
 	dump("success!\n");
+	dump(data);
 	data = fixSpaces(data);
 	data = parseSummary(data);
 	dump(data);
@@ -356,20 +367,58 @@ function parseSummary(data)
 			break;
 		}
 	}
+	i += 3;
 	for(; i < data.length; i++){
 		if(data[i] === '<' && data[i+1] === 'H'){
 			break;
 		}
+		if(data[i] === '[' && data[i+2] === ']'){
+			i += 3;
+		}
 		if(data[i] === '<' && data[i+1] === 'b'){
 			i += 3;
+			result = String.concat(result, ' ');
 		}
 		else{
 			result = String.concat(result, data[i]);
 		}
 	}
+	data = result;
+	result = new String("");
+	var quote = false;
+	for(i = 0; i < data.length; i++){
+		if(data[i+1] === '"' && quote){
+			if(data[i] === ' '){
+			i++;
+			quote = false;
+			result = String.concat(result, '"');
+			continue;
+			}
+			else{
+				result = String.concat(result, String.concat(data[i], '"'));
+				quote = false;
+				i++;
+				continue;
+			}
+		}
+		if(data[i] === '"' && !quote){
+			quote = true;
+			i++;
+			result = String.concat(result, '"');
+			continue;
+		}
+		if(data[i] === ' ' && data[i-1] === '('){
+			continue;
+		}
+		if(data[i] === ' ' && i < data.length-1 && data[i+1] === ')'){
+			continue;
+		}
+		result = String.concat(result, data[i]);
+	}
 	return result;
 }
 
+//if either argument is null, doesn't do that call
 function callWikipediaAPI(authorPage, publicationPage) {
 	var wikipediaPage = authorPage;
 	if(authorPage != null && publicationPage != null){
@@ -491,7 +540,7 @@ function callWikipediaAPI(authorPage, publicationPage) {
 				result = firstP(result);
 				dump("first paragraph: \n" + result + "\n");
 
-				StoredInfo.value = result;
+				StoredInfo.value = String.concat(StoredInfo.value, result);
 							
 				if (popup)
 				{
