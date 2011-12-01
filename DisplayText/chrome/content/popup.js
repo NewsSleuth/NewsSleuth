@@ -1,6 +1,8 @@
+var my_window = null;
 function AuthorWindow (author, info)
-{	
-	my_window = window.open("", "authorInfoWindow", "status=1,width=500,height=300");
+{
+	my_window = window.open("", "authorInfoWindow", "status=1,width=500,height=300,scrollbars=yes, resizable=yes");
+	my_window.addEventListener('beforeunload', windowClose, true);
 	my_window.document.bgColor = '#F1EDC2';
 	var style = my_window.content.document.createElement("link");
 	style.id = "headertext-style";
@@ -16,6 +18,8 @@ function AuthorWindow (author, info)
 	var InfoPara = my_window.content.document.createElement('p');
 	InfoPara.id = "popupInfo";
 	InfoPara.className = "poupInfoClass";
+	if (info === 'nopage')
+		info = 'No information found for ' + fixAuthor(author);
 	var content = my_window.content.document.createTextNode(info);
 	InfoPara.appendChild(content);
 	
@@ -28,4 +32,8 @@ function AuthorWindow (author, info)
 	
 	
 	popup = false;
+}
+
+function windowClose() {
+		my_window = null;
 }

@@ -64,16 +64,19 @@ jQuery(document).ready(function($){
 			dump("$author: " + $author + "\n");
 			// write author's name to hidden element on page for 
 			//		extension to lookup
-			EditAuthorElement($author);
+			EditAuthorElement($author, 'none');
+			
 			// trigger extensions code to start running
 			$('#HiddenAuthor').trigger('click');
 		};
 	};
 
 });
-function EditAuthorElement(author)
+function EditAuthorElement(author, publication)
 {
 	var AuthorElement = content.document.getElementById('HiddenAuthor');
 	//alert(AuthorElement.value);
 	AuthorElement.value = author;
+	var PublicationElement = content.document.getElementById('HiddenPublication');
+	PublicationElement.value = publication;
 }

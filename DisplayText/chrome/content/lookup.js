@@ -27,6 +27,13 @@ function parseFirstThou(data){
 			if(data[i-3] === '}'){
 				braces += .5;
 			}
+			if(data[i] === ';'){
+				if(braces === 0){
+					braceIgnore = false;
+				}
+				else braceIgnore = true;
+				continue;
+			}
 		}
 		if(data[i] === '{' && data[i+1] ==='{'){
 			braces++;
@@ -118,7 +125,12 @@ function removeBrackets(data)
 			result = String.concat(result, '-');
 		}
 		if(data[i] === '&'){
-			result = String.concat(result, "and");
+			if(!bracketIgnore){
+				result = String.concat(result, "and");
+			}
+			else{
+				placeholder = String.concat(placeholder, "and");
+			}
 			i += 1;
 		}
 		if(data[i] === '<' && data[i+1] === 'b' && data[i+2] === 'l' && data[i+3] === 'o'){

@@ -10,11 +10,10 @@ var CustomButton = {
 
 		var AuthorElement = doc.getElementById('HiddenAuthor');
 		var author = AuthorElement.value;
-		if (author !== 'none') {
-			callWikipediaAPI(author);
-		} else {		
-			var head = content.document.getElementsByTagName('h1')[0];
-			if (head)
+		if (author === 'none') {
+			var body = content.document.body;
+//			var head = content.document.getElementsByTagName('h1')[0];
+			if (body)
 			{
 				var jquery = content.document.createElement("script");
 				jquery.type = "text/javascript";
@@ -24,12 +23,16 @@ var CustomButton = {
 				ext.type = "text/javascript";
 				ext.src = "chrome://DisplayText/content/extraction.js";
 
-				//head.appendChild(jquery);
-				head.appendChild(ext);
+				//body.appendChild(jquery);
+				body.appendChild(ext);
 			}
 			else
-				alert("no head");
-				
+				alert("no body");
+		} else if (author === 'RSS error') {
+			alert('rss error');
+		} else {
+			callWikipediaAPI(author);
 		}
+		popup = false;
 	}
 }
