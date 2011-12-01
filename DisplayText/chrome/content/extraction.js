@@ -1,7 +1,65 @@
 jQuery.noConflict();
 jQuery(document).ready(function($){
-	extract();
+	getAuthor();
 	
+	function getAuthor() {
+		var authorRawT = "";
+		//alert(authorRawT.length);
+
+		var html = document.documentElement.innerHTML;
+		//alert(html);
+		var match = />\s*by\s+([\w\-\s,]+)/i.exec(html);
+		alert(match[1]);
+		//return match[1];
+		
+
+		// //huffington post//
+		// if (authorRawT.length == 0) {
+			// authorRawT = $("meta[name='author']").attr("content");
+			// alert("var "+authorRawT);
+			// //alert(".text() "+authorRawT.text());
+		// };
+
+	}
+	
+	function alertText(text) {
+		alertQuote("'"+text+"'");
+	}
+	
+	function getSource() {
+		var source = getSourceFromCopyRight();
+		source = fixSource(source);
+		EditAuthorElement(source);
+		$('#HiddenAuthor').trigger('click');
+	}
+	
+	function getSourceFromCopyRight() {
+		var $div = $("<div>");
+
+		$.expr[":"].containsEnc = function(a, b, c, d) {
+			var decoded = $div.html(c[3]).text();
+			
+			return ~a.textContent.indexOf(decoded);
+		};
+
+		var foundin = $('*:containsEnc("&copy")').first();
+		var text = foundin.text();
+
+		var index = text.indexOf("\u00a9");
+		if (index == -1)
+			return null;
+		
+		text = text.substr(index, 200);
+		
+		var match = /\u00a9[\W\s\d]*([\w ]*(?:\.\w+)?)/.exec(text);
+
+		return match[1];
+	}
+	
+	function fixSource(source) {
+		source = source.replace(/\s+(inc|llc)$/i, "");
+		return source
+	}	
 	function XMLAccessError() {
 //		alert("XML Access Error");
 		EditAuthorElement('RSS error');
@@ -9,18 +67,7 @@ jQuery(document).ready(function($){
 		$('#HiddenAuthor').trigger('click');
 	};
 	
-	function YahooQuery($rss) {
-		//use Yahoo Query Api to get XML
-		var query = "select * from xml where url = "+ $rss;
-		var url = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(query) + "&format=xml";
-		$.ajax({
-			type: "GET",
-			url: $rss,
-			dataType: "xml",
-			success: parseRSS,
-			error: XMLAccessError
-		});
-	};
+
 
 	function extract() {
 		dump("inside extract()\n");
@@ -32,7 +79,7 @@ jQuery(document).ready(function($){
 		};
 
 
-		var $author = null;
+		
 		var $source = null;	//should get source from copyright too
 		var $rss = null
 		$rss = $("link[type='application/rss+xml']").attr("href");
@@ -44,19 +91,19 @@ jQuery(document).ready(function($){
 			url: $rss,
 			dataType: "xml",
 			success: parseRSS,
-			error: XMLAccessError//YahooQuery($rss)
+			error: YahooQuery
 		});
 		
 		function parseRSS(xml) {
-			//alert("parsing XML");
+			alert("parsing XML");
 			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
-
-			$(xml).find("item").find("title").each(function() {
+			var $author = null;
+			$(xml).find("title").each(function() {
 				if ($(this).text()==$title) {
 
 					$author = $(this).siblings("dc\\:creator").text();
-					//alert("author found: "+$author);
+					return false;
 				};
 
 			});
@@ -64,13 +111,29 @@ jQuery(document).ready(function($){
 			dump("$author: " + $author + "\n");
 			// write author's name to hidden element on page for 
 			//		extension to lookup
+			$author = fixAuthor($author);
 			EditAuthorElement($author);
+			alert("author found: "+$author);
 			// trigger extensions code to start running
 			$('#HiddenAuthor').trigger('click');
+		};
+		
+		function YahooQuery() {
+			//use Yahoo Query Api to get XML
+			var query = "select * from xml where url = "+ $rss;
+			var url = "http://query.yahooapis.com/v1/public/yql?q=" + encodeURIComponent(query) + "&format=xml";
+			$.ajax({
+				type: "GET",
+				url: $rss,
+				dataType: "xml",
+				success: parseRSS,
+				error: XMLAccessError
+			});
 		};
 	};
 
 });
+
 function EditAuthorElement(author)
 {
 	var AuthorElement = content.document.getElementById('HiddenAuthor');

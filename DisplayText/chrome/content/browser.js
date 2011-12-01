@@ -23,7 +23,7 @@ var doAuthor = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-		callWikipediaAPI('Bill Clinton', "WSJ");	
+		callWikipediaAPI('Bill Clinton', null);	
 	return;
 /*
 		var doc = content.document,
@@ -49,7 +49,7 @@ var DisplayText = {
 		
 		
 		var selectedText = content.getSelection().toString();
-		callWikipediaAPI(selectedText, "WSJ");
+		callWikipediaAPI(selectedText, null);
 		return;
 	}
 };
@@ -97,7 +97,7 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
-	callWikipediaAPI(author, "WSJ");
+	callWikipediaAPI(author, null);
 	//callWikipediaAPI("Bill Clinton");
 }
 
@@ -150,7 +150,7 @@ function lookUpAuthor ()
 	var toggle = doc.getElementById('toggle_id');
 	toggle.click();
 
-	callWikipediaAPI(fixAuthor(author), "WSJ");
+	callWikipediaAPI(fixAuthor(author), null);
 }
 
 function findAuthor(searchText, searchNode) {
