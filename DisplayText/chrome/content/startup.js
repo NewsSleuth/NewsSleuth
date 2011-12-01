@@ -2,6 +2,7 @@
 // Adds event listener to run every time a new page loads
 var myExtension = {
     init: function() {
+			  dump("init\n");
         // The event can be DOMContentLoaded, pageshow, pagehide, load or unload.  
         if(gBrowser) gBrowser.addEventListener("DOMContentLoaded", this.onPageLoad, false);
 		
@@ -44,19 +45,27 @@ var myExtension = {
 		
 		// Return if not top window
 		if (win != win.top) return;	
-		
+
 		if (win.location.href != content.document.location.href)
 			return;
-		// Check if site is on list
+
+			// Check if site is on list
 		if ( CheckList( ) )
 		{
 			var head = content.document.body;//getElementsByTagName('head')[0];
+			dump("onPageLoad()\n");
 			var author = content.document.createElement('input');
 			author.type = 'hidden';
 			author.value = 'none';
 			author.id = 'HiddenAuthor';
 			head.appendChild(author);
 			author.addEventListener("click", AuthorFound, true);
+			
+			var publication = content.document.createElement('input');
+			publication.type = 'hidden';
+			publication.value = 'none';
+			publication.id = 'HiddenPublication';
+			head.appendChild(publication);
 			
 			var storedInfo = content.document.createElement('input');
 			storedInfo.type = 'hidden';
@@ -83,9 +92,9 @@ function setUpDefaultSiteList ( )
 	
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+//	file.append("newssleuth@news.sleuthdir");
+//	if (!file.exists())
+//		DirIO.create(file);
 
 	file.append("SiteList.txt");
 	
@@ -101,14 +110,15 @@ function setUpDefaultSiteList ( )
 	}
 }
 
+
 var loc = ['www.counterpunch.org tag h1', 'www.nytimes.com tag h1', 'www.huffingtonpost.com tag h1'];
 function setUpTitleLocationFile ( )
 {
 	var file = DirIO.get("ProfD");
 	file.append('extensions');
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+	//file.append("newssleuth@news.sleuth");
+	//if (!file.exists())
+	//	DirIO.create(file);
 	
 	file.append("TitleLocation.txt");
 	

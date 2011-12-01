@@ -78,10 +78,20 @@ function GetTitleElement( path, TitleElement )
 }
 
 var popup = false;
+//These variables allow us to pass the wikipedia results to callback functions.
+var authorData = new String("");
+var publisherData = new String("");
+//These variables allow the callback functions to know the state of the program,
+//since we can't pass arguments in. Option lets callWikipediaAPI know how it 
+//should call controversiesP. doAuthor lets successDump konw whether it should call
+//controversiesP.
+var option0 = false;
+var option1 = false;
+var option2 = false;
+var doAuthor = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-
 		createTopBar( );
 		var doc = content.document;
 		var bar = doc.getElementById('bar_id');
@@ -92,14 +102,10 @@ var DisplayText = {
 					ext.type = "text/javascript";
 					ext.src = "chrome://DisplayText/content/slideElement.js";	
 		top.appendChild(ext);
+
+//		callWikipediaAPI('Bill Clinton', "WSJ");	
+	return;
 		
-//		content.document.addEventListener("mousedown", mouseHandler, true);
-		return;
-		
-		
-		var selectedText = content.getSelection().toString();
-		callWikipediaAPI(selectedText);
-		return;
 	}
 };
 
@@ -295,6 +301,8 @@ function AddPageStyle ( )
 	HeadOfPage.appendChild(style);
 }
 
+
+
 function AuthorFound ( )
 {
 	// Code runs when its triggered by the extraction code
@@ -302,6 +310,9 @@ function AuthorFound ( )
 	var doc = content.document;
 	var AuthorElement = doc.getElementById('HiddenAuthor');
 	var author = AuthorElement.value;
+	var publication = doc.getElementById('HiddenPublication').value;
+	if (publication === 'none')
+		publication = null;
 	
 	if (author === 'none')
 	{
@@ -317,7 +328,8 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
-	callWikipediaAPI(author);
+	callWikipediaAPI(author, publication);
+//	callWikipediaAPI(author, "WSJ");
 }
 
 function AuthorNotFound ( )
@@ -375,7 +387,8 @@ function lookUpAuthor ()
 
 	//findAuthor(author);
 	
-	callWikipediaAPI(fixAuthor(author));
+//	callWikipediaAPI(fixAuthor(author));
+	callWikipediaAPI(fixAuthor(author), "WSJ");
 }
 
 function findAuthor(searchText, searchNode) {
@@ -628,8 +641,10 @@ function DisplayAuthorInfo (info)
 	}
 
 	// Have the information slide down rather than just appear
-	div.hidden = true;
-	div.click();
+	if(!div.hidden){
+		div.hidden = true;
+		div.click();
+	}
 }
 
  
@@ -668,12 +683,17 @@ var SetPreferences = {
 function CheckList ( )
 // Checks user's list of sites they want author information displayed for
 {
+	dump("inside CheckList()\n");
 	var URL = GetHost( );
 	
 	var file = GetPath( );
 	if ( !file.exists() )
+	{
+		dump("file doesn't exist\n");
 		return;
+	}
 	
+	dump("file exists\n");
 	// Check if url is in file
 	var fileContents = FileIO.read(file);
 	var line = fileContents.split("\n");
@@ -685,6 +705,7 @@ function CheckList ( )
 			return true;
 		}
 	}
+	dump("returning false\n");
 	//alert('Site is not in file');
 	return false;
 }
@@ -717,9 +738,9 @@ function GetPath ( )
 	// Returns path to profile directory
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+//	file.append("newssleuth@news.sleuthdir");
+//	if (!file.exists())
+//		DirIO.create(file);
 
 	file.append("SiteList.txt");
 	return file;	
@@ -729,9 +750,9 @@ function GetLocPath( )
 {
 	var file = DirIO.get("ProfD");
 	file.append("extensions");
-	file.append("newssleuth@news.sleuth");
-	if (!file.exists())
-		DirIO.create(file);
+//	file.append("newssleuth@news.sleuth");
+//	if (!file.exists())
+//		DirIO.create(file);
 	file.append("TitleLocation.txt");
 	return file;
 }

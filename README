@@ -30,4 +30,17 @@ Set these variables to true:
 
 The last one you will have to create.
 
+BRANCHES
 
+master, oldmaster, nlp
+
+CHANGES FROM ERIC'S CODE
+
+in browser.js and startup.js, commented out code where the program writes a directory for info files. 
+in GetPath and setUpDefaultSiteList functions respectively.
+
+DEPENDENCE ON ORDER OF CALLBACKS
+
+Right now the functionality is dependent on the order in which the callback functions are executed.
+This means that the redirect functionality is almost certainly buggy, particularly when the author
+is redirected, and all of the wikipediaAPI functionality could well be buggy too.

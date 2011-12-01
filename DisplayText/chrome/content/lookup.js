@@ -94,15 +94,36 @@ function parseFirstThou(data){
 	return result;
 }
 
-function removeBrackets(data){
+function removeBrackets(data)
+{
 
-	dump("removing brackets\n");
+	//dump("removing brackets\n");
 	var result = new String("");
 	var placeholder = new String("");
 	var brackets = 0;
 	var bracketIgnore = false;
 
 	for(var i = 0; i < data.length; i++){
+		if(data[i] === '&' && data[i+1] === 'm' && data[i+2] === 'd'){
+			i += 7;
+			result = String.concat(result, '-');
+		}
+		if(data[i] === '&' && data[i+1] === 'n' && data[i+2] === 'b'){
+			i += 6;
+			result = String.concat(result, '-');
+		}
+		if(data[i] === '&'){
+			result = String.concat(result, "and");
+			i += 1;
+		}
+		if(data[i] === '<' && data[i+1] === 'b' && data[i+2] === 'l' && data[i+3] === 'o'){
+			i += 12;
+			result = String.concat(result, '"');
+		}
+		if(data[i] === '<' && data[i+1] === '/' && data[i+2] === 'b' && data[i+3] === 'l' && data[i+4] === 'o'){
+			i += 13;
+			result = String.concat(result, '"');
+		}
 		if(data[i] === '[' && data[i+1] === '['){
 			brackets++;
 		}
@@ -116,7 +137,10 @@ function removeBrackets(data){
 		if(brackets > 0){
 			bracketIgnore = true;
 		}else bracketIgnore = false;
-		if(bracketIgnore === false){
+		if(data[i] === '\'' && data[i+1] === '\''){
+			i++;
+		}
+		else if(bracketIgnore === false){
 			result = String.concat(result, data[i]);
 		}
 		else{
@@ -155,10 +179,229 @@ function firstP(data){
 	return result;
 }
 
+function controversiesP(data)
+{
+	dump("inside controversiesP\n");
+	firstParagraph = firstP(data);
+	var controversyExists = false;
+	var paragraph1 = new String("");
+	var paragraph2 = new String("");
+	var paragraph3 = new String("");
+	var count = 0;
+	var subHeading = false;
+	var i = 0;
+	var headingArray = new Array();
+	var currentHeading;
+	for(i = 0; i < data.length; i++){
+		if(data[i] === '=' && data[i+1] === '='){
+			if(data[i+2] === '='){
+				i = i + 3;
+				if(controversyExists){
+					currentHeading = new String("");
+					for(; data[i] != '=' || data[i+1] != '='; i++){
+						currentHeading = String.concat(currentHeading, data.charAt(i));
+					}
+					if(headingArray[currentHeading] != undefined){
+						currentHeading = String.concat(currentHeading, "0");
+					}
+					headingArray[currentHeading] = new String();
+					i = i+3;
+					count = 0;
+				}
+				else{
+					subHeading = (subHeading)? false : true;
+				}
+			}
+			else{
+				i = i+2;
+				var heading = [];
+				var j = 0;
+				heading[j] = new String("");
+				//dump("Headings:\n");
+				currentHeading = new String("");
+				for(; data[i] != '=' || data[i+1] != '='; i++){
+					if(data[i] === ' '){
+						j++;
+						heading[j] = new String("");
+					}
+					else{ heading[j] = String.concat(heading[j], data.charAt(i));}
+					currentHeading = String.concat(currentHeading, data[i]);
+				}
+				i = i + 2;
+				if(headingArray[currentHeading] != undefined){
+					currentHeading = String.concat(currentHeading, "0");
+				}
+				for(x in heading){
+					dump(heading[x] + "\n");
+					heading[x] = String.toLowerCase(heading[x]);
+					if(heading[x].search("controvers") > -1 || heading[x].search("critic") > -1 || heading[x].search("view") > -1 || heading[x].search("opinion") > -1 || heading[x].search("position") > -1 || heading[x].search("politic") > -1 || heading[x].search("bias") > -1 || heading[x].search("editorial") > -1){
+						headingArray[currentHeading] = new String("");
+						count = 0;
+						controversyExists = true;
+					}
+				}
+				if(count != 0){
+					controversyExists = false;
+				}
+			}
+		}
+//for some reason it doesn't like it when I send more than about 6000 characters. Maybe the URL is too long
+//or maybe there's a bug somewhere. It doesn't matter how the characters are divided up among the strings.
+		if(controversyExists && !subHeading){
+			if(count < 5000){
+				headingArray[currentHeading] = String.concat(headingArray[currentHeading], data.charAt(i));
+				count = count+1;
+			}
+		}
+	}
+	dump("\ni: " + i + "\n");
+	var result = new String("");
+	var size = 0;
+	condensed = new String("");
+	for(x in headingArray){
+		result = String.concat(result, headingArray[x]);
+		dump("\n" + x + "\n");
+		dump(headingArray[x]);
+		size += headingArray[x].length;
+	}
+	dump("\n" + size + "\n");
+	for(x in headingArray){
+		var max = (headingArray[x].length/size)*5000;
+		dump("max: " + max + "\n");
+		condensed = String.concat(condensed, getFirst(headingArray[x], max));
+		condensed = String.concat(condensed, "\n\n");
+	}
+	dump(condensed);
+	var compression = 10;
+	//paragraph = new String("To be or not to be? That is the question. Whether 'tis nobler in the mind to suffer the slings");
+	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=20&Text1=");
+	pageUrl = String.concat(pageUrl, condensed);
+	pageUrl = String.concat(pageUrl, "&Text2=&Text3=");
+	jQuery.noConflict();
+	jQuery.ajax({
+		type: "GET",
+		url: pageUrl,
+		dataType: "html",
+		success: successDump,
+		error: errorDump
+		});
+}
 
+function getFirst(par, max)
+{
+	var result = new String("");
+	var temp = new String("");
+	for(var i = 0; i < par.length && i < max; i++){
+		temp = String.concat(temp, par[i]);
+		if(par[i] === '.'){
+			result = String.concat(result, temp);
+			temp = new String("");
+		}
+	}
+	return result;
+}
 
-function callWikipediaAPI(wikipediaPage) {
+function successDump(data)
+{
+	dump("success!\n");
+	data = fixSpaces(data);
+	data = parseSummary(data);
+	dump(data);
+
+	var doc = content.document;
+	var StoredInfo = doc.getElementById('HiddenInfo');
+	StoredInfo.value = String.concat(StoredInfo.value, data);
+	if (popup)
+	{
+		AuthorWindow(wikipediaPage, data);
+		DisplayHideOrShow (false);
+	}
+	else
+	{
+		DisplayAuthorInfo(data);
+	}
+	if(doAuthor){
+		doAuthor = false;
+		controversiesP(publisherData);
+	}
+}
+
+function errorDump(data)
+{
+	doAuthor = false;
+	dump("error!\n");
+}
+
+function fixSpaces(data)
+{
+
+	var result = new String("");
+	var brackets = 0;
+
+	for(var i = 0; i < data.length; i++){
+		if(data[i] === ' ' &&  (data[i+1] === '.' || data[i+1] === ',' || data[i+1] === ':' || data[i+1] === ';' || data[i+1] === '?' || data[i+1] === '!')){
+			i++;
+		}
+		result = String.concat(result, data[i]);
+	}
+	return result;
+}
+
+function parseSummary(data)
+{
+	var result = new String("");
+	var i = 0;
+	for(i = 0; i < data.length; i++){
+		if(data[i] === '[' && data[i+1] === '1' && data[i+2] === ']'){
+			break;
+		}
+	}
+	for(; i < data.length; i++){
+		if(data[i] === '<' && data[i+1] === 'H'){
+			break;
+		}
+		if(data[i] === '<' && data[i+1] === 'b'){
+			i += 3;
+		}
+		else{
+			result = String.concat(result, data[i]);
+		}
+	}
+	return result;
+}
+
+function callWikipediaAPI(authorPage, publicationPage) {
+	var wikipediaPage = authorPage;
+	if(authorPage != null && publicationPage != null){
+		publicationData = "";
+		option0 = true;
+		doAuthor = true;
+		callWikipediaAPI(authorPage, null);
+		wikipediaPage = publicationPage;
+	}
+	else if(publicationPage != null){
+		publicationData = "";
+		option1 = true;
+		wikipediaPage = publicationPage;
+	}
+	else if(authorPage != null){
+		authorData = "";
+		option2 = true;
+	}
+	else{
+		return;
+	}
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
+	if(wikipediaPage === null || wikipediaPage === undefined){
+		if (popup)
+		{
+			AuthorWindow(wikipediaPage, "No information found.");
+		}
+		else
+		{
+			DisplayAuthorInfo ("No information found.");
+		}
+	}
 	
 	var doc = content.document;
 	
@@ -170,6 +413,10 @@ function callWikipediaAPI(wikipediaPage) {
 		dump("inside if block\n");
 		remoteApi({action: "query", prop: "revisions", rvprop: "content", titles: wikipediaPage}, function (res){
 			dump("inside callback for jsmwapi\n");
+			if(res.query === undefined){
+				DisplayAuthorInfo('Information not found');
+				return;
+			}
 			for(var page in res.query.pages){
 				//alert(res.query.pages[page].title);
 				dump("page: " + page);
@@ -189,16 +436,58 @@ function callWikipediaAPI(wikipediaPage) {
 					}
 				}
 				var data;
-				var count = 0;
 				for(i in res.query.pages[page]["revisions"][0]){
 					data = res.query.pages[page]["revisions"][0][i];
-					for(j in res.query.pages[page]["revisions"][0][i]){
-						//data[count++] = res.query.pages[page]["revisions"][0][i][j];
+				}
+				if(data[0] === '#' && data[1] === 'R'){
+					var i = 0;
+					var redirect = new String("");
+					for(i = 0; i < data.length; i++){
+						if(data[i-2] === '['){
+							break;
+						}
 					}
+					for(; i < data.length; i++){
+						if(data[i] === ']'){
+							break;
+						}
+						redirect = String.concat(redirect, data[i]);
+					}
+					//redirect handling is broken for the time being
+					//the program is not independent of order of callbacks
+					if(option2){
+						callWikipediaAPI(redirect, null);
+					}
+					else if(option0){
+						callWikipediaAPI(null, redirect);
+					}
+					else{
+						callWikipediaAPI(null, redirect);
+					}
+					return;
 				}
 				result = parseFirstThou(data);
 				result = removeBrackets(result);
-				dump("result:\n" + result + "\n");
+//				dump("result:\n" + result + "\n");
+				if(option2){
+					option2 = false;
+					dump("option2\n");
+					authorData = result;
+					if(!doAuthor){
+						controversiesP(authorData);
+					}
+				}
+				else if(option0){
+					option0 = false;
+					dump("option0\n");
+					publisherData = result;
+					controversiesP(authorData);
+				}
+				else if(option1){
+					option1 = false;
+					publisherData = result;
+					controversiesP(publisherData);
+				}
 				result = firstP(result);
 				dump("first paragraph: \n" + result + "\n");
 

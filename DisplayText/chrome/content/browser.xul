@@ -19,8 +19,6 @@
   <script type="application/javascript"
           src="chrome://DisplayText/content/Io.js"/>
 
-	
-	  
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/jquery.js"/>
   <script type="application/x-javascript"
