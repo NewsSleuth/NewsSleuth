@@ -65,6 +65,7 @@ jQuery(document).ready(function($){
 			// write author's name to hidden element on page for 
 			//		extension to lookup
 			EditAuthorElement($author);
+			
 			// trigger extensions code to start running
 			$('#HiddenAuthor').trigger('click');
 		};

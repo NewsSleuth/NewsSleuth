@@ -19,8 +19,7 @@
   <script type="application/javascript"
           src="chrome://DisplayText/content/Io.js"/>
 
-	  <script type="application/x-javascript"
-           src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js"/>
+	
 	  
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/jquery.js"/>

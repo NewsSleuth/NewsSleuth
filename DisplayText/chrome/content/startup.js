@@ -44,11 +44,13 @@ var myExtension = {
 		
 		// Return if not top window
 		if (win != win.top) return;	
-	
+		
+		if (win.location.href != content.document.location.href)
+			return;
 		// Check if site is on list
 		if ( CheckList( ) )
 		{
-			var head = content.document.getElementsByTagName('head')[0];
+			var head = content.document.body;//getElementsByTagName('head')[0];
 			var author = content.document.createElement('input');
 			author.type = 'hidden';
 			author.value = 'none';
@@ -68,6 +70,7 @@ var myExtension = {
 			else
 				EditPage (false);
 		}
+		return;
     }
 }  
 window.addEventListener("load", function() { myExtension.init(); }, false);  
@@ -76,6 +79,8 @@ var sites = ['www.counterpunch.org', 'www.nytimes.com', 'www.huffingtonpost.com'
 
 function setUpDefaultSiteList ( )
 {
+	setUpTitleLocationFile( );
+	
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
 	file.append("newssleuth@news.sleuth");
@@ -93,5 +98,28 @@ function setUpDefaultSiteList ( )
 	FileIO.write(file, sites[0] + '\n');
 	for (var i = 1; i < sites.length; i++) {
 		FileIO.write(file, sites[i] + '\n', 'a');
+	}
+}
+
+var loc = ['www.counterpunch.org tag h1', 'www.nytimes.com tag h1', 'www.huffingtonpost.com tag h1'];
+function setUpTitleLocationFile ( )
+{
+	var file = DirIO.get("ProfD");
+	file.append('extensions');
+	file.append("newssleuth@news.sleuth");
+	if (!file.exists())
+		DirIO.create(file);
+	
+	file.append("TitleLocation.txt");
+	
+	if (!file.exists()) {
+		FileIO.create(file);
+	} else {
+		return;
+	}
+	
+	FileIO.write(file, loc[0] + '\n');
+	for (var i = 1; i < loc.length; i++) {
+		FileIO.write(file, loc[i] + '\n', 'a');
 	}
 }

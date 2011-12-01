@@ -1,39 +1,99 @@
-function TitleLocation ( ) { return "h1"; }
+//function TitleLocation ( ) { return "h1"; }
 function boxId ( ) {return "InfoBoxId";}
-function AuthorTag ( ) {return "AuthorInfo"; }
-function AuthorId (  ) {return "AuthorParagraph"; }
 function AuthorClass ( ) {return "InfoClass"}
-function HideClass ( ) { return "HideClass"; }
-function ShowClass ( ) { return "ShowClass"; }
-function HideId ( ) { return "mylink"; }
-function HideParagraphId ( ) { return "HideParagraph"; }
+function TitleLocation(TitleElement)
+{
+	var site = GetHost( );
+	var file = GetLocPath ( );
+	if ( !file.exists() )
+		return;
+	
+	// Check if url is in file
+	var fileContents = FileIO.read(file);
+	var line = fileContents.split("\n"),
+		len = line.length;
+	var siteInFile = false;
+	while(len--)
+	{	
+		var split = line[len].split(' ');
+		if ( site === split[0] )
+		{
+			// Find and return the title element of page
+			if(GetTitleElement(line[len], TitleElement))
+				return true;
+			siteInFile = true;
+		}
+	}
+	//alert('Site is not in file');
+	return siteInFile;
+}
+function GetTitleElement( path, TitleElement )
+{
+	var doc = content.document;
+	var split = path.split(' '),
+		len = split.length-1;
+
+	if (len < 2) return false;
+
+	var value = split[len--],
+		type = split[len--];
+	
+	// get first element on path to title 
+	if (type === 'tag')
+		cn = doc.getElementsByTagName(value)[0];
+	else if (type === 'class')
+		cn = doc.getElementsByClassName(value)[0];
+	else if (type === 'id')
+		cn = doc.getElementById(value);
+	
+	// If there's more to the path continue until title element is found
+	// Happens if element directly containing title isn't unique to page
+	while(len > 1)
+	{
+		value = split[len--];
+		type = split[len--];
+		//alert(type + ' ' + value);
+		var childNodes = cn.childNodes,
+			size = childNodes.length;
+		for (var i = 0; i < size; i++)
+		{
+			if (type === 'tag' && childNodes[i].tagName === value) {
+				cn = childNodes[i];
+				break;
+			} else if (type === 'class' && childNodes[i].className === value) {
+				cn = childNodes[i];
+				break;
+			} else if (type === 'id' && childNodes[i].id) {
+				cn = childNodes[i];
+				break;
+			}
+		}
+	}
+	// Set TitleElement to the element containing the title
+	TitleElement.item = cn;
+	if (cn) {
+		return true;
+	}
+	return false;
+}
 
 var popup = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-		callWikipediaAPI('Bill Clinton');	
-	return;
-/*
-		var doc = content.document,
-			top = doc.body.parentNode,
-			bar = doc.createElement('div'),
-			text = doc.createTextNode('testing');
-			
-		bar.className = 'InfoClass';
+
+		createTopBar( );
+		var doc = content.document;
+		var bar = doc.getElementById('bar_id');
+		var box = doc.createElement('div');
+		box.id = 'bar_info_id';
+		var top = doc.body;
+		bar.appendChild(box);var ext = content.document.createElement("script");
+					ext.type = "text/javascript";
+					ext.src = "chrome://DisplayText/content/slideElement.js";	
+		top.appendChild(ext);
 		
-		bar.appendChild(text);
-		top.insertBefore(bar, top.firstChild);
-		
-		var input = doc.createElement('input'),
-			button = doc.createElement('input');
-		button.type = 'button';
-		button.value = 'test';
-		
-		bar.appendChild(input);
-		bar.appendChild(button);
-		*/
-		content.document.addEventListener("mousedown", mouseHandler, true);
+//		content.document.addEventListener("mousedown", mouseHandler, true);
 		return;
 		
 		
@@ -42,19 +102,186 @@ var DisplayText = {
 		return;
 	}
 };
-var lastElement;
+
+function createTopBar ( )
+{
+	// creates bar at top of screen if extension can't find the title location on the page
+	var doc = content.document,
+		top = doc.body,
+		bar = doc.createElement('div'),
+		text = doc.createTextNode('NewsSleuth was unable to find the title for this page. ');
+			
+	bar.className = 'topBarClass';
+	bar.id = 'bar_id';
+	
+	bar.appendChild(text);
+	top.insertBefore(bar, top.firstChild);
+		
+	var input = doc.createElement('a'),
+		atext = doc.createTextNode('Select title to view information');
+	input.id = 'bar_a_id';
+	input.appendChild(atext);
+	input.addEventListener('click', selectTitle, true);
+	
+	bar.appendChild(input);
+}
+
+function selectTitle()
+{
+	var div = content.document.getElementById('bar_id'),
+		cn = div.childNodes,
+		len = cn.length;
+	while(len--) {
+		div.removeChild(cn[len]);
+	}
+	var text = content.document.createTextNode("click on the title of the article and select 'accept'");
+	div.appendChild(text);
+	
+	content.document.addEventListener("mousedown", mouseHandler, true);
+}
+
+var lastElement, lastClass;
 function mouseHandler(event)
  {
-	if (lastElement)
-		lastElement.classList.remove('test');
-
+	// displays box around element clicked on by user when trying
+	//   to select where they title is on page.
+	if (lastElement && content.document.getElementById('titleSearchId'))
+	{
+		var accept = content.document.getElementById('titleSearchId');
+		accept.parentNode.insertBefore(lastElement, accept);
+		accept.parentNode.removeChild(accept);
+	}
 	if (!event) event = window.event;
-	lastElement = event.target || event.srcElement;
+	var element = (event.target || event.srcElement);
+	// check if they clicked the accept button
+	if (element.id === 'titleSearchButton') {
+		setUpTitleLocation(lastElement);
+		return;
+	}
+	lastElement = element;//event.target || event.srcElement;
 
-	lastElement.className += " test";
-	//alert(lastElement.tagName);
- }
+	var pe = lastElement.parentNode,
+		ne = lastElement.nextSibling;
+	
+	var div = content.document.createElement('div');
+	div.className = 'titleSelect';
+	div.id = 'titleSearchId';
+	
+	pe.insertBefore(div, lastElement);
+	pe.removeChild(lastElement);
+	div.appendChild(lastElement);
 
+	var button = content.document.createElement('input');
+	button.type = 'button';
+	button.value = 'accept';//lastElement.tagName;
+	button.id = 'titleSearchButton';
+	//button.addEventListener('click', setUpTitleLocation, true);
+
+	var par = content.document.createElement('p');
+	par.className = 'titleSearchPar';
+	par.appendChild(button);
+	div.appendChild(par);
+}
+
+function setUpTitleLocation( element )
+{
+	var doc = content.document,
+		cn = element,
+		path = '',
+		count = 4,
+		unique = false;
+	// Checks for an element that has a unique tag, class, or id that can be
+	// used to find the title - checks at most 3 elements from title
+	while (count--)
+	{
+		// check if title has a unique class name
+		if (cn.className && doc.getElementsByClassName(cn.className).length === 1)
+		{
+			//alert('unique class: ' + cn.className);
+			path += ' class ' + cn.className;
+			unique = true;
+			break;
+		}
+		else if (cn.id)
+		{
+			//alert('unique id: ' + cn.id);
+			path += ' id ' + cn.id;
+			unique = true;
+			break;
+		}
+		else if (cn.tagName && doc.getElementsByTagName(cn.tagName).length === 1)
+		{
+			//alert('unique tag: ' + cn.tagName);
+			path += ' tag ' + cn.tagName;
+			unique = true;
+			break;
+		}
+		
+		// If cn doesn't have a unique identifier than move to element containing cn
+		//   also have to check if there is a way to find cn within it's parent element
+		//   ie. check if cn has a unique class, tag, or id within the parent element
+		var parent = cn.parentNode,
+			childNodes = parent.childNodes,
+			length = childNodes.length,
+			tagCount = 0,
+			classCount = 0,
+			cLoc = -1;
+		while(length--) 
+		{
+			if (childNodes[length].tagName && childNodes[length].tagName === cn.tagName) {
+				tagCount++;
+			}
+			if (childNodes[length].className && childNodes[length].className === cn.className) {
+				classCount++;
+			}
+			if (childNodes[length] === cn) {
+				cLoc = length;
+				for (var i = 0; i < length; i++) {
+					if (!childNodes[i].tagName)
+						cLoc--;
+				}
+			}
+		}
+		
+		if (tagCount === 1)
+			path += ' tag ' + cn.tagName;
+		else if (classCount === 1)
+			path += ' class ' + cn.className;
+		else if (cn.id)
+			path += ' id ' + cn.id;
+		else if (cLoc === 0) {
+			path += ' tag ' + cn.tagName;
+		}
+		else
+			break;
+			
+		cn = cn.parentNode;
+	}
+
+	//alert(unique + ": " + path);
+	if (unique)
+	{
+		doc.removeEventListener("mousedown", mouseHandler, true);
+		//alert('Using unique ' + type + ' for location');
+		var file = GetLocPath( );
+		if ( !file.exists() ) {
+			FileIO.create(file);
+		}
+		var site = GetHost( );
+		var entry = site + path;
+		//alert(entry);
+		FileIO.write(file, entry + '\n', 'a');
+
+		var bar_div = content.document.getElementById('bar_id');
+		bar_div.parentNode.removeChild(bar_div);
+		EditPage(true);
+	}
+	else
+	{
+		alert('not a unique element');
+	}
+	
+}
 
 function AddPageStyle ( )
 {
@@ -70,11 +297,15 @@ function AddPageStyle ( )
 
 function AuthorFound ( )
 {
+	// Code runs when its triggered by the extraction code
+	// or if triggered by slideElement.js
 	var doc = content.document;
 	var AuthorElement = doc.getElementById('HiddenAuthor');
 	var author = AuthorElement.value;
+	
 	if (author === 'none')
 	{
+		// If author hasn't been lookup up yet
 		writeScripts();
 		return;
 	}
@@ -87,43 +318,46 @@ function AuthorFound ( )
 	//alert("Found Author: " + author);
 	
 	callWikipediaAPI(author);
-	//callWikipediaAPI("Bill Clinton");
 }
 
 function AuthorNotFound ( )
 {
 	var doc = content.document;
 	var lookupDiv = doc.getElementById('lookup_id');
-		
-	var par = doc.createElement('p');
-	par.id = 'lookupLabelId';
-	var text = doc.createTextNode("Failed to access RSS feed. Enter author name for info");
-	par.appendChild(text);
-	lookupDiv.appendChild(par);
 	
-	par = doc.createElement('p');
+	var div = doc.createElement('div');
+	div.id = 'lookupLabelId';
+	var text = doc.createTextNode("Failed to access RSS feed. Enter author name for info");
+	div.appendChild(text);
+	lookupDiv.appendChild(div);
+	
+	div = doc.createElement('div');
 	var input = doc.createElement('input');
 	input.label = 'Author';
 	input.id = 'authorInputId';
-	par.appendChild(input);
-	lookupDiv.appendChild(par);
+	div.appendChild(input);
+	lookupDiv.appendChild(div);
 	
+	div = doc.createElement('div');
 	var button = doc.createElement('input');
 	button.type = 'button';
 	button.value = 'look up';
 	button.id = 'lookupButtonId';
-	lookupDiv.appendChild(button);
+	div.appendChild(button);
+	lookupDiv.appendChild(div);
 	
 	button.addEventListener('click', lookUpAuthor, true);
 	input.addEventListener('keypress', function(event) { checkReturn(event); }, false);
 
 	lookupDiv.hidden = true;
-	doc.getElementById('toggle_id').click();	
-	
+	if (DisplayOnLoad ( )) {
+		setTimeout("content.document.getElementById('toggle_id').click();",100);	
+	}
 }
+
 function checkReturn (e){
+	// check if the user hit the return key
 	if (e.keyCode === 13) {
-		// return key hit
 		content.document.getElementById('lookupButtonId').click();
 	}
 }
@@ -139,6 +373,8 @@ function lookUpAuthor ()
 	var toggle = doc.getElementById('toggle_id');
 	toggle.click();
 
+	//findAuthor(author);
+	
 	callWikipediaAPI(fixAuthor(author));
 }
 
@@ -147,7 +383,7 @@ function findAuthor(searchText, searchNode) {
     var regex = new RegExp(searchText, 'i'),
         childNodes = (searchNode || content.document.body).childNodes,
         cnLength = childNodes.length,
-        excludes = 'html,head,style,title,link,meta,script,object,iframe';
+        excludes = 'html,head,style,title,link,script,object,iframe';
     while (cnLength--) {
         var currentNode = childNodes[cnLength];
         if (currentNode.nodeType === 1 &&
@@ -164,21 +400,54 @@ function findAuthor(searchText, searchNode) {
 
 function checkElement(node)
 {
-	var pn = node.parentNode,
-		tag = pn.tagName,
-		cName = pn.className,
-		ptag = pn.parentNode.tagName;
-	alert(tag + " "  + cName);
-	
-	var doc = content.document,
-		tElements = doc.getElementsByTagName(tag),
-		cElements = doc.getElementsByClassName(cName),
-		ptElements = doc.getElementsByTagName(ptag);
-
-	alert("number of " + tag + " elements: " + tElements.length);
-	alert("number of " + cName + " elements: " + cElements.length);
-	alert("number of " + ptag + " elements: " + ptElements.length);
-
+	var doc = content.document;
+	var cn = node.parentNode;
+	var path = '';
+	var count = 0;
+	var unique = false;
+	while (count++ < 3)
+	{
+		if (doc.getElementsByTagName(cn.tagName).length === 1) {
+			//alert('unique tag ' + cn.tagName);
+			path += cn.tagName + ' ';
+			unique = true;
+			break;
+		} /*else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
+			//alert('unique class ' + cn.className);
+			path += cn.className + ' ';
+			unique = true;
+			break;
+		}*/ else if (cn.id) {
+			path += cn.id + ' ';
+			unique = true;
+			break;
+		}
+		
+		var parent = cn.parentNode,
+			childNodes = parent.childNodes,
+			length = childNodes.length,
+			tagCount = 0,
+			classCount = 0;
+		while(length--) 
+		{
+			if (childNodes[length].tagName && childNodes[length].tagName === cn.tagName) {
+				tagCount++;
+			}
+			/*if (childNodes[length].className && childNodes[length].className === cn.className) {
+				classCount++;
+			}*/
+		}
+		if (tagCount === 1)
+			path += cn.tagName + ' ';
+		else if (classCount === 1)
+			path += cn.className + ' ';
+		else
+			break;
+//		path += cn.tagName + ' ';
+		cn = cn.parentNode;
+	}
+	alert(unique + ": " + path);
+	return;
 }
 
 function addElements( )
@@ -186,76 +455,102 @@ function addElements( )
 	var doc = content.document;
 	var top = content.document.body.parentNode;
 
-	var jquery = content.document.createElement("script");
-					jquery.type = "text/javascript";
-					jquery.src = "chrome://DisplayText/content/jquery.js";
-	var ui = content.document.createElement("script");
-					ui.type = "text/javascript";
-					ui.src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js";
-	var ext = content.document.createElement("script");
-					ext.type = "text/javascript";
-					ext.src = "chrome://DisplayText/content/messagebar.js";
-	top.appendChild(ui);
-	top.appendChild(jquery);
-	top.appendChild(ext);
-
 	var div = doc.createElement('div');
 	div.id = boxId( );
 	div.className = AuthorClass( );
-	var TitleElement = doc.getElementsByTagName( TitleLocation() )[0];
-	if (!doc.getElementById(boxId()))
+	
+	// retrieve location of title element and add author box after it
+	var TitleElement,
+		cn = new Object();
+	if ( TitleLocation(cn) )
 	{
-		TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
-		
-		var AuthorDiv = doc.createElement('div');
-		AuthorDiv.id = 'info_id';
-		var LookupDiv = doc.createElement('div');
-		LookupDiv.id = 'lookup_id';
-		var ToggleDiv = doc.createElement('div');
-		ToggleDiv.id = 'toggle_id';
-		var togglePar = doc.createElement('p');
-		togglePar.id = HideParagraphId();
-		togglePar.className = HideClass();
-		var toggleText =  doc.createTextNode('(hide)');
-		ToggleDiv.appendChild(togglePar);
-		togglePar.appendChild(toggleText);
-		
-		div.appendChild(AuthorDiv);
-		div.appendChild(LookupDiv);
-		div.appendChild(ToggleDiv);
+		TitleElement = cn.item;
+		if (!doc.getElementById(boxId()))
+		{
+			// set up framework for information to be inserted into later
+			TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
+			var AuthorDiv = doc.createElement('div');
+			AuthorDiv.id = 'info_id';
+			AuthorDiv.hidden = true;
+			var LookupDiv = doc.createElement('div');
+			LookupDiv.id = 'lookup_id';
+			LookupDiv.hidden = true;
+			var ToggleDiv = doc.createElement('div');
+			ToggleDiv.id = 'toggle_id';
+
+			var toggleText =  doc.createTextNode('Show author & source information for this article');
+			ToggleDiv.appendChild(toggleText);
+			
+			div.appendChild(AuthorDiv);
+			div.appendChild(LookupDiv);
+			div.appendChild(ToggleDiv);
+		}
 	}
+	else alert('title location not found');
+	
+	// write scripts for jquery and to handle the sliding function of div elements
+	var jquery = content.document.createElement("script");
+					jquery.type = "text/javascript";
+					jquery.src = "chrome://DisplayText/content/jquery.js";
+	var ext = content.document.createElement("script");
+					ext.type = "text/javascript";
+					ext.src = "chrome://DisplayText/content/slideElement.js";	
+	top.appendChild(jquery);
+	top.appendChild(ext);
 }
 
 function writeScripts()
 {
-	popup = false;
-								
-	var head = content.document.getElementsByTagName('h1')[0];
-	if (head)
+	var body = content.document.body;
+	if (body)
 	{
-		
 		var ext = content.document.createElement("script");
 		ext.type = "text/javascript";
 		ext.src = "chrome://DisplayText/content/extraction.js";
 
-		head.appendChild(ext);
-		
+		body.appendChild(ext);
 	}
 	else
-		alert("no head");
+		alert("no body");
 }
 
 function EditPage (DisplayInfo)
 {
+	var TitleElement, 
+		element = new Object(),
+		loc = false;
+	// Retrieve the TitleElement
+	loc = TitleLocation(element);
+	TitleElement = element.item;
 	
-	// Add information box framework to page
-	addElements();
-
-	// Get title element of page and call function to display info
-	var TitleElement = content.document.getElementsByTagName( TitleLocation( ) )[0];
-	if (TitleElement && DisplayInfo) 
+	if (TitleElement)
 	{
-		writeScripts();
+		// Add information box framework to page
+		addElements();
+		if (DisplayInfo) 
+		{
+			writeScripts();
+		}
+	}
+	else if (!loc)
+	{
+		// Write location of title if at 'h1'
+		if (content.document.getElementsByTagName('h1').length === 1)
+		{
+			var site = GetHost( );
+			var file = GetLocPath( );
+			if ( !file.exists() ) {
+				FileIO.create(file);
+			}
+			var entry = site + ' tag h1';
+			FileIO.write(file, entry + '\n', 'a');
+			EditPage(DisplayInfo);
+		} 
+		else
+		{
+			//alert('unknown title location');
+			createTopBar ( );
+		}
 	}
 }
 
@@ -263,48 +558,43 @@ function DisplayAuthorInfo (info)
 {
 	var doc = content.document;
 	var div = doc.getElementById('info_id');
-	
-	var AuthorParagraph = doc.createElement('p');
-	AuthorParagraph.id = AuthorId( );
-//	AuthorParagraph.className = AuthorClass( );
-
-	div.appendChild(AuthorParagraph);
-	
-	// Edit the 'info' for italics and bolded author name
+		
+	// Edit the 'info' to bold author name
 	if (info === 'nopage') {
+		// Displays 'No information found for author' message
 		var AuthorElement = content.document.getElementById('HiddenAuthor');
 		var author = AuthorElement.value;
 		var contents = "No information found for ";
+		var text = doc.createTextNode(contents);
 		
-		var italics = doc.createElement('i');
 		var bold = doc.createElement('b');
 		var AuthorName = doc.createTextNode(fixAuthor(author));
 		bold.appendChild(AuthorName);
-		var text = doc.createTextNode(contents);
-		italics.appendChild(text);
-		italics.appendChild(bold);
-		AuthorParagraph.appendChild(italics);
+		
+		div.appendChild(text);
+		div.appendChild(bold);
 	} else {
-
-		var contents = info.toLowerCase();
-		var author = doc.getElementById('HiddenAuthor').value.toLowerCase();
-		var split = author.split(" ");
-		var firstname = split[0];
-		var lastname = split[split.length-1];
-		var index = 0;
-		var end;
-
-		//alert(firstname+" " +lastname);
-		var italics = doc.createElement('i');
+		// Displays author's information
+		var contents = info.toLowerCase(),
+			author = doc.getElementById('HiddenAuthor').value.toLowerCase(),
+			split = author.split(" "),
+			firstname = split[0],
+			lastname = split[split.length-1],
+			index = 0,
+			end;
+			
+		// Search for first name of author
 		var fIndex = contents.indexOf(firstname);
-		//alert('findex: '+fIndex);
 		if (fIndex >= 0)
 		{
+			// append text unbolded up until first name
 			var text = doc.createTextNode(info.slice(0, fIndex));
-			italics.appendChild(text);
-			
+			div.appendChild(text);
+
+			// Search for last name and if last name is within 3 words of
+			//   first name then bold everything from first to last name
+			//   assumes anything in between is the middle name or initial
 			var lIndex = contents.indexOf(lastname);
-			//alert('lindex: '+lIndex);
 			if (lIndex > fIndex) {
 				var namestr = contents.slice(fIndex, lIndex);
 				var count = 0;
@@ -312,7 +602,7 @@ function DisplayAuthorInfo (info)
 					if (namestr[i] === ' ')
 						count++;
 				}
-				if (count <= 2)
+				if (count <= 3)
 					end = lIndex + lastname.length;
 				else
 					end = fIndex + firstname.length;
@@ -320,24 +610,22 @@ function DisplayAuthorInfo (info)
 				end = fIndex + firstname.length;
 			}
 			
+			// append text bolded up until last name
 			var bold = doc.createElement('b');
-			//alert(info.slice(fIndex, end));
 			text = doc.createTextNode(info.slice(fIndex, end));
 			bold.appendChild(text);
-			italics.appendChild(bold);
-			//alert(info.slice(end, info.length));
+			div.appendChild(bold);
+			// append text unbolded for rest of info
 			text = doc.createTextNode(info.slice(end, info.length));
-			italics.appendChild(text);
+			div.appendChild(text);
 		}
 		else
 		{
 			var text = doc.createTextNode(info);
-			italics.appendChild(text);
-		}		
+			div.appendChild(text);
+		}
 		
-		AuthorParagraph.appendChild(italics);
 	}
-	dump(AuthorParagraph + "\n");
 
 	// Have the information slide down rather than just appear
 	div.hidden = true;
@@ -376,7 +664,7 @@ var SetPreferences = {
 				arg);
 	}
 }
-	
+
 function CheckList ( )
 // Checks user's list of sites they want author information displayed for
 {
@@ -411,26 +699,15 @@ function GetHost ( )
 	var http = url.indexOf('http');
 	if (http !== -1)
 		start = 7;
-	
-	var dSize = 4;
-	var domain = url.indexOf('.com');
-	if (domain == -1)
+	url = url.slice(start, url.length);
+	var end = url.indexOf('/');
+	if (end == -1)
 	{
-		//alert("Doesn't contain '.com'");
-		domain = url.indexOf('.net');
-		if (domain == -1)
-		{
-			domain = url.indexOf('.org');
-			if (domain == -1)
-			{
-				domain = url.indexOf('.co');
-				dSize = 3;
-			}
-		}
-	
+		domain = url.length;
 	}
-	var source = url.slice(start,domain + dSize);
-	//alert (source);
+
+	var source = url.slice(0,end);
+	//alert (source + ': ' + start + ' ' + end);
 	
 	return source;
 }
@@ -446,6 +723,17 @@ function GetPath ( )
 
 	file.append("SiteList.txt");
 	return file;	
+}
+
+function GetLocPath( ) 
+{
+	var file = DirIO.get("ProfD");
+	file.append("extensions");
+	file.append("newssleuth@news.sleuth");
+	if (!file.exists())
+		DirIO.create(file);
+	file.append("TitleLocation.txt");
+	return file;
 }
 
 var AddSite = {
@@ -478,8 +766,18 @@ var AddSite = {
 		if (!duplicate)
 		{
 			FileIO.write(file, url + '\n', 'a');
-		}
+		} else return;
 		
+		// Write location of title if at 'h1'
+		if (content.document.getElementsByTagName('h1').length === 1)
+		{
+			var file = GetLocPath( );
+			if ( !file.exists() ) {
+				FileIO.create(file);
+			}
+			var entry = url + ' tag h1';
+			FileIO.write(file, entry + '\n', 'a');
+		}
 	}
 }
 
