@@ -1,15 +1,17 @@
 jQuery.noConflict();
 jQuery(document).ready(function($){
-	getAuthor();
+	getSource();
 	
 	function getAuthor() {
 		var authorRawT = "";
 		//alert(authorRawT.length);
 
-		var html = document.documentElement.innerHTML;
-		//alert(html);
-		var match = />\s*by\s+([\w\-\s,]+)/i.exec(html);
-		alert(match[1]);
+		var html = $("body").html();
+		alert("body: "+html);
+		
+
+		//var match = />\s*by\s+([\w\-\s,]+)/i.exec(html);
+		//alert(match[1]);
 		//return match[1];
 		
 
@@ -29,7 +31,8 @@ jQuery(document).ready(function($){
 	function getSource() {
 		var source = getSourceFromCopyRight();
 		source = fixSource(source);
-		EditAuthorElement(source);
+		//alert(source);
+		EditAuthorElement(null, source);
 		$('#HiddenAuthor').trigger('click');
 	}
 	
@@ -52,8 +55,9 @@ jQuery(document).ready(function($){
 		text = text.substr(index, 200);
 		
 		var match = /\u00a9[\W\s\d]*([\w ]*(?:\.\w+)?)/.exec(text);
-
-		return match[1];
+		if (match.length > 1)
+			return match[1];
+		return null;
 	}
 	
 	function fixSource(source) {
@@ -111,8 +115,8 @@ jQuery(document).ready(function($){
 			dump("$author: " + $author + "\n");
 			// write author's name to hidden element on page for 
 			//		extension to lookup
-			$author = fixAuthor($author);
-			EditAuthorElement($author);
+			EditAuthorElement($author, 'none');
+			
 			alert("author found: "+$author);
 			// trigger extensions code to start running
 			$('#HiddenAuthor').trigger('click');
@@ -133,10 +137,11 @@ jQuery(document).ready(function($){
 	};
 
 });
-
-function EditAuthorElement(author)
+function EditAuthorElement(author, publication)
 {
 	var AuthorElement = content.document.getElementById('HiddenAuthor');
 	//alert(AuthorElement.value);
 	AuthorElement.value = author;
+	var PublicationElement = content.document.getElementById('HiddenPublication');
+	PublicationElement.value = publication;
 }
