@@ -142,12 +142,13 @@ jQuery(document).ready(function($){
 			//		extension to lookup
 			if (author == null)
 				XMLAccessError();
-			else
+			else {
 				EditAuthorElement(author);
 			
-			//alert("author found: "+$author);
-			// trigger extensions code to start running
-			$('#HiddenAuthor').trigger('click');
+				//alert("author found: "+$author);
+				// trigger extensions code to start running
+				$('#HiddenAuthor').trigger('click');
+			}
 		};
 		
 		function YahooQuery() {

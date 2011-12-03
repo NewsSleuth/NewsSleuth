@@ -14,8 +14,8 @@ function TitleLocation(TitleElement)
 		len = line.length;
 	var siteInFile = false;
 	while(len--)
-	{	
-		var split = line[len].split(' ');
+	{
+		var split = line[len].split('@');
 		if ( site === split[0] )
 		{
 			// Find and return the title element of page
@@ -30,7 +30,7 @@ function TitleLocation(TitleElement)
 function GetTitleElement( path, TitleElement )
 {
 	var doc = content.document;
-	var split = path.split(' '),
+	var split = path.split('@'),
 		len = split.length-1;
 
 	if (len < 2) return false;
@@ -230,21 +230,21 @@ function setUpTitleLocation( element )
 		if (cn.className && doc.getElementsByClassName(cn.className).length === 1)
 		{
 			//alert('unique class: ' + cn.className);
-			path += ' class ' + cn.className;
+			path += '@class@' + cn.className;
 			unique = true;
 			break;
 		}
 		else if (cn.id)
 		{
 			//alert('unique id: ' + cn.id);
-			path += ' id ' + cn.id;
+			path += '@id@' + cn.id;
 			unique = true;
 			break;
 		}
 		else if (cn.tagName && doc.getElementsByTagName(cn.tagName).length === 1)
 		{
 			//alert('unique tag: ' + cn.tagName);
-			path += ' tag ' + cn.tagName;
+			path += '@tag@' + cn.tagName;
 			unique = true;
 			break;
 		}
@@ -276,13 +276,13 @@ function setUpTitleLocation( element )
 		}
 		
 		if (tagCount === 1)
-			path += ' tag ' + cn.tagName;
+			path += '@tag@' + cn.tagName;
 		else if (classCount === 1)
-			path += ' class ' + cn.className;
+			path += '@class@' + cn.className;
 		else if (cn.id)
-			path += ' id ' + cn.id;
+			path += '@id@' + cn.id;
 		else if (cLoc === 0) {
-			path += ' tag ' + cn.tagName;
+			path += '@tag@' + cn.tagName;
 		}
 		else
 			break;
@@ -342,15 +342,9 @@ function AuthorFound ( )
 	var publication = doc.getElementById('HiddenPublication').value;
 	if (publication === 'none')
 		publication = null;
-	
-/*	if (author === 'none')
-	{
-		// If author hasn't been lookup up yet
-		writeScripts();
-		return;
-	}
-	else */
-	if (!author || author === 'none')
+	//alert("'"+author+"'" + ' ' + "'"+publication+"'");
+
+	if (!author || author === 'none' || author == "RSS error")
 	{
 		if (publication && publication != 'none'){
 			callWikipediaAPI(null, publication);
@@ -362,11 +356,11 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	
 	callWikipediaAPI(author, publication);
-//	callWikipediaAPI(author, "WSJ");
 }
 
 function AuthorNotFound ( )
 {
+testdisplay = true;
 	var doc = content.document;
 //	var lookupDiv = doc.getElementById('lookup_id');
 	var lookupDiv = doc.getElementById('info_id');
@@ -417,8 +411,11 @@ function lookUpAuthor ()
 	var hidden = doc.getElementById('HiddenAuthor');
 	hidden.value = author;
 	
-	var toggle = doc.getElementById('toggle_id');
-	toggle.click();
+//	var toggle = doc.getElementById('toggle_id');
+//	toggle.click();
+	var aslide = doc.getElementById('a_slide_id');
+	aslide.click();
+	aslide.value = 'slide';
 
 	// Delete author lookup elements
 	var div = doc.getElementById('info_id'),
@@ -527,7 +524,7 @@ function addElements( )
 		TitleElement = cn.item;
 		TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
 	}
-	
+
 	// retrieve location of title element and add author box after it
 //	var TitleElement,
 //		cn = new Object();
@@ -643,7 +640,7 @@ function EditPage (DisplayInfo)
 			if ( !file.exists() ) {
 				FileIO.create(file);
 			}
-			var entry = site + ' tag h1';
+			var entry = site + '@tag@h1';
 			FileIO.write(file, entry + '\n', 'a');
 			EditPage(DisplayInfo);
 		} 
@@ -657,36 +654,23 @@ function EditPage (DisplayInfo)
 	}
 }
 var testdisplay = true;
-function DisplayAuthorInfo (info, page)
+function DisplayAuthorInfo (info, type)
 {
 	//alert(info);
-	if (!info || info == "") {	
+	if (!info || info == "") {
 		return;
 	}
 	var doc = content.document;
 
-	// Display author name or publisher name at top of columns 
-/*	var row = doc.getElementById('row1_id');
-	if (row.firstChild.innerHTML === '') {
-		var p;
-		if ( (p = doc.getElementById('HiddenPublication').value) != 'none')
-			row.firstChild.innerHTML = p;
-	}
-	if (row.lastChild.innerHTML === '') {
-		var p;
-		if ( (p = doc.getElementById('HiddenAuthor').value) != 'none')
-			row.lastChild.innerHTML = fixAuthor(p);
-	} */
-
 	if (testdisplay)
-		page = 'publication';
+		type = 'publication';
 	else
-		page = 'author'
+		type = 'author'
 	testdisplay = !testdisplay;
 	
 	var div, nameValue;
 	var summary = false;
-	if (page === 'publication')
+	if (type === 'publication')
 	{
 		nameValue = doc.getElementById('HiddenPublication').value;
 		div = doc.getElementById('publication_id');
@@ -696,9 +680,8 @@ function DisplayAuthorInfo (info, page)
 			div = doc.getElementById('pSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('pExpand_id');
-			exp.appendChild(doc.createTextNode('Expand'));
+			addExpandOption(exp, 'p_row_id');
 		}
-		
 	}
 	else 
 	{
@@ -710,13 +693,14 @@ function DisplayAuthorInfo (info, page)
 			div = doc.getElementById('aSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('aExpand_id');
-			exp.appendChild(doc.createTextNode('Expand'));
+			addExpandOption(exp, 'a_row_id');
+			//exp.appendChild(doc.createTextNode('Expand'));
 		}
 	}
 	
 	// Edit the 'info' to bold author name
 	if (info === 'nopage') {
-			var name = doc.createElement('p');
+			var name = doc.createElement('div');
 			name.id = 'name_id';
 			name.appendChild(doc.createTextNode(nameValue));
 			div.appendChild(name);
@@ -746,6 +730,7 @@ function DisplayAuthorInfo (info, page)
 
 		if (summary)
 		{
+			// split the summary into new paragraphs for each bracket [ ]
 			var offset;
 			start = info.indexOf('[');
 			if (start === 0)
@@ -761,17 +746,18 @@ function DisplayAuthorInfo (info, page)
 						// check if '[' is a split or just a bracket within text
 						var splitBracket = false;
 						var closeBracket = info.indexOf(']', end);
-						if ( (closeBracket - end) < 2)
+						if ( (closeBracket - end) < 3)
 							splitBracket = true;
 						if (!splitBracket)
 						{
-							offset++;
+							offset = (end + 1) - start;
 							continue;
 						}
 					}
 					
 					line = info.substr(start, end - start);
-					var p = doc.createElement('p');
+					var p = doc.createElement('div');
+					p.id = 'summary_id';
 					p.appendChild(doc.createTextNode(line));
 					div.appendChild(p);
 					
@@ -782,7 +768,7 @@ function DisplayAuthorInfo (info, page)
 			else
 			{
 				// write info as 1 paragraph
-				var p = doc.createElement('p');
+				var p = doc.createElement('div');
 				p.appendChild(doc.createTextNode(info));
 				div.appendChild(p);
 			}
@@ -790,11 +776,12 @@ function DisplayAuthorInfo (info, page)
 		else
 		{
 			//var n = doc.getElementById('HiddenAuthor').value;
-			var name = doc.createElement('p');
+			var name = doc.createElement('div');
 			name.id = 'name_id';
 			name.appendChild(doc.createTextNode(nameValue));
 			
-			var p = doc.createElement('p');
+			var p = doc.createElement('div');
+			p.id = 'mainpar_id';
 			var copy = doc.createTextNode(info);
 			p.appendChild(copy);
 			div.appendChild(name);
@@ -851,7 +838,36 @@ function DisplayAuthorInfo (info, page)
 	if(div.hidden){
 		doc.getElementById('toggle_id').click();
 		div.hidden = false;
+	} else if (!summary){
+		if (type === 'publisher' && (div = doc.getElementById('p_slide_id')).value === 'slide')  {
+			doc.getElementById('p_slide_id').click();
+			div.value = 'clicked';
+		} else if ((div = doc.getElementById('a_slide_id')).value === 'slide') {
+			doc.getElementById('a_slide_id').click();
+			div.value = 'clicked';
+		}
 	}
+}
+
+function addExpandOption (exp, id)
+{
+	var doc = content.document;
+	// add option to expand summary
+	var row = doc.createElement('tr'),
+		c1 = doc.createElement('td'),
+		c2 = doc.createElement('td'),
+		c3 = doc.createElement('td');
+	row.id = id;//'p_row_id';
+	row.appendChild(c1);
+	row.appendChild(c2);
+	row.appendChild(c3);
+	c1.appendChild(doc.createTextNode('v'));
+	c2.appendChild(doc.createTextNode('v'));
+	c3.appendChild(doc.createTextNode('v'));
+	c1.width = exp.offsetWidth/3;
+	c2.width = exp.offsetWidth/3;
+	c3.width = exp.offsetWidth/3;
+	exp.appendChild(row);
 }
 
  
@@ -1003,7 +1019,7 @@ var AddSite = {
 			if ( !file.exists() ) {
 				FileIO.create(file);
 			}
-			var entry = url + ' tag h1';
+			var entry = url + '@tag@h1';
 			FileIO.write(file, entry + '\n', 'a');
 		}
 	}

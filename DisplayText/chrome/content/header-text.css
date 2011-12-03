@@ -10,7 +10,7 @@
 	border-right-style: solid;
 	border-left-style: solid;
 /*	border-style:solid; */
-
+	color: #202020; /*#404040*/
 	border-color: gray;
 	padding-left: 10px;
 	padding-right: 10px;
@@ -35,7 +35,7 @@
 	font-family:"Times New Roman", Times, serif;
 	font-size: 13px;
 	padding-top:0px;
-	padding-bottom: 0px;
+	padding-bottom: 4px;
 	line-height: 120%;
 }
 
@@ -47,23 +47,52 @@
 	line-height: 120%;
 }
 #name_id{
+	font-family:"Times New Roman", Times, serif;
+	font-size: 14px;
+	padding-top:0px;
+	padding-bottom:2px;
+	font-weight: bold;
+	position: relative;
+}
+#mainpar_id{
+	font-family:"Times New Roman", Times, serif;
+	font-size:13px;
 	padding-top:0px;
 	padding-bottom:0px;
-	font-weight: bold;
+	line-height: 120%;
+	position: relative;
 }
+
 #pExpand_id{
 	padding-top:0px;
-	padding-bottom:5px;
+	padding-bottom:0px;
 }
 #aExpand_id{
 	padding-top:0px;
 	padding-bottom:5px;
 }
+#p_row_id{
+	text-align: center;
+	font-weight: bold;
+	font-size: 14px;
+	font-family: Cordia New;
+	background-color: #C1CDCD;
+}
+
+#a_row_id{
+	text-align: center;
+	font-weight: bold;
+	font-size: 14px;
+	font-family: Cordia New;
+	background-color: #C1CDCD;
+}
+
 #pSummary_id{
 	font-family:"Times New Roman", Times, serif;
 	font-size:12px;
 	padding-top:0px;
 	padding-bottom:0px;
+	position: relative;
 }
 
 #aSummary_id{
@@ -71,8 +100,16 @@
 	font-size:12px;
 	padding-top:0px;
 	padding-bottom:0px;
+	position: relative;
 }
-
+#summary_id{
+	font-family:"Times New Roman", Times, serif;
+	font-size: 12px;
+	padding-top:5px;
+	padding-bottom:0px;
+	line-height: 120%;
+	position: relative;
+}
 #lookup_id {
 	font-family:"Times New Roman", Times, serif;
 	font-size: 14px;
