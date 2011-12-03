@@ -4,7 +4,7 @@ jQuery(document).ready(function($){
 	
 	function XMLAccessError() {
 //		alert("XML Access Error");
-		EditAuthorElement('RSS error');
+		EditAuthorElement(null, 'WSJ');
 		// trigger extension code to start running
 		$('#HiddenAuthor').trigger('click');
 	};
@@ -64,7 +64,7 @@ jQuery(document).ready(function($){
 			dump("$author: " + $author + "\n");
 			// write author's name to hidden element on page for 
 			//		extension to lookup
-			EditAuthorElement($author, 'none');
+			EditAuthorElement($author, 'WSJ');
 			
 			// trigger extensions code to start running
 			$('#HiddenAuthor').trigger('click');

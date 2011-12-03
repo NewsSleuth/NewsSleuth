@@ -5,16 +5,27 @@ jQuery(document).ready(function($){
 		$(this).slideToggle();
 	});
 	
-	$("#info_id").click(function(){
-		changeToggleText();
-		$(this).slideToggle();	
-	 
+/*	$("#content_id").click(function(e){
+		//changeToggleText();
+		//$(this).slideToggle();	
+	});
+*/
+	$('#aExpand_id').click(function(e){
+		// expand summary
+		$('#aSummary_id').slideToggle();
 	});
 
+	$('#pExpand_id').click(function(e){
+		// expand summary
+		$('#pSummary_id').slideToggle();
+	});
+
+	
 	$("#toggle_id").click(function(){
-		if ($('#info_id').text()) {
+		//if ($('#content_id').text()) {
+		if ($('#info_id').text() || $('#publication_id').text()) {
 			changeToggleText();
-			$('#info_id').slideToggle();
+			$('#content_id').slideToggle();
 		} else {
 			if ($('#lookupLabelId').size()) {
 				changeToggleText();
@@ -29,10 +40,10 @@ jQuery(document).ready(function($){
 
 function changeToggleText( )
 {
-	var toggle = content.document.getElementById('toggle_id');
-	if (toggle.innerHTML === '(hide)'){
-		toggle.innerHTML = 'Show author & source information for this article';
+	var toggle = content.document.getElementById('toggle_id').childNodes[0];
+	if (toggle.nodeValue === '(hide)'){
+		toggle.nodeValue = 'Show author & source information for this article';
 	}else{
-		toggle.innerHTML = '(hide)';
+		toggle.nodeValue = '(hide)';
 	}
 }
