@@ -100,7 +100,7 @@ jQuery(document).ready(function($){
 				return null;
 			title = select.first().text(); //if og:title didn't work, get title from first h1
 		};
-		alert('"'+title+'"');
+		//alert('"'+title+'"');
 		
 		var $rss = $("link[type='application/rss+xml']").attr("href");
 		if ($rss == null)
@@ -119,10 +119,13 @@ jQuery(document).ready(function($){
 			//alert("parsing XML");
 			
 			$(xml).find("title").each(function() {
-				//alert('this: "'+$(this).text()+'"\ntitle: "'+title+'"\n'+($(this).text().toString() == title.toString()));
+				//alert('this: "'+$(this).text().toString()+'"\ntitle: "'+title.toString()+'"\n'+($(this).text().toString() == title.toString()));
 				if ($(this).text().toString()==title.toString()) {
-
-					author = $(this).siblings("dc\\:creator").text();
+					var select =$(this).siblings("dc\\:creator");
+					if (select == null)
+						select = $(this).siblings("author").children("name");
+					if (select != null)
+						author = select.text();
 					alert(author);
 					return false;
 				};
@@ -156,7 +159,7 @@ jQuery(document).ready(function($){
 		};
 	};
 	function XMLAccessError() {
-		alert("XML Access Error");
+		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
 	};
 	
