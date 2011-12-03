@@ -18,7 +18,7 @@ jQuery(document).ready(function($){
 		}
 		//alert(author);
 		if (author == null) {
-			doAuthorFromRSS();
+			author = doAuthorFromRSS();
 		}
 		else {	
 			EditAuthorElement(author);
@@ -105,17 +105,7 @@ jQuery(document).ready(function($){
 		var $rss = $("link[type='application/rss+xml']").attr("href");
 		if ($rss == null)
 			return null;
-	
-//<<<<<<< HEAD
-	function XMLAccessError() {
-//		alert("XML Access Error");
-		EditAuthorElement(null, 'WSJ');
-		// trigger extension code to start running
-		$('#HiddenAuthor').trigger('click');
-	};
-//=======
-//>>>>>>> 3dafd73101093a742f12eda9e1d935defb0dc776
-	
+		
 		$.ajax({
 			type: "GET",
 			url: $rss,
@@ -136,6 +126,7 @@ jQuery(document).ready(function($){
 					if (select != null)
 						author = select.text();
 					//alert(author);
+					return 10;
 					return false;
 				};
 
@@ -170,6 +161,7 @@ jQuery(document).ready(function($){
 	function XMLAccessError() {
 		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
+		$('#HiddenAuthor').trigger('click');
 	};
 	
 
@@ -317,16 +309,16 @@ function EditElementValue(id, value) {
 	//alert(Element.value);
 }
 
-function EditAuthorElement(author) {
+function EditAuthorElement(author) {dump('editauthor');
 	EditElementValue('HiddenAuthor', author);
 }
 
-function EditPublicationElement(source) {
+function EditPublicationElement(source) {dump('editpub');
 	EditElementValue('HiddenPublication', source);
 }
 
 function EditAuthorElement(author, publication)
-{
+{dump('editauthorelement');
 	var AuthorElement = content.document.getElementById('HiddenAuthor');
 	//alert(AuthorElement.value);
 	if (author == null) {

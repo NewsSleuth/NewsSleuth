@@ -327,16 +327,17 @@ function AuthorFound ( )
 	if (publication === 'none')
 		publication = null;
 	
-	if (author === 'none')
+/*	if (author === 'none')
 	{
 		// If author hasn't been lookup up yet
 		writeScripts();
 		return;
 	}
-	else if (!author)
+	else */
+	if (!author || author === 'none')
 	{
 		if (publication != null)
-			callWikipediaAPI(null, 'WSJ');
+			callWikipediaAPI(null, publication);
 
 		AuthorNotFound( );
 		return;
