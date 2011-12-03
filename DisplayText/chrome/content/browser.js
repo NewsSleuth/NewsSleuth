@@ -376,6 +376,7 @@ function lookUpAuthor ()
 {
 	var doc = content.document;
 	var author = doc.getElementById('authorInputId').value;
+//	var publication = doc.getElementById('hiddenPublication').value;
 
 	var hidden = doc.getElementById('HiddenAuthor');
 	hidden.value = author;
@@ -383,7 +384,7 @@ function lookUpAuthor ()
 	var toggle = doc.getElementById('toggle_id');
 	toggle.click();
 
-	callWikipediaAPI(fixAuthor(author), "WSJ");
+	callWikipediaAPI(fixAuthor(author), /*publication*/null);
 }
 
 function findAuthor(searchText, searchNode) {

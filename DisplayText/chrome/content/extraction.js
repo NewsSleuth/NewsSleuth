@@ -66,13 +66,11 @@ jQuery(document).ready(function($){
 		$('#HiddenAuthor').trigger('click');
 =======*/
 	function getSourceFromTitle() {
-		//alert("getSourceFromTitle");
 		return null;
 //>>>>>>> 80c7f75bd605ac3a9e1a815bba3f3ff1dcbde879
 	}
 	
 	function getSourceFromCopyright() {
-		//alert("getSourceFromCopyright");
 		var $div = $("<div>");
 
 		$.expr[":"].containsEnc = function(a, b, c, d) {
@@ -102,7 +100,6 @@ jQuery(document).ready(function($){
 	}
 	
 	function doAuthorFromRSS() {
-		//alert("doAuthorFromRSS");
 		var author = null;
 		var title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if (title==null) {
@@ -111,7 +108,7 @@ jQuery(document).ready(function($){
 				return null;
 			title = select.first().text(); //if og:title didn't work, get title from first h1
 		};
-		alert('"'+title+'"');
+		//alert('"'+title+'"');
 		
 		var $rss = $("link[type='application/rss+xml']").attr("href");
 		if ($rss == null)
