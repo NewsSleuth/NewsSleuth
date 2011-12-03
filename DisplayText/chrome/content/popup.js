@@ -23,11 +23,11 @@ function AuthorWindow (author, info)
 
 	
 	// Write publication info to window
-	var pvalue = content.document.getElementById('HiddenPublication').value;
-	if (pvalue && pvalue != 'none')
+	var pname = content.document.getElementById('HiddenPublication').value;
+	if (pname && pname != 'none')
 	{
 		var PubName = doc.createElement('p');
-		var pname =  content.document.getElementById('HiddenPublication').value;
+		//var pname =  content.document.getElementById('HiddenPublication').value;
 
 		PubName.appendChild(doc.createTextNode(pname));
 		PubName.className = 'popupAuthorClass';
@@ -39,11 +39,12 @@ function AuthorWindow (author, info)
 		writeInfo(div, pinfo, 0);
 	}
 	// Write author info to window
-	var avalue = content.document.getElementById('HiddenAuthor').value;
-	if (avalue && avalue != 'none')
+	var aname = content.document.getElementById('HiddenAuthor').value;
+	if (aname && aname != 'none')
 	{
 		var AuthorName = doc.createElement('p');
-		AuthorName.appendChild(doc.createTextNode(fixAuthor(author)));
+		
+		AuthorName.appendChild(doc.createTextNode(fixAuthor(aname)));
 		AuthorName.className = "popupAuthorClass";
 		div.appendChild(AuthorName);
 		

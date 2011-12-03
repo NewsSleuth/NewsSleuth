@@ -406,7 +406,8 @@ function callWikipediaAPI(authorPage, publicationPage) {
 	var doc = content.document;
 	
 	var StoredInfo = doc.getElementById('HiddenInfo');	
-	if (StoredInfo.value === 'none')
+//	if (StoredInfo.value === 'none')
+	if (true)
 	{
 		var result;
 		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");

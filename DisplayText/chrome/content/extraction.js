@@ -18,7 +18,7 @@ jQuery(document).ready(function($){
 		}
 		//alert(author);
 		if (author == null) {
-			author = doAuthorFromRSS();
+			doAuthorFromRSS();
 		}
 		else {	
 			EditAuthorElement(author);
@@ -96,15 +96,21 @@ jQuery(document).ready(function($){
 		var title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if (title==null) {
 			var select = $("h1");
-			if (select == null)
+			if (select == null) {
+				EditAuthorElement(null);
+				$('#HiddenAuthor').trigger('click');
 				return null;
+			}
 			title = select.first().text(); //if og:title didn't work, get title from first h1
 		};
 		//alert('"'+title+'"');
 		
 		var $rss = $("link[type='application/rss+xml']").attr("href");
-		if ($rss == null)
+		if ($rss == null) {
+			EditAuthorElement(null);
+			$('#HiddenAuthor').trigger('click');
 			return null;
+		}
 		
 		$.ajax({
 			type: "GET",
@@ -126,7 +132,6 @@ jQuery(document).ready(function($){
 					if (select != null)
 						author = select.text();
 					//alert(author);
-					return 10;
 					return false;
 				};
 

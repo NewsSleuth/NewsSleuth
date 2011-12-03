@@ -92,7 +92,9 @@ var doAuthor = false;
 
 var DisplayText = {
 	onCommand: function(event) {
-	
+		changeInfoLocation();
+		return;
+		
 		var div = content.document.getElementById('lookup_id');
 		var cn = div.childNodes;
 		var len = cn.length;
@@ -119,13 +121,27 @@ var DisplayText = {
 	}
 };
 
-function createTopBar ( )
+function changeInfoLocation ( )
+{
+	// remove box from page
+	var div = content.document.getElementById(boxId());
+	if (div)
+	{
+		div.parentNode.removeChild(div);
+	}
+	// createTopBar with different text
+	text = 'Choose location to display info';
+	createTopBar('', text);
+	
+}
+
+function createTopBar (text1, text2)
 {
 	// creates bar at top of screen if extension can't find the title location on the page
 	var doc = content.document,
 		top = doc.body,
 		bar = doc.createElement('div'),
-		text = doc.createTextNode('NewsSleuth was unable to find the title for this page. ');
+		text = doc.createTextNode(text1);//'NewsSleuth was unable to find the title for this page. ');
 			
 	bar.className = 'topBarClass';
 	bar.id = 'bar_id';
@@ -134,7 +150,7 @@ function createTopBar ( )
 	top.insertBefore(bar, top.firstChild);
 		
 	var input = doc.createElement('a'),
-		atext = doc.createTextNode('Select title to view information');
+		atext = doc.createTextNode(text2);//'Select title to view information');
 	input.id = 'bar_a_id';
 	input.appendChild(atext);
 	input.addEventListener('click', selectTitle, true);
@@ -336,8 +352,9 @@ function AuthorFound ( )
 	else */
 	if (!author || author === 'none')
 	{
-		if (publication != null)
+		if (publication && publication != 'none'){
 			callWikipediaAPI(null, publication);
+		}
 
 		AuthorNotFound( );
 		return;
@@ -413,8 +430,8 @@ function lookUpAuthor ()
 	}
 
 	//findAuthor(author);
-	
-//	doc.getElementById('HiddenPublication').value = 'WSJ';
+
+	//	doc.getElementById('HiddenPublication').value = 'WSJ';
 	callWikipediaAPI(fixAuthor(author), null);
 }
 
@@ -452,12 +469,12 @@ function checkElement(node)
 			path += cn.tagName + ' ';
 			unique = true;
 			break;
-		} /*else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
+		}/* else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
 			//alert('unique class ' + cn.className);
 			path += cn.className + ' ';
 			unique = true;
 			break;
-		}*/ else if (cn.id) {
+		} */else if (cn.id) {
 			path += cn.id + ' ';
 			unique = true;
 			break;
@@ -473,9 +490,9 @@ function checkElement(node)
 			if (childNodes[length].tagName && childNodes[length].tagName === cn.tagName) {
 				tagCount++;
 			}
-			/*if (childNodes[length].className && childNodes[length].className === cn.className) {
+			if (childNodes[length].className && childNodes[length].className === cn.className) {
 				classCount++;
-			}*/
+			}
 		}
 		if (tagCount === 1)
 			path += cn.tagName + ' ';
@@ -633,13 +650,19 @@ function EditPage (DisplayInfo)
 		else
 		{
 			//alert('unknown title location');
-			createTopBar ( );
+			var text1 = 'NewsSleuth was unable to find the title for this page. ';
+			var text2 = 'Select title to view information';
+			createTopBar (text1, text2);
 		}
 	}
 }
 var testdisplay = true;
 function DisplayAuthorInfo (info, page)
 {
+	//alert(info);
+	if (!info || info == "") {	
+		return;
+	}
 	var doc = content.document;
 
 	// Display author name or publisher name at top of columns 
@@ -662,12 +685,14 @@ function DisplayAuthorInfo (info, page)
 	testdisplay = !testdisplay;
 	
 	var div, nameValue;
+	var summary = false;
 	if (page === 'publication')
 	{
 		nameValue = doc.getElementById('HiddenPublication').value;
 		div = doc.getElementById('publication_id');
 		if (div.childNodes.length > 0)
 		{
+			summary = true;
 			div = doc.getElementById('pSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('pExpand_id');
@@ -681,13 +706,14 @@ function DisplayAuthorInfo (info, page)
 		div = doc.getElementById('info_id');
 		if (div.childNodes.length > 0)
 		{
+			summary = true;
 			div = doc.getElementById('aSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('aExpand_id');
 			exp.appendChild(doc.createTextNode('Expand'));
 		}
 	}
-		
+	
 	// Edit the 'info' to bold author name
 	if (info === 'nopage') {
 			var name = doc.createElement('p');
@@ -718,20 +744,47 @@ function DisplayAuthorInfo (info, page)
 //		var par = doc.createElement('p');
 //		div.appendChild(par);
 
-		start = info.indexOf('[');
-		if (start === 0)
+		if (summary)
 		{
-			while( start < info.length)
+			var offset;
+			start = info.indexOf('[');
+			if (start === 0)
 			{
-				end = info.indexOf('[', start+1);
-				if (end === -1)
-					end = info.length;
-				line = info.substr(start, end - start);
+				offset = 1;
+				while( start < info.length)
+				{
+					end = info.indexOf('[', start+offset);
+					if (end === -1)
+						end = info.length;
+					else
+					{
+						// check if '[' is a split or just a bracket within text
+						var splitBracket = false;
+						var closeBracket = info.indexOf(']', end);
+						if ( (closeBracket - end) < 2)
+							splitBracket = true;
+						if (!splitBracket)
+						{
+							offset++;
+							continue;
+						}
+					}
+					
+					line = info.substr(start, end - start);
+					var p = doc.createElement('p');
+					p.appendChild(doc.createTextNode(line));
+					div.appendChild(p);
+					
+					offset = 1;
+					start = end;
+				}
+			}
+			else
+			{
+				// write info as 1 paragraph
 				var p = doc.createElement('p');
-				p.appendChild(doc.createTextNode(line));
+				p.appendChild(doc.createTextNode(info));
 				div.appendChild(p);
-				
-				start = end;
 			}
 		}
 		else
