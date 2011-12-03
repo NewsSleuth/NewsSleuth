@@ -55,19 +55,8 @@ jQuery(document).ready(function($){
 	
 	}
 	
-/*<<<<<<< HEAD
-	function getSource() {
-		var source = getSourceFromCopyRight();
-		if(source != null){
-			source = fixSource(source);
-		}
-		//alert(source);
-		EditAuthorElement(null, source);
-		$('#HiddenAuthor').trigger('click');
-=======*/
 	function getSourceFromTitle() {
 		return null;
-//>>>>>>> 80c7f75bd605ac3a9e1a815bba3f3ff1dcbde879
 	}
 	
 	function getSourceFromCopyright() {
@@ -114,15 +103,12 @@ jQuery(document).ready(function($){
 		if ($rss == null)
 			return null;
 	
-//<<<<<<< HEAD
 	function XMLAccessError() {
 //		alert("XML Access Error");
 		EditAuthorElement(null, 'WSJ');
 		// trigger extension code to start running
 		$('#HiddenAuthor').trigger('click');
 	};
-//=======
-//>>>>>>> 3dafd73101093a742f12eda9e1d935defb0dc776
 	
 		$.ajax({
 			type: "GET",
@@ -345,10 +331,6 @@ function EditAuthorElement(author, publication)
 		AuthorElement.value = author;
 
 	var PublicationElement = content.document.getElementById('HiddenPublication');
-//<<<<<<< HEAD
-//	PublicationElement.value = publication;
-//}
-//=======
 	if (publication == null) {
 		if (PublicationElement.value == "none")
 			PublicationElement.value = publication;
@@ -356,4 +338,3 @@ function EditAuthorElement(author, publication)
 	else
 		PublicationElement.value = publication;
 }
-//>>>>>>> 80c7f75bd605ac3a9e1a815bba3f3ff1dcbde879

@@ -89,6 +89,10 @@ var option0 = false;
 var option1 = false;
 var option2 = false;
 var doAuthor = false;
+var numLookups = 0;
+var paragraphCount = 0;
+var infoArray;
+var isAuthArray;
 
 var DisplayText = {
 	onCommand: function(event) {
@@ -317,6 +321,7 @@ function AddPageStyle ( )
 
 function AuthorFound ( )
 {
+	dump("AuthorFound()\n");
 	// Code runs when its triggered by the extraction code
 	// or if triggered by slideElement.js
 	var doc = content.document;
@@ -335,7 +340,7 @@ function AuthorFound ( )
 	else if (!author)
 	{
 		if (publication != null)
-			callWikipediaAPI(null, 'WSJ');
+			callWikipediaAPI(null, publication);
 
 		AuthorNotFound( );
 		return;
@@ -389,6 +394,7 @@ function checkReturn (e){
 
 function lookUpAuthor ()
 {
+	dump("lookUpAuthor()\n");
 	var doc = content.document;
 	var author = doc.getElementById('authorInputId').value;
 	if (author === '')
@@ -411,7 +417,6 @@ function lookUpAuthor ()
 
 	//findAuthor(author);
 	
-//	doc.getElementById('HiddenPublication').value = 'WSJ';
 	callWikipediaAPI(fixAuthor(author), null);
 }
 
