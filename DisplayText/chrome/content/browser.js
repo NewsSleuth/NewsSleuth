@@ -327,7 +327,7 @@ function AuthorFound ( )
 	author = fixAuthor(author);
 	//alert("Found Author: " + author);
 	
-	callWikipediaAPI(author, /*publication*/ "Alexander Cockburn");
+	callWikipediaAPI(author, publication);
 }
 
 function AuthorNotFound ( )

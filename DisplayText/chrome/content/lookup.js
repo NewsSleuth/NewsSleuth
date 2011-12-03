@@ -10,6 +10,8 @@ function parseFirstThou(data){
 	var brackets = 0;
 	var braces = 0;
 	var tag = 0;
+	var table = 0;
+	var tableIgnore = false;
 	var commentIgnore = false;
 	var comment = 0;
 	var fileIgnore = false;
@@ -21,6 +23,12 @@ function parseFirstThou(data){
 		}
 		if(data[i-1] === '\'' && data[i-2] === '\'' && data[i-3] === '\''){
 			apostropheIgnore = false;
+		}
+		if(data[i] === '{' && data[i+1] === '|'){
+			table++;
+		}
+		if(data[i-1] === '}' && data[i-2] === '|'){
+			table--;
 		}
 		if(data[i-1] === '}' && data[i-2] === '}'){
 			braces--;
@@ -52,6 +60,9 @@ function parseFirstThou(data){
 			if(data[i+2] === 'F' && data[i+3] === 'i' && data[i+4] === 'l' && data[i+5] === 'e' && data[i+6] === ':'){
 				fileIgnore = true;
 			}
+			if(data[i+2] === 'I' && data[i+3] === 'm' && data[i+4] === 'a' && data[i+5] === 'g' && data[i+6] === 'e'){
+				fileIgnore = true;
+			}
 		}
 		if(data[i-1] === ']' && data[i-2] === ']'){
 			brackets--;
@@ -68,6 +79,10 @@ function parseFirstThou(data){
 		if(data[i-1] === '>' && data[i-2] === '-' && data[i-3] === '-'){
 			comment--;
 		}
+		if(table === 0){
+			tableIgnore = false;
+		}
+		else tableIgnore = true;
 		if(braces === 0){
 			braceIgnore = false;
 		}
@@ -91,11 +106,11 @@ function parseFirstThou(data){
 			}
 		}
 
-		if(fileIgnore === false && tagIgnore === false && bracketIgnore === false && braceIgnore === false && apostropheIgnore === false && commentIgnore === false){
+		if(tableIgnore === false && fileIgnore === false && tagIgnore === false && bracketIgnore === false && braceIgnore === false && apostropheIgnore === false && commentIgnore === false){
 			result = String.concat(result, data[i]);
 			count++;
 		}
-		else if(fileIgnore === false && tagIgnore === false && bracketIgnore === false && apostropheIgnore === false && commentIgnore === false){
+		else if(tableIgnore === false && fileIgnore === false && tagIgnore === false && bracketIgnore === false && apostropheIgnore === false && commentIgnore === false){
 			if(data[i] === '{' && data[i+1] === '{' && data[i+2] === 'q' && data[i+3] === 'u' && data[i+4] === 'o' && data[i+5] === 't' && data[i+6] === 'e'){
 				result = String.concat(result, " rmvplz.");
 			}
@@ -116,11 +131,11 @@ function removeBrackets(data)
 	var bracketIgnore = false;
 
 	for(var i = 0; i < data.length; i++){
-		if(data[i] === '&' && data[i+1] === 'm' && data[i+2] === 'd'){
+		if(data[i] === '&' && data[i+1] === 'm' && data[i+2] === 'd' && data[i+3] === 'a' && data[i+4] === 's' && data[i+5] === 'h'){
 			i += 7;
 			result = String.concat(result, '-');
 		}
-		if(data[i] === '&' && data[i+1] === 'n' && data[i+2] === 'b'){
+		if(data[i] === '&' && data[i+1] === 'n' && data[i+2] === 'b' && data[i+3] === 's' && data[i+4] === 'p'){
 			i += 6;
 			result = String.concat(result, '-');
 		}
@@ -132,6 +147,12 @@ function removeBrackets(data)
 				placeholder = String.concat(placeholder, "and");
 			}
 			i += 1;
+		}
+		if(data[i] === '%'){
+			if(!bracketIgnore){
+				result = String.concat(result, ' percent');
+			}
+			i++;
 		}
 		if(data[i] === '<' && data[i+1] === 'b' && data[i+2] === 'l' && data[i+3] === 'o'){
 			i += 12;
@@ -179,7 +200,7 @@ function firstP(data){
 	var beginning = true;
 	for(var i = 0; i < data.length; i++){
 		if(beginning && (data.charAt(i) === '\n' || data.charAt(i) === '\t' || data.charAt(i) === '\ ')){
-			dump("space\n");
+			//dump("space\n");
 		}
 		else if(beginning === false && data.charAt(i) != '\n'){
 			result = String.concat(result, data.charAt(i));
@@ -189,7 +210,7 @@ function firstP(data){
 			result = String.concat(result, data.charAt(i));
 		}
 		else{
-			dump("break\n");
+			//dump("break\n");
 			break;
 		}
 	}
@@ -476,6 +497,17 @@ function callWikipediaAPI(authorPage, publicationPage) {
 			dump("inside callback for jsmwapi\n");
 			if(res.query === undefined){
 				DisplayAuthorInfo('Information not found');
+				if(authorPage != null && publicationPage != null){
+				option0 = false;
+				doAuthor = false;
+				controversiesP(authorData);
+				}
+				else if(publicationPage != null){
+				option1 = false;
+				}
+				else if(authorPage != null){
+				option2 = false;
+				}
 				return;
 			}
 			for(var page in res.query.pages){
@@ -528,8 +560,9 @@ function callWikipediaAPI(authorPage, publicationPage) {
 					return;
 				}
 				result = parseFirstThou(data);
+				dump(result);
 				result = removeBrackets(result);
-//				dump("result:\n" + result + "\n");
+				dump(result);
 				if(option2){
 					option2 = false;
 					dump("option2\n");
@@ -542,7 +575,15 @@ function callWikipediaAPI(authorPage, publicationPage) {
 					option0 = false;
 					dump("option0\n");
 					publisherData = result;
-					controversiesP(authorData);
+					if(authorData != ""){
+						dump("authorData: " + authorData + "\n");
+						controversiesP(authorData);
+					}
+					else{
+						doAuthor = false;
+						dump('authorData === ""\n');
+						controversiesP(publisherData);
+					}
 				}
 				else if(option1){
 					option1 = false;
@@ -581,17 +622,17 @@ function callWikipediaAPI(authorPage, publicationPage) {
 	
 	
 	//dummy
-	dump("gotJSON()\n");
+	//dump("gotJSON()\n");
 }
 
 function fixAuthor(data){
 
 	for(x in data){
-		dump(x + "\n\t" + data[x]);
+		//dump(x + "\n\t" + data[x]);
 	}
-	dump("\n" + data.length + "\n");
+	//dump("\n" + data.length + "\n");
 	var res = new String("");
-	dump(data.charAt(0));
+	//dump(data.charAt(0));
 	res = String.concat(res, String.toUpperCase(data.charAt(0)));
 	for(var i = 1; i < data.length; i++){
 		if(data.charAt(i-1) === ' '){

@@ -30,7 +30,9 @@ jQuery(document).ready(function($){
 	
 	function getSource() {
 		var source = getSourceFromCopyRight();
-		source = fixSource(source);
+		if(source != null){
+			source = fixSource(source);
+		}
 		//alert(source);
 		EditAuthorElement(null, source);
 		$('#HiddenAuthor').trigger('click');
