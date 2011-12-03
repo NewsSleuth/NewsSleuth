@@ -2,6 +2,7 @@ function parseFirstThou(data)
 {
 	var result = new String("");
 	var placeholder = new String("");
+	var buffer = new String("");
 	var count = 0;
 	var braceIgnore = false;
 	var bracketIgnore = false;
@@ -28,9 +29,16 @@ function parseFirstThou(data)
 			table++;
 		}
 		if(data[i-1] === '}' && data[i-2] === '|'){
-			table--;
+			if(table > 0){
+				table--;
+			}
+			else{
+				table = 0;
+				buffer = new String("");
+			}
 		}
 		if(data[i-1] === '}' && data[i-2] === '}'){
+			if(braces > 0){
 			braces--;
 			if(data[i-3] === '}'){
 				braces += .5;
@@ -42,15 +50,32 @@ function parseFirstThou(data)
 				else braceIgnore = true;
 				continue;
 			}
+			}
+			else{
+				braces = 0;
+				buffer = new String("");
+			}
 		}
 		if(data[i] === '{' && data[i+1] ==='{'){
 			braces++;
 		}
 		if(data[i-1] === '>' && data[i-2] === 'f' && data[i-3] === 'e' && data[i-4] === 'r' && data[i-5] === '/' && data[i-6] === '<'){
-			tag--;
+			if(tag > 0){
+				tag--;
+			}
+			else{
+				tag = 0;
+				buffer = new String("");
+			}
 		}
 		if(tag > 0 && data[i-1] === '>' && data[i-2] === '/'){
-			tag--;
+			if(tag > 0){
+				tag--;
+			}
+			else{
+				tag = 0;
+				buffer = new String("");
+			}
 		}
 		if(data[i] === '<' && data[i+1] === 'r' && data[i+2] === 'e' && data[i+3] === 'f'){
 			tag++;
@@ -65,19 +90,31 @@ function parseFirstThou(data)
 			}
 		}
 		if(data[i-1] === ']' && data[i-2] === ']'){
-			brackets--;
-			if(data[i-3] === ']'){
-				brackets += .5;
+			if(brackets > 0){
+				brackets--;
+				if(data[i-3] === ']'){
+					brackets += .5;
+				}
+				if(brackets === 0){
+					fileIgnore = false;
+				}
 			}
-			if(brackets === 0){
-				fileIgnore = false;
+			else{
+				brackets = 0;
+				buffer = new String("");
 			}
 		}
 		if(data[i] === '<' && data[i+1] === '!' && data[i+2] === '-' && data[i+3] === '-'){
 			comment++;
 		}
 		if(data[i-1] === '>' && data[i-2] === '-' && data[i-3] === '-'){
-			comment--;
+			if(comment > 0){
+				comment--;
+			}
+			else{
+				comment = 0;
+				buffer = new String("");
+			}
 		}
 		if(table === 0){
 			tableIgnore = false;
@@ -107,15 +144,20 @@ function parseFirstThou(data)
 		}
 
 		if(tableIgnore === false && fileIgnore === false && tagIgnore === false && bracketIgnore === false && braceIgnore === false && apostropheIgnore === false && commentIgnore === false){
-			result = String.concat(result, data[i]);
+			buffer = String.concat(buffer, data[i]);
 			count++;
 		}
 		else if(tableIgnore === false && fileIgnore === false && tagIgnore === false && bracketIgnore === false && apostropheIgnore === false && commentIgnore === false){
 			if(data[i] === '{' && data[i+1] === '{' && data[i+2] === 'q' && data[i+3] === 'u' && data[i+4] === 'o' && data[i+5] === 't' && data[i+6] === 'e'){
-				result = String.concat(result, " rmvplz.");
+				buffer = String.concat(buffer, " rmvplz.");
 			}
 		}
+		else{
+			result = String.concat(result, buffer);
+			buffer = new String("");
+		}
 	}
+	result = String.concat(result, buffer);
 	//dump("\ni: " + i + "\n");
 	//dump("\ncount: " + count + "\n");
 	return result;
@@ -365,7 +407,7 @@ function successDump(data, isAuth)
 	else
 	{
 		//second option
-		DisplayAuthorInfo(data);
+		DisplayAuthorInfo(data, isAuth);
 	}
 	numLookups++;
 	if(numLookups < paragraphCount){
@@ -491,23 +533,24 @@ function callWikipediaAPI(authorPage, publicationPage) {
 }
 function lookUpPage(wikipediaPage, isAuthor){
 	// http://www.mediawiki.org/wiki/API:Parsing_wikitext#parse
-	if(wikipediaPage === null || wikipediaPage === undefined){
+	if(wikipediaPage === null || wikipediaPage === undefined || wikipediaPage === "RSS error"){
 		if (popup)
 		{
 			//second option
-			AuthorWindow(wikipediaPage, "No information found.");
+			AuthorWindow(null, "No information found.");
 		}
 		else
 		{
 			//second option
-			DisplayAuthorInfo ("No information found.");
+			DisplayAuthorInfo ("No information found.", isAuthor);
 		}
 	}
 	
 	var doc = content.document;
 	
 	var StoredInfo = doc.getElementById('HiddenInfo');	
-	if (StoredInfo.value === 'none')
+//	if (StoredInfo.value === 'none')
+	if (true)
 	{
 		var result;
 		var remoteApi = JsMwApi("http://en.wikipedia.org/w/api.php", "local");
@@ -530,13 +573,14 @@ function lookUpPage(wikipediaPage, isAuthor){
 					isAuth = false;
 				}
 				dump("isAuth: " + isAuth + "\n");
+				dump(data);
 				res = parseWikiHtml(data);
 				//dump("data: " + data + "\n");
 				//dump("res:" + res + "\nres.length: "+ res.length + "\n");
 			if(res.length < 10){
 				dump("res.length < 10\n");
 				//second option
-				DisplayAuthorInfo('Information not found');
+				DisplayAuthorInfo('Information not found', isAuth);
 				numLookups--;
 				//call controversiesP?
 				return;
@@ -567,9 +611,11 @@ function lookUpPage(wikipediaPage, isAuthor){
 					}
 					return;
 				}
+				dump(data);
 				result = parseFirstThou(data);
-				//dump(result);
+				dump(result);
 				result = removeBrackets(result);
+				dump(result);
 				
 				isAuthArray[paragraphCount] = isAuth;
 				infoArray[paragraphCount] = result;
@@ -595,7 +641,7 @@ function lookUpPage(wikipediaPage, isAuthor){
 				else
 				{
 					//second option
-					DisplayAuthorInfo (result);
+					DisplayAuthorInfo (result, isAuth);
 				}
 			}
 		});
@@ -612,7 +658,7 @@ function lookUpPage(wikipediaPage, isAuthor){
 		else
 		{
 			//second option
-			DisplayAuthorInfo (StoredInfo.value);
+			DisplayAuthorInfo (StoredInfo.value, isAuthor);
 		}
 	}
 	
@@ -638,6 +684,13 @@ function parseWikiHtml(data)
 	for(; i < data.length; i++){
 		if(data[i] === '<' && data[i+1] === 's' && data[i+2] === 'p' && data[i+3] === 'a' && data[i+4] === 'n'){
 			break;
+		}
+		else if(data[i] === '<' && data[i+1] === '/' && data[i+2] === 'a' && data[i+3] === '>'){
+			i += 3;
+		}
+		else if(data[i] === '<'){
+		}
+		else if(data[i] === '>'){
 		}
 		else{
 			if(data[i] === '&' && data[i+1] === 'a' && data[i+2] === 'm' && data[i+3] === 'p' && data[i+4] === ';'){

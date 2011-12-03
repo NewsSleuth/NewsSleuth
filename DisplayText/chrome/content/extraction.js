@@ -22,6 +22,7 @@ jQuery(document).ready(function($){
 		}
 		else {	
 			EditAuthorElement(author);
+			dump("setAuthor() trigger\n");
 			$('#HiddenAuthor').trigger('click');
 		}
 	}
@@ -93,23 +94,24 @@ jQuery(document).ready(function($){
 		var title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if (title==null) {
 			var select = $("h1");
-			if (select == null)
+			if (select == null) {
+				dump("doAuthorFromRSS() trigger 1\n");
+				EditAuthorElement(null);
+				$('#HiddenAuthor').trigger('click');
 				return null;
+			}
 			title = select.first().text(); //if og:title didn't work, get title from first h1
 		};
 		//alert('"'+title+'"');
 		
 		var $rss = $("link[type='application/rss+xml']").attr("href");
-		if ($rss == null)
+		if ($rss == null) {
+			EditAuthorElement(null);
+			dump("doAuthorFromRSS() trigger 2\n");
+			$('#HiddenAuthor').trigger('click');
 			return null;
-	
-	function XMLAccessError() {
-//		alert("XML Access Error");
-		EditAuthorElement(null, 'WSJ');
-		// trigger extension code to start running
-		$('#HiddenAuthor').trigger('click');
-	};
-	
+		}
+		
 		$.ajax({
 			type: "GET",
 			url: $rss,
@@ -140,12 +142,13 @@ jQuery(document).ready(function($){
 			//		extension to lookup
 			if (author == null)
 				XMLAccessError();
-			else
+			else{
 				EditAuthorElement(author);
-			
+				dump("parseRSS() trigger\n");
+				$('#HiddenAuthor').trigger('click');
+			}
 			//alert("author found: "+$author);
 			// trigger extensions code to start running
-			$('#HiddenAuthor').trigger('click');
 		};
 		
 		function YahooQuery() {
@@ -164,6 +167,8 @@ jQuery(document).ready(function($){
 	function XMLAccessError() {
 		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
+		dump("XMLAccessError() trigger\n");
+		$('#HiddenAuthor').trigger('click');
 	};
 	
 
@@ -227,6 +232,7 @@ jQuery(document).ready(function($){
 		
 		//alert(source);
 		EditAuthorElement(null, source);
+		dump("getSource() trigger\n");
 		$('#HiddenAuthor').trigger('click');
 	}
 	
@@ -281,6 +287,7 @@ jQuery(document).ready(function($){
 			
 			alert("author found: "+$author);
 			// trigger extensions code to start running
+			dump("parseRSS() trigger\n");
 			$('#HiddenAuthor').trigger('click');
 		};
 		
@@ -311,16 +318,16 @@ function EditElementValue(id, value) {
 	//alert(Element.value);
 }
 
-function EditAuthorElement(author) {
+function EditAuthorElement(author) {dump('editauthor\n');
 	EditElementValue('HiddenAuthor', author);
 }
 
-function EditPublicationElement(source) {
+function EditPublicationElement(source) {dump('editpub\n');
 	EditElementValue('HiddenPublication', source);
 }
 
 function EditAuthorElement(author, publication)
-{
+{dump('editauthorelement\n');
 	var AuthorElement = content.document.getElementById('HiddenAuthor');
 	//alert(AuthorElement.value);
 	if (author == null) {

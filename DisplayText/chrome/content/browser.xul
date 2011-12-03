@@ -39,6 +39,7 @@
         <menuitem id="context-item1" label="Display Site List" oncommand="DisplaySiteList.onCommand(event)"/>
         <menuitem id="context-item2" label="Add Site" oncommand="AddSite.onCommand(event)"/>
         <menuitem id="context-item3" label="Remove Site" oncommand="RemoveSite.onCommand(event)"/>
+        <menuitem id="context-item4" label="Change info location" oncommand="changeInfoLocation()"/>
       </menupopup>
     </menu>
   </popup>

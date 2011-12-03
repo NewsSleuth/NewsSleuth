@@ -32,7 +32,8 @@ var CustomButton = {
 		} else if (author === 'RSS error') {
 			alert('rss error');
 		} else {
-			callWikipediaAPI(author, publication);
+			AuthorWindow(null, null);
+			//callWikipediaAPI(author);
 		}
 	//	popup = false;
 	}
