@@ -114,6 +114,15 @@ jQuery(document).ready(function($){
 		if ($rss == null)
 			return null;
 	
+//<<<<<<< HEAD
+	function XMLAccessError() {
+//		alert("XML Access Error");
+		EditAuthorElement(null, 'WSJ');
+		// trigger extension code to start running
+		$('#HiddenAuthor').trigger('click');
+	};
+//=======
+//>>>>>>> 3dafd73101093a742f12eda9e1d935defb0dc776
 	
 		$.ajax({
 			type: "GET",
@@ -127,11 +136,14 @@ jQuery(document).ready(function($){
 			//alert("parsing XML");
 			
 			$(xml).find("title").each(function() {
-				//alert('this: "'+$(this).text()+'"\ntitle: "'+title+'"\n'+($(this).text().toString() == title.toString()));
+				//alert('this: "'+$(this).text().toString()+'"\ntitle: "'+title.toString()+'"\n'+($(this).text().toString() == title.toString()));
 				if ($(this).text().toString()==title.toString()) {
-
-					author = $(this).siblings("dc\\:creator").text();
-					alert(author);
+					var select =$(this).siblings("dc\\:creator");
+					if (select == null)
+						select = $(this).siblings("author").children("name");
+					if (select != null)
+						author = select.text();
+					//alert(author);
 					return false;
 				};
 
@@ -164,7 +176,7 @@ jQuery(document).ready(function($){
 		};
 	};
 	function XMLAccessError() {
-		alert("XML Access Error");
+		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
 	};
 	
@@ -279,7 +291,7 @@ jQuery(document).ready(function($){
 			dump("$author: " + $author + "\n");
 			// write author's name to hidden element on page for 
 			//		extension to lookup
-			EditAuthorElement($author, 'none');
+			EditAuthorElement($author, 'WSJ');
 			
 			alert("author found: "+$author);
 			// trigger extensions code to start running

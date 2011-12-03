@@ -33,6 +33,6 @@ var CustomButton = {
 		} else {
 			callWikipediaAPI(author);
 		}
-		popup = false;
+	//	popup = false;
 	}
 }

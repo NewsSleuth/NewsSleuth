@@ -21,14 +21,56 @@
 	line-height:100%;
 }
 
+#content_id{
+	max-height:200px;
+	overflow:auto;
+}
+
+#row1_id{
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#publication_id {
+	font-family:"Times New Roman", Times, serif;
+	font-size: 13px;
+	padding-top:0px;
+	padding-bottom: 0px;
+	line-height: 120%;
+}
+
 #info_id {
 	font-family:"Times New Roman", Times, serif;
-	font-size: 14px;
-	padding-top:2px;
-	padding-bottom: 5px;
+	font-size: 13px;
+	padding-top:0px;
+	padding-bottom: 0px;
 	line-height: 120%;
-	/*max-height:100px;
-	overflow:auto;*/
+}
+#name_id{
+	padding-top:0px;
+	padding-bottom:0px;
+	font-weight: bold;
+}
+#pExpand_id{
+	padding-top:0px;
+	padding-bottom:5px;
+}
+#aExpand_id{
+	padding-top:0px;
+	padding-bottom:5px;
+}
+#pSummary_id{
+	font-family:"Times New Roman", Times, serif;
+	font-size:12px;
+	padding-top:0px;
+	padding-bottom:0px;
+}
+
+#aSummary_id{
+	font-family:"Times New Roman", Times, serif;
+	font-size:12px;
+	padding-top:0px;
+	padding-bottom:0px;
 }
 
 #lookup_id {
