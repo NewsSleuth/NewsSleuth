@@ -355,7 +355,7 @@ function controversiesP(data, isAuth)
 		condensed = String.concat(condensed, getFirst(headingArray[x], max));
 		condensed = String.concat(condensed, "\n\n");
 	}
-	//dump(condensed);
+	dump(condensed);
 	var compression = 10;
 	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=10&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
@@ -393,7 +393,7 @@ function successDump(data, isAuth)
 	//dump(data);
 	data = fixSpaces(data);
 	data = parseSummary(data);
-	//dump(data);
+	dump(data);
 
 	var doc = content.document;
 	var StoredInfo = doc.getElementById('HiddenInfo');
@@ -573,7 +573,7 @@ function lookUpPage(wikipediaPage, isAuthor){
 					isAuth = false;
 				}
 				dump("isAuth: " + isAuth + "\n");
-				dump(data);
+				//dump(data);
 				res = parseWikiHtml(data);
 				//dump("data: " + data + "\n");
 				//dump("res:" + res + "\nres.length: "+ res.length + "\n");
@@ -611,18 +611,18 @@ function lookUpPage(wikipediaPage, isAuthor){
 					}
 					return;
 				}
-				dump(data);
+				//dump(data);
 				result = parseFirstThou(data);
-				dump(result);
+				//dump(result);
 				result = removeBrackets(result);
-				dump(result);
+				//dump(result);
 				
 				isAuthArray[paragraphCount] = isAuth;
 				infoArray[paragraphCount] = result;
 				paragraphCount++;
 				numLookups--;
 				if(numLookups === 0){
-					dump("numLookups == 0\ninfoArray[numLookups]:\n" + infoArray[numLookups] + "\nisAuthArray[numLookups]:\n" + isAuthArray[numLookups] + "\n");
+					//dump("numLookups == 0\ninfoArray[numLookups]:\n" + infoArray[numLookups] + "\nisAuthArray[numLookups]:\n" + isAuthArray[numLookups] + "\n");
 					controversiesP(infoArray[numLookups], isAuthArray[numLookups]);
 				}
 				else{
@@ -649,7 +649,6 @@ function lookUpPage(wikipediaPage, isAuthor){
 	}
 	else
 	{
-		// alert("Stored: " + StoredInfo);
 		if (popup)
 		{
 			//second option

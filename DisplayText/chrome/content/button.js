@@ -30,7 +30,7 @@ var CustomButton = {
 			else
 				alert("no body");
 		} else if (author === 'RSS error') {
-			alert('rss error');
+			//alert('rss error');
 		} else {
 			AuthorWindow(null, null);
 			//callWikipediaAPI(author);

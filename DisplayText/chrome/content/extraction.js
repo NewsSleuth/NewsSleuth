@@ -174,7 +174,6 @@ jQuery(document).ready(function($){
 
 	
 	function getAuthorFromMeta() {
-		//alert("getAuthorFromMeta");
 		var author = $("meta[name='author']").attr("content");
 		if (author == null)
 			return null;
@@ -182,13 +181,10 @@ jQuery(document).ready(function($){
 	}
 	
 	function getAuthorByRegex() {
-		//alert("getAuthorByRegex");
 		return null;
 		var authorRawT = "";
-		//alert(authorRawT.length);
 
 		var html = $("body").html();
-		//alert("body: "+html);
 		
 		
 		var byline = /(<[^\/<]*>)\s*(?:(?:<[^<]*>)\s*)*\s*By\s+/i.exec(html);
@@ -209,20 +205,16 @@ jQuery(document).ready(function($){
 		
 		
 		//var t = $("nyt_byline");
-		//alert(t.text());
 		//<\s*(\w*)\s*(?:(\w*)\s*=\s*([\w'"]*)\s*)?\s*>?/
 		
 		
 
 		//var match = />\s*by\s+([\w\-\s,]+)/i.exec(html);
-		//alert(match[1]);
 		//return match[1];
 
 		// //huffington post//
 		// if (authorRawT.length == 0) {
 			// authorRawT = $("meta[name='author']").attr("content");
-			// alert("var "+authorRawT);
-			// //alert(".text() "+authorRawT.text());
 		// };
 
 	}
@@ -230,7 +222,6 @@ jQuery(document).ready(function($){
 	function getSource() {
 		var source = getSourceFromCopyRight();
 		
-		//alert(source);
 		EditAuthorElement(null, source);
 		dump("getSource() trigger\n");
 		$('#HiddenAuthor').trigger('click');

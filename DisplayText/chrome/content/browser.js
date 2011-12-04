@@ -24,7 +24,6 @@ function TitleLocation(TitleElement)
 			siteInFile = true;
 		}
 	}
-	//alert('Site is not in file');
 	return siteInFile;
 }
 function GetTitleElement( path, TitleElement )
@@ -52,7 +51,6 @@ function GetTitleElement( path, TitleElement )
 	{
 		value = split[len--];
 		type = split[len--];
-		//alert(type + ' ' + value);
 		var childNodes = cn.childNodes,
 			size = childNodes.length;
 		for (var i = 0; i < size; i++)
@@ -232,21 +230,18 @@ function setUpTitleLocation( element )
 		// check if title has a unique class name
 		if (cn.className && doc.getElementsByClassName(cn.className).length === 1)
 		{
-			//alert('unique class: ' + cn.className);
 			path += ' class ' + cn.className;
 			unique = true;
 			break;
 		}
 		else if (cn.id)
 		{
-			//alert('unique id: ' + cn.id);
 			path += ' id ' + cn.id;
 			unique = true;
 			break;
 		}
 		else if (cn.tagName && doc.getElementsByTagName(cn.tagName).length === 1)
 		{
-			//alert('unique tag: ' + cn.tagName);
 			path += ' tag ' + cn.tagName;
 			unique = true;
 			break;
@@ -293,17 +288,14 @@ function setUpTitleLocation( element )
 		cn = cn.parentNode;
 	}
 
-	//alert(unique + ": " + path);
 	if (unique)
 	{
-		//alert('Using unique ' + type + ' for location');
 		var file = GetLocPath( );
 		if ( !file.exists() ) {
 			FileIO.create(file);
 		}
 		var site = GetHost( );
 		var entry = site + path;
-		//alert(entry);
 		FileIO.write(file, entry + '\n', 'a');
 	}
 	else
@@ -467,12 +459,10 @@ function checkElement(node)
 	while (count++ < 3)
 	{
 		if (doc.getElementsByTagName(cn.tagName).length === 1) {
-			//alert('unique tag ' + cn.tagName);
 			path += cn.tagName + ' ';
 			unique = true;
 			break;
 		}/* else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
-			//alert('unique class ' + cn.className);
 			path += cn.className + ' ';
 			unique = true;
 			break;
@@ -586,7 +576,6 @@ function addElements( )
 			div.appendChild(ToggleDiv);
 	//	}
 //	}
-//	else alert('title location not found');
 	
 	// write scripts for jquery and to handle the sliding function of div elements
 	var jquery = content.document.createElement("script");
@@ -651,7 +640,6 @@ function EditPage (DisplayInfo)
 		} 
 		else
 		{
-			//alert('unknown title location');
 			var text1 = 'NewsSleuth was unable to find the title for this page. ';
 			var text2 = 'Select title to view information';
 			createTopBar (text1, text2);
@@ -661,7 +649,6 @@ function EditPage (DisplayInfo)
 var testdisplay = true;
 function DisplayAuthorInfo (info, page)
 {
-	//alert(info);
 	if (!info || info == "") {	
 		return;
 	}
@@ -910,12 +897,10 @@ function CheckList ( )
 	{
 		if ( URL == line[i] )
 		{
-			//alert('Site is in file');
 			return true;
 		}
 	}
 	dump("returning false\n");
-	//alert('Site is not in file');
 	return false;
 }
  
@@ -937,7 +922,6 @@ function GetHost ( )
 	}
 
 	var source = url.slice(0,end);
-	//alert (source + ': ' + start + ' ' + end);
 	
 	return source;
 }
@@ -977,7 +961,6 @@ var AddSite = {
 		
 		// Retrieve current URL
 		var url = GetHost( );
-		//alert (url);
 	
 		// Check if url is already on file
 		var fileContents = FileIO.read(file);
@@ -1037,7 +1020,6 @@ var RemoveSite = {
 			} 
 			else 
 			{
-				//alert('Not writing back to file');
 			}
 		}
 	}
