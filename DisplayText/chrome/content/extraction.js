@@ -1,15 +1,26 @@
 jQuery.noConflict();
 jQuery(document).ready(function($){
+	//test();
+	
+	function test() {
+		alert($(".byline").text());
+	}
+	
+	
 	setSource();
 	//$('#HiddenAuthor').trigger('click');
 	setAuthor();
 	
 	function setAuthor() {
+		//alert("setAuthor");
+	
 		var author = null;
 		
-		for (var attempt = 0; attempt < 2; attempt++) {
+		for (var attempt = 0; attempt < 3; attempt++) {
 			if (attempt == 0) 
 				author = getAuthorFromMeta();
+			else if (attempt == 1)
+				author = getAuthorByAttr();
 			else
 				author = getAuthorByRegex();
 				
@@ -20,14 +31,19 @@ jQuery(document).ready(function($){
 		if (author == null) {
 			doAuthorFromRSS();
 		}
-		else {	
+		else {
+			match = /^(?:By[\s:]+)?\s*([\w\s\-]*)/i.exec(author);
+			//select.text().replace(/^By\s+/, "");
+			if (match != null)
+				author = match[1];
 			EditAuthorElement(author);
-			dump("setAuthor() trigger\n");
 			$('#HiddenAuthor').trigger('click');
 		}
 	}
 	
 	function setSource() {
+		//alert("setSource");
+	
 		var source = null;
 		
 		for (var attempt = 0; attempt < 3; attempt++) {
@@ -37,30 +53,43 @@ jQuery(document).ready(function($){
 				source = getSourceFromCopyright();
 			else
 				source = getSourceFromTitle();
-				
 			if (source != null) {
 				source = fixSource(source);
 				break;
 			}
 		}
-		
+		//alert(source);
 		EditPublicationElement(source);
 	}	
 	
 	function getSourceFromMeta() {
 		//alert("getSourceFromMeta");
-		var source = $("meta[property='og:site_name']").attr("content");
-		if (source == null)
-			return null;
+		var source = $("meta[name='source']").attr("content");
+		if (source == null) {
+			source = $("meta[property='og:site_name']").attr("content");
+			if (source == null)
+				return null;
+		}
 		return source;
 	
 	}
 	
 	function getSourceFromTitle() {
+		//alert("getSourceFromTitle");
+		var select = $("title");
+		if (select.length == 0)
+			return null;
+		var title = select.text();
+		//alert(title);
+		var match = /([\w\s]*)$/.exec(title);
+		//alert(match.length);
+		if (match != null)
+			return match[1];
 		return null;
 	}
 	
 	function getSourceFromCopyright() {
+		//alert("getSourceFromCopyright");
 		var $div = $("<div>");
 
 		$.expr[":"].containsEnc = function(a, b, c, d) {
@@ -69,47 +98,53 @@ jQuery(document).ready(function($){
 			return ~a.textContent.indexOf(decoded);
 		};
 
-		var foundin = $('*:containsEnc("&copy")').first();
-		var text = foundin.text();
+		//var foundin = $('*:containsEnc("&copy")').first();
+		
+		var text = $('body').text(); //foundin.text();
+		
 
-		var index = text.indexOf("\u00a9");
+		var index = text.lastIndexOf("\u00a9");
 		if (index == -1)
-			return null;
+			index = text.lastIndexOf("Copyright");
 		
 		text = text.substr(index, 200);
 		
-		var match = /\u00a9[\W\s\d]*([\w ]*(?:\.\w+)?)/.exec(text);
-		if (match.length > 1)
+		var match = /(?:\u00a9\s*|copyright\s*)+[\W\s\d]*([\w ]*(?:\.\w+)?)/i.exec(text);
+		if (match != null)
 			return match[1];
 		return null;
 	}
 	
 	function fixSource(source) {
-		source = source.replace(/\s+(inc|llc)$/i, "");
+		source = source.replace(/\s+(inc|llc)\s*$/i, "");
 		return source
 	}
 	
 	function doAuthorFromRSS() {
+		//alert("doAuthorFromRSS");
 		var author = null;
 		var title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if (title==null) {
 			var select = $("h1");
 			if (select == null) {
-				dump("doAuthorFromRSS() trigger 1\n");
 				EditAuthorElement(null);
 				$('#HiddenAuthor').trigger('click');
 				return null;
 			}
-			title = select.first().text(); //if og:title didn't work, get title from first h1
+			//alert(select.first().text().indexOf("\u00a0"));
+			title = select.first().text().replace(/\u00a0/g, " ");
+			//if og:title didn't work, get title from first h1
 		};
 		//alert('"'+title+'"');
 		
 		var $rss = $("link[type='application/rss+xml']").attr("href");
 		if ($rss == null) {
-			EditAuthorElement(null);
-			dump("doAuthorFromRSS() trigger 2\n");
-			$('#HiddenAuthor').trigger('click');
-			return null;
+			$rss = $("link[type='application/atom+xml']").attr("href");
+			if ($rss == null) {
+				XMLAccessError();
+				$('#HiddenAuthor').trigger('click');
+				return null;
+			}
 		}
 		
 		$.ajax({
@@ -124,8 +159,11 @@ jQuery(document).ready(function($){
 			//alert("parsing XML");
 			
 			$(xml).find("title").each(function() {
-				//alert('this: "'+$(this).text().toString()+'"\ntitle: "'+title.toString()+'"\n'+($(this).text().toString() == title.toString()));
-				if ($(this).text().toString()==title.toString()) {
+				var this_title = $(this).text();
+				//alert('this: "'+this_title.toString()+'"\ntitle: "'+title.toString()+'"\n'+($(this).text().toString() == title.toString()));
+				//alert(this_title.indexOf("\u00a0"));
+				this_title =this_title.replace(/\u00a0/g, " ")
+				if (this_title.toString()==title.toString()) {
 					var select =$(this).siblings("dc\\:creator");
 					if (select == null)
 						select = $(this).siblings("author").children("name");
@@ -138,17 +176,15 @@ jQuery(document).ready(function($){
 			});
 			
 			dump("author: " + author + "\n");
-			// write author's name to hidden element on page for 
-			//		extension to lookup
+
 			if (author == null)
 				XMLAccessError();
-			else{
+			else
 				EditAuthorElement(author);
-				dump("parseRSS() trigger\n");
-				$('#HiddenAuthor').trigger('click');
-			}
+			
 			//alert("author found: "+$author);
 			// trigger extensions code to start running
+			$('#HiddenAuthor').trigger('click');
 		};
 		
 		function YahooQuery() {
@@ -167,13 +203,43 @@ jQuery(document).ready(function($){
 	function XMLAccessError() {
 		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
-		dump("XMLAccessError() trigger\n");
 		$('#HiddenAuthor').trigger('click');
 	};
 	
+	function getAuthorByAttr() {
+		//alert("getAuthorByAttr");
+		var author = getAuthorAttribute();
+		if (author == null) {
+			author = getBylineAttribute();
+			if (author == null) {
+				//alert("if: "+String(author));
+				return null;
+			}
+		}
+		//alert("out: "+new String(author));
+		return author;
+	}
+	
+	function getAuthorAttribute() {
+		var select = $("body[id='author'],[class='author'],[name='author'],[rel='author'],[href*=author]");
+		if (select.length == 0)
+			return null;
 
+		return select.first().text();
+	}
+	
+	function getBylineAttribute() {
+		var select = $("body[id='byline'],[class='byline'],[name='byline'],[rel='byline']");
+		if (select.length == 0)
+			return null;
+
+		return select.text();
+	}
+	
+	
 	
 	function getAuthorFromMeta() {
+		//alert("getAuthorFromMeta");
 		var author = $("meta[name='author']").attr("content");
 		if (author == null)
 			return null;
@@ -181,49 +247,72 @@ jQuery(document).ready(function($){
 	}
 	
 	function getAuthorByRegex() {
-		return null;
-		var authorRawT = "";
+		//alert("getAuthorByRegex");
+		//return null;
 
 		var html = $("body").html();
+		html = html.replace(/<\s*br\s*>/ig, "<br/>");
+		//alert("body: "+html);
 		
 		
-		var byline = /(<[^\/<]*>)\s*(?:(?:<[^<]*>)\s*)*\s*By\s+/i.exec(html);
-		var test = '<author id="monkey" class= "mainauthorstyle">';
-		alert(test);
+		var match = /<([^\/<]*)>\s*By[:\s]+/i.exec(html);
+		//alert(match.length);
+		if (match != null) {
+			//alert(match[1]);
+			var select = $(tagToSelector(match[1]));
+			var author = null;
+			select.each(function() {
+				//alert($(this).text());
+				if (/^By[\s:]+/i.test($(this).text())) {
+					//alert("match");
+					var match = /^By[\s:]+([\w\s\-]*)/i.exec($(this).text());
+					if (match != null) {
+						author = match[1].replace(/\s*show author\s*/i, "");
+						//alert(author);
+						return false;
+					}
+				}
+			});
+			//alert(author);
+			return author;
+		}
+		else {
+			//last tag before 1st <p>
+			return null;
+		}
+	}
+	
+	function tagToSelector(tag) {
+	
+		tag = tag.replace(/^\s*/, '').replace(/\s*$/, '');
+		//alert(tag);
 		
-		var re = /<\s*(\w*)\s*/i;
-		var match = re.exec(test);
-		var query = match[1];
-		alert(query);
+		var selector = tag.split(/\s+/, 1)[0];
+		//alert(selector);
 		
-		var att_re = /<\s*\w*\s*(?:(\w*)\s*=\s*([\w'"]*)\s*)*\s*>/igm;
-		att_re.lastIndex = re.lastIndex;
-		alert(match[1]+'\n'+match[2]);
-		
-		match = att_re.exec(test);
-		alert(match[1]+'\n'+match[2]);
-		
-		
-		//var t = $("nyt_byline");
-		//<\s*(\w*)\s*(?:(\w*)\s*=\s*([\w'"]*)\s*)?\s*>?/
-		
-		
-
-		//var match = />\s*by\s+([\w\-\s,]+)/i.exec(html);
-		//return match[1];
-
-		// //huffington post//
-		// if (authorRawT.length == 0) {
-			// authorRawT = $("meta[name='author']").attr("content");
-		// };
-
+		var re = new RegExp(/\s*([^=\s]*)\s*=\s*([^\s"']+|"[^"]*"|'[^']*')/g);
+		while (re.lastIndex != tag.length) {
+			var match = re.exec(tag);
+			//alert(match.length);
+			if (match == null)
+				break;
+			//alert(match[1]+'\n'+match[2]);
+			if (match[1] == "id")
+				selector += '#' + match[2].replace(/["']/g, "");
+			else if (match[1] == "class")
+				selector += '.' + match[2].replace(/["']/g, "");
+			else
+				selector += '['+match[1]+'='+match[2]+']';		
+		};
+		//alert(selector);
+		return selector;
 	}
 	
 	function getSource() {
 		var source = getSourceFromCopyRight();
 		
+		//alert(source);
 		EditAuthorElement(null, source);
-		dump("getSource() trigger\n");
 		$('#HiddenAuthor').trigger('click');
 	}
 	
@@ -258,7 +347,7 @@ jQuery(document).ready(function($){
 		});
 		
 		function parseRSS(xml) {
-			alert("parsing XML");
+			//alert("parsing XML");
 			$source = $(xml).find("title").first().text();
 			$source = $source.replace(/:.*$/, ""); //process source
 			var $author = null;
@@ -276,9 +365,8 @@ jQuery(document).ready(function($){
 			//		extension to lookup
 			EditAuthorElement($author, 'WSJ');
 			
-			alert("author found: "+$author);
+			//alert("author found: "+$author);
 			// trigger extensions code to start running
-			dump("parseRSS() trigger\n");
 			$('#HiddenAuthor').trigger('click');
 		};
 		
@@ -298,6 +386,11 @@ jQuery(document).ready(function($){
 
 });
 
+function replaceAcronyms(author) {
+	author = author.replace(/^\s*rt\s*$/i, "Russia Today").replace(/^\s*ap\s*$/i, "Associated Press");
+	return author;
+}
+
 function EditElementValue(id, value) {
 	var Element = content.document.getElementById(id);
 	if (value == null) {
@@ -309,30 +402,13 @@ function EditElementValue(id, value) {
 	//alert(Element.value);
 }
 
-function EditAuthorElement(author) {dump('editauthor\n');
+function EditAuthorElement(author) {dump('editauthor');
+	if (author != null)
+		author = replaceAcronyms(author);
+
 	EditElementValue('HiddenAuthor', author);
 }
 
-function EditPublicationElement(source) {dump('editpub\n');
+function EditPublicationElement(source) {dump('editpub');
 	EditElementValue('HiddenPublication', source);
-}
-
-function EditAuthorElement(author, publication)
-{dump('editauthorelement\n');
-	var AuthorElement = content.document.getElementById('HiddenAuthor');
-	//alert(AuthorElement.value);
-	if (author == null) {
-		if (AuthorElement.value == "none")
-			AuthorElement.value = author;
-	}
-	else
-		AuthorElement.value = author;
-
-	var PublicationElement = content.document.getElementById('HiddenPublication');
-	if (publication == null) {
-		if (PublicationElement.value == "none")
-			PublicationElement.value = publication;
-	}
-	else
-		PublicationElement.value = publication;
 }
