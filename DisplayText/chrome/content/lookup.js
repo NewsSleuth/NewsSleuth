@@ -413,18 +413,22 @@ function successDump(data, isAuth)
 	data = fixSpaces(data);
 	data = parseSummary(data);
 	dump(data);
-
-	var doc = content.document;
-	if (popup)
-	{
-		//second option
-		AuthorWindow(wikipediaPage, data);
-		DisplayHideOrShow (false);
+	if(/^[^\w]$/.test(data)){
+		dump("no alphanumeric characters in summarization\n");
 	}
-	else
-	{
-		//second option
-		DisplayAuthorInfo(data, isAuth);
+	else{
+		var doc = content.document;
+		if (popup)
+		{
+			//second option
+			AuthorWindow(wikipediaPage, data);
+			DisplayHideOrShow (false);
+		}
+		else
+		{
+			//second option
+			DisplayAuthorInfo(data, isAuth);
+		}
 	}
 	numLookups++;
 	if(numLookups < paragraphCount){
@@ -516,7 +520,6 @@ function parseSummary(data)
 
 //if either argument is null, doesn't do that call
 function callWikipediaAPI(authorPage, publicationPage) {
-	var wikipediaPage = authorPage;
 	paragraphCount = 0;
 	infoArray = new Array();
 	isAuthArray = new Array();
@@ -632,7 +635,13 @@ function lookUpPage(wikipediaPage, isAuthor){
 				//dump(result);
 				result = removeBrackets(result);
 				//dump(result);
-				
+				var mayReferTo = firstP(result).indexOf("may refer to:");
+				dump("mayReferTo: " + mayReferTo + "\n");
+				if(mayReferTo > -1){
+					DisplayAuthorInfo("Information not found", isAuth);
+					numLookups--;
+					return;
+				}
 				isAuthArray[paragraphCount] = isAuth;
 				infoArray[paragraphCount] = result;
 				paragraphCount++;

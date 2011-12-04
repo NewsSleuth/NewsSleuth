@@ -77,16 +77,12 @@ function GetTitleElement( path, TitleElement )
 
 var popup = false;
 //These variables allow us to pass the wikipedia results to callback functions.
-var authorData = new String("");
-var publisherData = new String("");
+//var authorData = new String("");
+//var publisherData = new String("");
 //These variables allow the callback functions to know the state of the program,
 //since we can't pass arguments in. Option lets callWikipediaAPI know how it 
 //should call controversiesP. doAuthor lets successDump konw whether it should call
 //controversiesP.
-var option0 = false;
-var option1 = false;
-var option2 = false;
-var doAuthor = false;
 var numLookups = 0;
 var paragraphCount = 0;
 var infoArray;
