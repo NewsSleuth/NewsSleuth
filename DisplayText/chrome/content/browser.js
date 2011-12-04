@@ -89,6 +89,10 @@ var option0 = false;
 var option1 = false;
 var option2 = false;
 var doAuthor = false;
+var numLookups = 0;
+var paragraphCount = 0;
+var infoArray;
+var isAuthArray;
 
 var DisplayText = {
 	onCommand: function(event) {
@@ -115,8 +119,7 @@ var DisplayText = {
 					ext.src = "chrome://DisplayText/content/slideElement.js";	
 		top.appendChild(ext);
 
-//		callWikipediaAPI('Bill Clinton', "WSJ");	
-	return;
+		return;
 		
 	}
 };
@@ -334,6 +337,7 @@ function AddPageStyle ( )
 
 function AuthorFound ( )
 {
+	dump("AuthorFound()\n");
 	// Code runs when its triggered by the extraction code
 	// or if triggered by slideElement.js
 	var doc = content.document;
@@ -343,7 +347,6 @@ function AuthorFound ( )
 	if (publication === 'none')
 		publication = null;
 	//alert("'"+author+"'" + ' ' + "'"+publication+"'");
-
 	if (!author || author === 'none' || author == "RSS error")
 	{
 		if (publication && publication != 'none'){
@@ -360,7 +363,6 @@ function AuthorFound ( )
 
 function AuthorNotFound ( )
 {
-testdisplay = true;
 	var doc = content.document;
 //	var lookupDiv = doc.getElementById('lookup_id');
 	var lookupDiv = doc.getElementById('info_id');
@@ -403,6 +405,7 @@ function checkReturn (e){
 
 function lookUpAuthor ()
 {
+	dump("lookUpAuthor()\n");
 	var doc = content.document;
 	var author = doc.getElementById('authorInputId').value;
 	if (author === '')
@@ -427,8 +430,6 @@ function lookUpAuthor ()
 	}
 
 	//findAuthor(author);
-
-	//	doc.getElementById('HiddenPublication').value = 'WSJ';
 	callWikipediaAPI(fixAuthor(author), null);
 }
 
@@ -504,7 +505,7 @@ function checkElement(node)
 	return;
 }
 
-function addElements( )
+function addElements(DisplayInfo)
 {
 	var doc = content.document;
 	var top = content.document.body.parentNode;
@@ -538,6 +539,7 @@ function addElements( )
 			var ContentDiv = doc.createElement('div');
 			ContentDiv.id = 'content_id';
 			ContentDiv.hidden = true;
+			ContentDiv.value = DisplayInfo;
 			
 			var pubText = doc.createElement('div');
 			pubText.appendChild(doc.createTextNode('Publication'));
@@ -624,11 +626,11 @@ function EditPage (DisplayInfo)
 	if (TitleElement || content.document.getElementById(boxId( )))
 	{
 		// Add information box framework to page
-		addElements();
-		if (DisplayInfo) 
-		{
+		addElements(DisplayInfo);
+		//if (DisplayInfo) 
+		//{
 			writeScripts();
-		}
+		//}
 	}
 	else if (!loc)
 	{
@@ -654,23 +656,17 @@ function EditPage (DisplayInfo)
 	}
 }
 var testdisplay = true;
-function DisplayAuthorInfo (info, type)
+function DisplayAuthorInfo (info, page)
 {
-	//alert(info);
+	//alert(page + ' ' + "'"+info+"'");
 	if (!info || info == "") {
 		return;
 	}
 	var doc = content.document;
 
-	if (testdisplay)
-		type = 'publication';
-	else
-		type = 'author'
-	testdisplay = !testdisplay;
-	
 	var div, nameValue;
 	var summary = false;
-	if (type === 'publication')
+	if (!page)
 	{
 		nameValue = doc.getElementById('HiddenPublication').value;
 		div = doc.getElementById('publication_id');
@@ -788,58 +784,16 @@ function DisplayAuthorInfo (info, type)
 			div.appendChild(p);
 		}
 		
-		// Search for first name of author
-/*		var fIndex = contents.indexOf(firstname);
-		if (fIndex >= 0)
-		{
-			// append text unbolded up until first name
-			var text = doc.createTextNode(info.slice(0, fIndex));
-			par.appendChild(text);
-
-			// Search for last name and if last name is within 3 words of
-			//   first name then bold everything from first to last name
-			//   assumes anything in between is the middle name or initial
-			var lIndex = contents.indexOf(lastname);
-			if (lIndex > fIndex) {
-				var namestr = contents.slice(fIndex, lIndex);
-				var count = 0;
-				for (var i=0; i<namestr.length; i++) {
-					if (namestr[i] === ' ')
-						count++;
-				}
-				if (count <= 3)
-					end = lIndex + lastname.length;
-				else
-					end = fIndex + firstname.length;
-			} else {
-				end = fIndex + firstname.length;
-			}
-			
-			// append text bolded up until last name
-			var bold = doc.createElement('b');
-			text = doc.createTextNode(info.slice(fIndex, end));
-			bold.appendChild(text);
-			par.appendChild(bold);
-			// append text unbolded for rest of info
-			text = doc.createTextNode(info.slice(end, info.length));
-			par.appendChild(text);
-		}
-		else
-		{
-			var text = doc.createTextNode(info);
-			par.appendChild(text);
-		}
-		*/
-		
 	}
 
 	// Have the information slide down rather than just appear
 	div = doc.getElementById('content_id');
-	if(div.hidden){
+	if(div.value){
 		doc.getElementById('toggle_id').click();
 		div.hidden = false;
+		div.value = false;
 	} else if (!summary){
-		if (type === 'publisher' && (div = doc.getElementById('p_slide_id')).value === 'slide')  {
+		if (!page && (div = doc.getElementById('p_slide_id')).value === 'slide')  {
 			doc.getElementById('p_slide_id').click();
 			div.value = 'clicked';
 		} else if ((div = doc.getElementById('a_slide_id')).value === 'slide') {

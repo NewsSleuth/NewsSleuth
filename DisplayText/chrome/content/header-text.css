@@ -67,6 +67,12 @@
 	padding-top:0px;
 	padding-bottom:0px;
 }
+#pExpand_id:hover{
+	cursor:pointer;
+}
+#aExpand_id:hover{
+	cursor:pointer;
+}
 #aExpand_id{
 	padding-top:0px;
 	padding-bottom:5px;
@@ -89,17 +95,19 @@
 
 #pSummary_id{
 	font-family:"Times New Roman", Times, serif;
-	font-size:12px;
-	padding-top:0px;
+	font-size:13px;
+	padding-top:4px;
 	padding-bottom:0px;
+	line-height: 120%;
 	position: relative;
 }
 
 #aSummary_id{
 	font-family:"Times New Roman", Times, serif;
-	font-size:12px;
-	padding-top:0px;
+	font-size:13px;
+	padding-top:4px;
 	padding-bottom:0px;
+	line-height: 120%;
 	position: relative;
 }
 #summary_id{
@@ -126,6 +134,9 @@
 	padding-top:1px;
 /*	padding-bottom:0px;
 	line-height:0px;*/
+}
+#toggle_id:hover{
+	cursor:pointer;
 }
 
 #lookupLabelId{

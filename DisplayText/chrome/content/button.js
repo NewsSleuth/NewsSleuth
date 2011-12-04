@@ -10,6 +10,7 @@ var CustomButton = {
 
 		var AuthorElement = doc.getElementById('HiddenAuthor');
 		var author = AuthorElement.value;
+		var publication = doc.getElementById('HiddenPublication');
 		if (author === 'none') {
 			var body = content.document.body;
 //			var head = content.document.getElementsByTagName('h1')[0];
