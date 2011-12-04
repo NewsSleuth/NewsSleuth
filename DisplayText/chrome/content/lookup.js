@@ -378,7 +378,7 @@ function controversiesP(data, isAuth)
 	pageUrl = String.concat(pageUrl, compression);
 	pageUrl = String.concat(pageUrl, "&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
-	pageUrl = String.concat(pageUrl, "&Text2=&Text3=");
+	pageUrl = String.concat(pageUrl, "&Text2=''&Text3=''");
 	jQuery.noConflict();
 	jQuery.ajax({
 		type: "GET",
