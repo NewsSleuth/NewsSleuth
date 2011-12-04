@@ -11,3 +11,16 @@ cnn.com
 fox.com
 nytimes.com
 informationclearinghouse.info
+cnbc.com
+weeklystandard.com
+powerlineblog.com
+michellemalkin.com
+newsmax.com
+spectator.org
+mudflats
+democracy now!
+the real news
+msnbc
+wsj.com
+reason.com
+alternet.org

@@ -14,8 +14,8 @@ function TitleLocation(TitleElement)
 		len = line.length;
 	var siteInFile = false;
 	while(len--)
-	{	
-		var split = line[len].split(' ');
+	{
+		var split = line[len].split('@');
 		if ( site === split[0] )
 		{
 			// Find and return the title element of page
@@ -29,7 +29,7 @@ function TitleLocation(TitleElement)
 function GetTitleElement( path, TitleElement )
 {
 	var doc = content.document;
-	var split = path.split(' '),
+	var split = path.split('@'),
 		len = split.length-1;
 
 	if (len < 2) return false;
@@ -230,19 +230,22 @@ function setUpTitleLocation( element )
 		// check if title has a unique class name
 		if (cn.className && doc.getElementsByClassName(cn.className).length === 1)
 		{
-			path += ' class ' + cn.className;
+			//alert('unique class: ' + cn.className);
+			path += '@class@' + cn.className;
 			unique = true;
 			break;
 		}
 		else if (cn.id)
 		{
-			path += ' id ' + cn.id;
+			//alert('unique id: ' + cn.id);
+			path += '@id@' + cn.id;
 			unique = true;
 			break;
 		}
 		else if (cn.tagName && doc.getElementsByTagName(cn.tagName).length === 1)
 		{
-			path += ' tag ' + cn.tagName;
+			//alert('unique tag: ' + cn.tagName);
+			path += '@tag@' + cn.tagName;
 			unique = true;
 			break;
 		}
@@ -274,13 +277,13 @@ function setUpTitleLocation( element )
 		}
 		
 		if (tagCount === 1)
-			path += ' tag ' + cn.tagName;
+			path += '@tag@' + cn.tagName;
 		else if (classCount === 1)
-			path += ' class ' + cn.className;
+			path += '@class@' + cn.className;
 		else if (cn.id)
-			path += ' id ' + cn.id;
+			path += '@id@' + cn.id;
 		else if (cLoc === 0) {
-			path += ' tag ' + cn.tagName;
+			path += '@tag@' + cn.tagName;
 		}
 		else
 			break;
@@ -338,15 +341,8 @@ function AuthorFound ( )
 	var publication = doc.getElementById('HiddenPublication').value;
 	if (publication === 'none')
 		publication = null;
-	
-/*	if (author === 'none')
-	{
-		// If author hasn't been lookup up yet
-		writeScripts();
-		return;
-	}
-	else */
-	if (!author || author === 'none')
+	//alert("'"+author+"'" + ' ' + "'"+publication+"'");
+	if (!author || author === 'none' || author == "RSS error")
 	{
 		if (publication && publication != 'none'){
 			callWikipediaAPI(null, publication);
@@ -413,8 +409,11 @@ function lookUpAuthor ()
 	var hidden = doc.getElementById('HiddenAuthor');
 	hidden.value = author;
 	
-	var toggle = doc.getElementById('toggle_id');
-	toggle.click();
+//	var toggle = doc.getElementById('toggle_id');
+//	toggle.click();
+	var aslide = doc.getElementById('a_slide_id');
+	aslide.click();
+	aslide.value = 'slide';
 
 	// Delete author lookup elements
 	var div = doc.getElementById('info_id'),
@@ -499,7 +498,7 @@ function checkElement(node)
 	return;
 }
 
-function addElements( )
+function addElements(DisplayInfo)
 {
 	var doc = content.document;
 	var top = content.document.body.parentNode;
@@ -519,7 +518,7 @@ function addElements( )
 		TitleElement = cn.item;
 		TitleElement.parentNode.insertBefore(div, TitleElement.nextSibling);
 	}
-	
+
 	// retrieve location of title element and add author box after it
 //	var TitleElement,
 //		cn = new Object();
@@ -533,6 +532,7 @@ function addElements( )
 			var ContentDiv = doc.createElement('div');
 			ContentDiv.id = 'content_id';
 			ContentDiv.hidden = true;
+			ContentDiv.value = DisplayInfo;
 			
 			var pubText = doc.createElement('div');
 			pubText.appendChild(doc.createTextNode('Publication'));
@@ -618,11 +618,11 @@ function EditPage (DisplayInfo)
 	if (TitleElement || content.document.getElementById(boxId( )))
 	{
 		// Add information box framework to page
-		addElements();
-		if (DisplayInfo) 
-		{
+		addElements(DisplayInfo);
+		//if (DisplayInfo) 
+		//{
 			writeScripts();
-		}
+		//}
 	}
 	else if (!loc)
 	{
@@ -634,7 +634,7 @@ function EditPage (DisplayInfo)
 			if ( !file.exists() ) {
 				FileIO.create(file);
 			}
-			var entry = site + ' tag h1';
+			var entry = site + '@tag@h1';
 			FileIO.write(file, entry + '\n', 'a');
 			EditPage(DisplayInfo);
 		} 
@@ -649,30 +649,12 @@ function EditPage (DisplayInfo)
 var testdisplay = true;
 function DisplayAuthorInfo (info, page)
 {
-	if (!info || info == "") {	
+	//alert(page + ' ' + "'"+info+"'");
+	if (!info || info == "") {
 		return;
 	}
 	var doc = content.document;
 
-	// Display author name or publisher name at top of columns 
-/*	var row = doc.getElementById('row1_id');
-	if (row.firstChild.innerHTML === '') {
-		var p;
-		if ( (p = doc.getElementById('HiddenPublication').value) != 'none')
-			row.firstChild.innerHTML = p;
-	}
-	if (row.lastChild.innerHTML === '') {
-		var p;
-		if ( (p = doc.getElementById('HiddenAuthor').value) != 'none')
-			row.lastChild.innerHTML = fixAuthor(p);
-	} */
-
-	/*if (testdisplay)
-		page = 'publication';
-	else
-		page = 'author'
-	testdisplay = !testdisplay;
-	*/
 	var div, nameValue;
 	var summary = false;
 	if (!page)
@@ -685,9 +667,8 @@ function DisplayAuthorInfo (info, page)
 			div = doc.getElementById('pSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('pExpand_id');
-			exp.appendChild(doc.createTextNode('Expand'));
+			addExpandOption(exp, 'p_row_id');
 		}
-		
 	}
 	else 
 	{
@@ -699,13 +680,14 @@ function DisplayAuthorInfo (info, page)
 			div = doc.getElementById('aSummary_id');
 			// add option to expand summary
 			var exp = doc.getElementById('aExpand_id');
-			exp.appendChild(doc.createTextNode('Expand'));
+			addExpandOption(exp, 'a_row_id');
+			//exp.appendChild(doc.createTextNode('Expand'));
 		}
 	}
 	
 	// Edit the 'info' to bold author name
 	if (info === 'nopage') {
-			var name = doc.createElement('p');
+			var name = doc.createElement('div');
 			name.id = 'name_id';
 			name.appendChild(doc.createTextNode(nameValue));
 			div.appendChild(name);
@@ -735,6 +717,7 @@ function DisplayAuthorInfo (info, page)
 
 		if (summary)
 		{
+			// split the summary into new paragraphs for each bracket [ ]
 			var offset;
 			start = info.indexOf('[');
 			if (start === 0)
@@ -750,17 +733,18 @@ function DisplayAuthorInfo (info, page)
 						// check if '[' is a split or just a bracket within text
 						var splitBracket = false;
 						var closeBracket = info.indexOf(']', end);
-						if ( (closeBracket - end) < 2)
+						if ( (closeBracket - end) < 3)
 							splitBracket = true;
 						if (!splitBracket)
 						{
-							offset++;
+							offset = (end + 1) - start;
 							continue;
 						}
 					}
 					
 					line = info.substr(start, end - start);
-					var p = doc.createElement('p');
+					var p = doc.createElement('div');
+					p.id = 'summary_id';
 					p.appendChild(doc.createTextNode(line));
 					div.appendChild(p);
 					
@@ -771,7 +755,7 @@ function DisplayAuthorInfo (info, page)
 			else
 			{
 				// write info as 1 paragraph
-				var p = doc.createElement('p');
+				var p = doc.createElement('div');
 				p.appendChild(doc.createTextNode(info));
 				div.appendChild(p);
 			}
@@ -779,68 +763,56 @@ function DisplayAuthorInfo (info, page)
 		else
 		{
 			//var n = doc.getElementById('HiddenAuthor').value;
-			var name = doc.createElement('p');
+			var name = doc.createElement('div');
 			name.id = 'name_id';
 			name.appendChild(doc.createTextNode(nameValue));
 			
-			var p = doc.createElement('p');
+			var p = doc.createElement('div');
+			p.id = 'mainpar_id';
 			var copy = doc.createTextNode(info);
 			p.appendChild(copy);
 			div.appendChild(name);
 			div.appendChild(p);
 		}
 		
-		// Search for first name of author
-/*		var fIndex = contents.indexOf(firstname);
-		if (fIndex >= 0)
-		{
-			// append text unbolded up until first name
-			var text = doc.createTextNode(info.slice(0, fIndex));
-			par.appendChild(text);
-
-			// Search for last name and if last name is within 3 words of
-			//   first name then bold everything from first to last name
-			//   assumes anything in between is the middle name or initial
-			var lIndex = contents.indexOf(lastname);
-			if (lIndex > fIndex) {
-				var namestr = contents.slice(fIndex, lIndex);
-				var count = 0;
-				for (var i=0; i<namestr.length; i++) {
-					if (namestr[i] === ' ')
-						count++;
-				}
-				if (count <= 3)
-					end = lIndex + lastname.length;
-				else
-					end = fIndex + firstname.length;
-			} else {
-				end = fIndex + firstname.length;
-			}
-			
-			// append text bolded up until last name
-			var bold = doc.createElement('b');
-			text = doc.createTextNode(info.slice(fIndex, end));
-			bold.appendChild(text);
-			par.appendChild(bold);
-			// append text unbolded for rest of info
-			text = doc.createTextNode(info.slice(end, info.length));
-			par.appendChild(text);
-		}
-		else
-		{
-			var text = doc.createTextNode(info);
-			par.appendChild(text);
-		}
-		*/
-		
 	}
 
 	// Have the information slide down rather than just appear
 	div = doc.getElementById('content_id');
-	if(div.hidden){
+	if(div.value){
 		doc.getElementById('toggle_id').click();
 		div.hidden = false;
+		div.value = false;
+	} else if (!summary){
+		if (!page && (div = doc.getElementById('p_slide_id')).value === 'slide')  {
+			doc.getElementById('p_slide_id').click();
+			div.value = 'clicked';
+		} else if ((div = doc.getElementById('a_slide_id')).value === 'slide') {
+			doc.getElementById('a_slide_id').click();
+			div.value = 'clicked';
+		}
 	}
+}
+
+function addExpandOption (exp, id)
+{
+	var doc = content.document;
+	// add option to expand summary
+	var row = doc.createElement('tr'),
+		c1 = doc.createElement('td'),
+		c2 = doc.createElement('td'),
+		c3 = doc.createElement('td');
+	row.id = id;//'p_row_id';
+	row.appendChild(c1);
+	row.appendChild(c2);
+	row.appendChild(c3);
+	c1.appendChild(doc.createTextNode('v'));
+	c2.appendChild(doc.createTextNode('v'));
+	c3.appendChild(doc.createTextNode('v'));
+	c1.width = exp.offsetWidth/3;
+	c2.width = exp.offsetWidth/3;
+	c3.width = exp.offsetWidth/3;
+	exp.appendChild(row);
 }
 
  
@@ -988,7 +960,7 @@ var AddSite = {
 			if ( !file.exists() ) {
 				FileIO.create(file);
 			}
-			var entry = url + ' tag h1';
+			var entry = url + '@tag@h1';
 			FileIO.write(file, entry + '\n', 'a');
 		}
 	}
