@@ -356,8 +356,18 @@ function controversiesP(data, isAuth)
 		condensed = String.concat(condensed, "\n\n");
 	}
 	dump(condensed);
-	var compression = 10;
-	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=10&Text1=");
+	var compression = 0;
+	if(condensed.length > 0){
+		compression = 40000/condensed.length;
+		compression = Math.floor(compression);
+	}
+	dump(compression);
+	if(compression > 100){
+		compression = 100;
+	}
+	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=");
+	pageUrl = String.concat(pageUrl, compression);
+	pageUrl = String.concat(pageUrl, "&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
 	pageUrl = String.concat(pageUrl, "&Text2=&Text3=");
 	jQuery.noConflict();
@@ -587,7 +597,7 @@ function lookUpPage(wikipediaPage, isAuthor){
 			}
 				var data;
 				data = res;
-				if(data[0] === '#' && data[1] === 'R'){
+				if(data[0] === '#' && (data[1] === 'R' || data[1] === 'r')){
 					var i = 0;
 					var redirect = new String("");
 					for(i = 0; i < data.length; i++){
