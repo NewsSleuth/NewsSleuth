@@ -104,19 +104,28 @@ jQuery(document).ready(function($){
 		
 
 		var index = text.lastIndexOf("\u00a9");
-		if (index == -1)
+		if (index == -1) {
 			index = text.lastIndexOf("Copyright");
+			if (index == -1)
+				return null;
+		}
 		
-		text = text.substr(index, 200);
+		var slice = text.substr(index, 200);
 		
-		var match = /(?:\u00a9\s*|copyright\s*)+[\W\s\d]*([\w ]*(?:\.\w+)?)/i.exec(text);
-		if (match != null)
-			return match[1];
+		var match = /(?:\u00a9\s*|copyright\s*)+[\W\s\d]*([\w\u00a0 ]+(?:\.\w+)?)/i.exec(slice);
+		if (match != null) {
+			var author = match[1].replace(/\s*All\s*Rights\s*Reserved\s*/ig,"");
+			if (author.length == 0)
+				return null;
+			else
+				return author;
+		}
+				
 		return null;
 	}
 	
 	function fixSource(source) {
-		source = source.replace(/\s+(inc|llc)\s*$/i, "");
+		source = source.trim().replace(/\s+(inc|llc)$/i, "");
 		return source
 	}
 	
@@ -127,8 +136,7 @@ jQuery(document).ready(function($){
 		if (title==null) {
 			var select = $("h1");
 			if (select == null) {
-				EditAuthorElement(null);
-				$('#HiddenAuthor').trigger('click');
+				XMLAccessError();
 				return null;
 			}
 			//alert(select.first().text().indexOf("\u00a0"));
@@ -142,7 +150,6 @@ jQuery(document).ready(function($){
 			$rss = $("link[type='application/atom+xml']").attr("href");
 			if ($rss == null) {
 				XMLAccessError();
-				$('#HiddenAuthor').trigger('click');
 				return null;
 			}
 		}
@@ -179,12 +186,10 @@ jQuery(document).ready(function($){
 
 			if (author == null)
 				XMLAccessError();
-			else
+			else {
 				EditAuthorElement(author);
-			
-			//alert("author found: "+$author);
-			// trigger extensions code to start running
-			$('#HiddenAuthor').trigger('click');
+				$('#HiddenAuthor').trigger('click');
+			}
 		};
 		
 		function YahooQuery() {
@@ -208,15 +213,19 @@ jQuery(document).ready(function($){
 	
 	function getAuthorByAttr() {
 		//alert("getAuthorByAttr");
-		var author = getAuthorAttribute();
+		var author = getBylineAttribute();
 		if (author == null) {
-			author = getBylineAttribute();
+			author = getAuthorAttribute();
 			if (author == null) {
 				//alert("if: "+String(author));
 				return null;
 			}
 		}
-		//alert("out: "+new String(author));
+		else if (/\d/.test(author)){
+			var author2 = getAuthorAttribute();
+			if (author2 != null)
+				return author2;
+		}
 		return author;
 	}
 	
@@ -307,19 +316,6 @@ jQuery(document).ready(function($){
 		//alert(selector);
 		return selector;
 	}
-	
-	function getSource() {
-		var source = getSourceFromCopyRight();
-		
-		//alert(source);
-		EditAuthorElement(null, source);
-		$('#HiddenAuthor').trigger('click');
-	}
-	
-	
-
-	
-
 
 	function extract() {
 		dump("inside extract()\n");

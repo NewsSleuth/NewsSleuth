@@ -359,7 +359,7 @@ function controversiesP(data, isAuth)
 	var compression = 10;
 	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=10&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
-	pageUrl = String.concat(pageUrl, "&Text2=&Text3=");
+	pageUrl = String.concat(pageUrl, "&Text2=''&Text3=''");
 	jQuery.noConflict();
 	jQuery.ajax({
 		type: "GET",
