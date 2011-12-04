@@ -10,6 +10,7 @@ var CustomButton = {
 
 		var AuthorElement = doc.getElementById('HiddenAuthor');
 		var author = AuthorElement.value;
+		var publication = doc.getElementById('HiddenPublication');
 		if (author === 'none') {
 			var body = content.document.body;
 //			var head = content.document.getElementsByTagName('h1')[0];
@@ -29,7 +30,7 @@ var CustomButton = {
 			else
 				alert("no body");
 		} else if (author === 'RSS error') {
-			alert('rss error');
+			//alert('rss error');
 		} else {
 			AuthorWindow(null, null);
 			//callWikipediaAPI(author);

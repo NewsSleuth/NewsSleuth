@@ -32,7 +32,7 @@ jQuery(document).ready(function($){
 			doAuthorFromRSS();
 		}
 		else {
-			match = /^(?:By\s+)?\s*([\w\s\-]*)/i.exec(author);
+			match = /^(?:By[\s:]+)?\s*([\w\s\-]*)/i.exec(author);
 			//select.text().replace(/^By\s+/, "");
 			if (match != null)
 				author = match[1];
@@ -98,25 +98,25 @@ jQuery(document).ready(function($){
 			return ~a.textContent.indexOf(decoded);
 		};
 
-		var foundin = $('*:containsEnc("&copy")').first();
+		//var foundin = $('*:containsEnc("&copy")').first();
 		
 		var text = $('body').text(); //foundin.text();
 		
 
 		var index = text.lastIndexOf("\u00a9");
 		if (index == -1)
-			return null;
+			index = text.lastIndexOf("Copyright");
 		
 		text = text.substr(index, 200);
 		
-		var match = /\u00a9[\W\s\d]*([\w ]*(?:\.\w+)?)/.exec(text);
+		var match = /(?:\u00a9\s*|copyright\s*)+[\W\s\d]*([\w ]*(?:\.\w+)?)/i.exec(text);
 		if (match != null)
 			return match[1];
 		return null;
 	}
 	
 	function fixSource(source) {
-		source = source.replace(/\s+(inc|llc)$/i, "");
+		source = source.replace(/\s+(inc|llc)\s*$/i, "");
 		return source
 	}
 	
@@ -141,7 +141,7 @@ jQuery(document).ready(function($){
 		if ($rss == null) {
 			$rss = $("link[type='application/atom+xml']").attr("href");
 			if ($rss == null) {
-				EditAuthorElement(null);
+				XMLAccessError();
 				$('#HiddenAuthor').trigger('click');
 				return null;
 			}
@@ -221,32 +221,18 @@ jQuery(document).ready(function($){
 	}
 	
 	function getAuthorAttribute() {
-		var select = $("[id='author'],[class='author'],[name='author'],[rel='author']");
+		var select = $("body[id='author'],[class='author'],[name='author'],[rel='author'],[href*=author]");
+		if (select.length == 0)
+			return null;
 
-		if (select.length == 0) {
-			select = $("[id='Author'],[class='Author'],[name='Author'],[rel='Author']");
-			if (select.length == 0) {
-				select = $("[id='AUTHOR'],[class='AUTHOR'],[name='AUTHOR'],[rel='AUTHOR']");
-				if (select.length == 0)
-					return null;
-			}
-		}
-		return select.text();
+		return select.first().text();
 	}
 	
 	function getBylineAttribute() {
-		var select = $("[id='byline'],[class='byline'],[name='byline'],[rel='byline']");
-		if (select.length == 0) {
-			select = $("[id='Byline'],[class='Byline'],[name='Byline'],[rel='Byline']");
-			if (select.length == 0) {
-				select = $("[id='BYLINE'],[class='BYLINE'],[name='BYLINE'],[rel='BYLINE']");
-				if (select.length == 0) {
-					select = $("[id='ByLine'],[class='ByLine'],[name='ByLine'],[rel='ByLine']");
-					if (select.length == 0)
-						return null;
-				}
-			}
-		}
+		var select = $("body[id='byline'],[class='byline'],[name='byline'],[rel='byline']");
+		if (select.length == 0)
+			return null;
+
 		return select.text();
 	}
 	
@@ -269,15 +255,17 @@ jQuery(document).ready(function($){
 		//alert("body: "+html);
 		
 		
-		var match = /<([^\/<]*)>\s*(?:(?:<[^<]*>)\s*)*\s*By\s+/i.exec(html);
+		var match = /<([^\/<]*)>\s*By[:\s]+/i.exec(html);
+		//alert(match.length);
 		if (match != null) {
+			//alert(match[1]);
 			var select = $(tagToSelector(match[1]));
 			var author = null;
 			select.each(function() {
 				//alert($(this).text());
-				if (/^By\s+/i.test($(this).text())) {
+				if (/^By[\s:]+/i.test($(this).text())) {
 					//alert("match");
-					var match = /^By\s+([\w\s\-]*)/i.exec($(this).text());
+					var match = /^By[\s:]+([\w\s\-]*)/i.exec($(this).text());
 					if (match != null) {
 						author = match[1].replace(/\s*show author\s*/i, "");
 						//alert(author);
@@ -285,7 +273,7 @@ jQuery(document).ready(function($){
 					}
 				}
 			});
-		
+			//alert(author);
 			return author;
 		}
 		else {
@@ -399,7 +387,7 @@ jQuery(document).ready(function($){
 });
 
 function replaceAcronyms(author) {
-	author = author.replace(/^rt$/i, "Russia Today").replace(/^ap$/i, "Associated Press");
+	author = author.replace(/^\s*rt\s*$/i, "Russia Today").replace(/^\s*ap\s*$/i, "Associated Press");
 	return author;
 }
 

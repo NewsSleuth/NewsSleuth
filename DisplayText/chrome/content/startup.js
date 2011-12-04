@@ -73,6 +73,17 @@ var myExtension = {
 			storedInfo.id = 'HiddenInfo';
 			head.appendChild(storedInfo);
 			
+			var a_slide = content.document.createElement('input');
+			a_slide.type = 'hidden';
+			a_slide.id = 'a_slide_id';
+			head.appendChild(a_slide);
+			
+			var p_slide = content.document.createElement('input');
+			p_slide.type = 'hidden';
+			p_slide.id = 'p_slide_id';
+			head.appendChild(p_slide);
+
+			
 			AddPageStyle ( );
 			if ( DisplayOnLoad ( ) )
 				EditPage (true);
@@ -111,7 +122,7 @@ function setUpDefaultSiteList ( )
 }
 
 
-var loc = ['www.counterpunch.org tag h1', 'www.nytimes.com tag h1', 'www.huffingtonpost.com tag h1'];
+var loc = ['www.counterpunch.org@tag@h1', 'www.nytimes.com@tag@h1', 'www.huffingtonpost.com@tag@h1'];
 function setUpTitleLocationFile ( )
 {
 	var file = DirIO.get("ProfD");
