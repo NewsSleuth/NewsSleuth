@@ -361,7 +361,16 @@ function controversiesP(data, isAuth)
 		compression = 40000/condensed.length;
 		compression = Math.floor(compression);
 	}
-	dump(compression);
+	else{
+		numLookups++;
+		dump("nothing to summarize- cutting off call\n");
+		if(numLookups < paragraphCount){
+			dump("calling controversiesP:\n" + infoArray[numLookups] + "\nisAuthArray[numLookups]: " + isAuthArray[numLookups] + "\nnumLookups: " + numLookups + "\n");
+			controversiesP(infoArray[numLookups], isAuthArray[numLookups]);
+		}
+		return;
+	}
+	dump("compression: " + compression + "\n");
 	if(compression > 100){
 		compression = 100;
 	}
@@ -406,8 +415,6 @@ function successDump(data, isAuth)
 	dump(data);
 
 	var doc = content.document;
-	var StoredInfo = doc.getElementById('HiddenInfo');
-	StoredInfo.value = String.concat(StoredInfo.value, data);
 	if (popup)
 	{
 		//second option
@@ -592,7 +599,6 @@ function lookUpPage(wikipediaPage, isAuthor){
 				//second option
 				DisplayAuthorInfo('Information not found', isAuth);
 				numLookups--;
-				//call controversiesP?
 				return;
 			}
 				var data;

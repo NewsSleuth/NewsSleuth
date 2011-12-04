@@ -128,6 +128,7 @@ jQuery(document).ready(function($){
 			var select = $("h1");
 			if (select == null) {
 				EditAuthorElement(null);
+				XMLAccessError();
 				$('#HiddenAuthor').trigger('click');
 				return null;
 			}
@@ -203,7 +204,7 @@ jQuery(document).ready(function($){
 	function XMLAccessError() {
 		//alert("XML Access Error");
 		EditAuthorElement('RSS error');
-		$('#HiddenAuthor').trigger('click');
+		//$('#HiddenAuthor').trigger('click');
 	};
 	
 	function getAuthorByAttr() {
