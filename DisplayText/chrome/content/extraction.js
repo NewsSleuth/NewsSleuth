@@ -251,6 +251,14 @@ jQuery(document).ready(function($){
 		};
 		return selector;
 	}
+	
+	function setAuthorAndClick(author) {
+		author = author.replace(/^(?:By[\s:]+)?\s*((?:[\s\-\.]?[A-Z]?[a-z]?)+).*$/i, "$1")
+		.replace(/\.$/,"").replace(/[ \u00a0]+/, " ").split(/\s+and\s+/)[0];
+
+		EditAuthorElement(author);
+		$('#HiddenAuthor').trigger('click');
+	}
 });
 
 function replaceAcronyms(author) {
@@ -277,13 +285,7 @@ function EditAuthorElement(author) {dump('editauthor');
 	EditElementValue('HiddenAuthor', author);
 }
 
-function setAuthorAndClick(author) {
-	author = author.replace(/^(?:By[\s:]+)?\s*((?:[\s\-\.]?[A-Z]?[a-z]?)+).*$/i, "$1")
-	.replace(/\.$/,"").replace(/[ \u00a0]+/, " ").split(/\s+and\s+/)[0];
 
-	EditAuthorElement(author);
-	$('#HiddenAuthor').trigger('click');
-}
 
 function EditPublicationElement(source) {dump('editpub');
 	if (source != null)

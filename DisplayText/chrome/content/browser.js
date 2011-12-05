@@ -615,7 +615,7 @@ function lookupSaveSource()
 	{
 		div.removeChild(cn[len]);
 	}
-	source = fixAuthor(source);
+	//source = fixAuthor(source);
 
 	// write to file
 	var file = GetSourcePath( );
@@ -655,7 +655,7 @@ function lookUpSource ()
 	{
 		div.removeChild(cn[len]);
 	}
-	source = fixAuthor(source);
+	//source = fixAuthor(source);
 	//findAuthor(source);
 	callWikipediaAPI(null, source);
 }
@@ -1020,9 +1020,9 @@ function DisplayAuthorInfo (info, page)
 			name.appendChild(doc.createTextNode(nameValue));
 			var text;
 			if (page)
-				text = 'wrong author';
+				text = 'change author';
 			else
-				text = 'wrong source';
+				text = 'change source';
 			var wrongA = doc.createElement('div');
 			wrongA.id = 'wrongA_id';
 			wrongA.appendChild(doc.createTextNode(text));
@@ -1117,6 +1117,9 @@ function addExpandOption (exp, id)
 		c2 = doc.createElement('td'),
 		c3 = doc.createElement('td');
 	row.id = id;//'p_row_id';
+	c1.id = 'a_cel_id';
+	c2.id = 'a_cel_id';
+	c3.id = 'a_cel_id';
 	row.appendChild(c1);
 	row.appendChild(c2);
 	row.appendChild(c3);
@@ -1193,9 +1196,11 @@ function CheckList ( )
  
 function GetHost ( )
 {
+	return window.content.location.hostname;
+
 	// Retrieve current URL
 	var url = window.content.location.href;
-	
+//	alert(window.content.location.hostname);
 	// Shorten URL to just the host url
 	var start = 0;
 	var http = url.indexOf('http');
@@ -1205,7 +1210,7 @@ function GetHost ( )
 	var end = url.indexOf('/');
 	if (end == -1)
 	{
-		domain = url.length;
+		end = url.length;
 	}
 
 	var source = url.slice(0,end);
