@@ -24,7 +24,6 @@ function TitleLocation(TitleElement)
 			siteInFile = true;
 		}
 	}
-	//alert('Site is not in file');
 	return siteInFile;
 }
 function CheckSourceList( )
@@ -139,7 +138,6 @@ function GetTitleElement( path, TitleElement )
 	{
 		value = split[len--];
 		type = split[len--];
-		//alert(type + ' ' + value);
 		var childNodes = cn.childNodes,
 			size = childNodes.length;
 		for (var i = 0; i < size; i++)
@@ -166,16 +164,12 @@ function GetTitleElement( path, TitleElement )
 
 var popup = false;
 //These variables allow us to pass the wikipedia results to callback functions.
-var authorData = new String("");
-var publisherData = new String("");
+//var authorData = new String("");
+//var publisherData = new String("");
 //These variables allow the callback functions to know the state of the program,
 //since we can't pass arguments in. Option lets callWikipediaAPI know how it 
 //should call controversiesP. doAuthor lets successDump konw whether it should call
 //controversiesP.
-var option0 = false;
-var option1 = false;
-var option2 = false;
-var doAuthor = false;
 var numLookups = 0;
 var paragraphCount = 0;
 var infoArray;
@@ -398,17 +392,14 @@ function setUpTitleLocation( element )
 		cn = cn.parentNode;
 	}
 
-	//alert(unique + ": " + path);
 	if (unique)
 	{
-		//alert('Using unique ' + type + ' for location');
 		var file = GetLocPath( );
 		if ( !file.exists() ) {
 			FileIO.create(file);
 		}
 		var site = GetHost( );
 		var entry = site + path;
-		//alert(entry);
 		FileIO.write(file, entry + '\n', 'a');
 	}
 	else
@@ -706,7 +697,6 @@ function checkElement(node)
 			unique = true;
 			break;
 		}/* else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
-			//alert('unique class ' + cn.className);
 			path += cn.className + ' ';
 			unique = true;
 			break;
@@ -833,7 +823,6 @@ function addElements(DisplayInfo)
 			div.appendChild(ToggleDiv);
 	//	}
 //	}
-//	else alert('title location not found');
 	
 	// write scripts for jquery and to handle the sliding function of div elements
 	var jquery = content.document.createElement("script");
@@ -898,7 +887,6 @@ function EditPage (DisplayInfo)
 		} 
 		else
 		{
-			//alert('unknown title location');
 			var text1 = 'NewsSleuth was unable to find the title for this page. ';
 			var text2 = 'Select title to view information';
 			createTopBar (text1, text2);
@@ -1193,12 +1181,10 @@ function CheckList ( )
 	{
 		if ( URL == line[i] )
 		{
-			//alert('Site is in file');
 			return true;
 		}
 	}
 	dump("returning false\n");
-	//alert('Site is not in file');
 	return false;
 }
  
@@ -1220,7 +1206,6 @@ function GetHost ( )
 	}
 
 	var source = url.slice(0,end);
-	//alert (source + ': ' + start + ' ' + end);
 	
 	return source;
 }
@@ -1279,7 +1264,6 @@ var AddSite = {
 		
 		// Retrieve current URL
 		var url = GetHost( );
-		//alert (url);
 	
 		// Check if url is already on file
 		var fileContents = FileIO.read(file);
@@ -1339,7 +1323,6 @@ var RemoveSite = {
 			} 
 			else 
 			{
-				//alert('Not writing back to file');
 			}
 		}
 	}
