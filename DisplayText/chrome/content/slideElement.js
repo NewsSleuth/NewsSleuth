@@ -24,7 +24,7 @@ jQuery(document).ready(function($){
 		$('#info_id').slideToggle('slow');
 	});
 	$('#p_slide_id').click(function(e){
-		$('#publisher_id').slideToggle('slow');
+		$('#publication_id').slideToggle('slow');
 	});
 	
 	$("#toggle_id").click(function(){

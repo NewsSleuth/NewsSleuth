@@ -23,7 +23,8 @@
            src="chrome://DisplayText/content/jquery.js"/>
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/extraction.js"/>
-
+  <script type="application/x-javascript"
+           src="chrome://DisplayText/content/summarize.js"/>
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
             oncommand="DisplayText.onCommand(event)"/>
