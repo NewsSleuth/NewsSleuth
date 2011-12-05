@@ -727,16 +727,13 @@ function parseWikiHtml(data)
 }
 function fixAuthor(data)
 {
-
-	for(x in data){
-		//dump(x + "\n\t" + data[x]);
-	}
-	//dump("\n" + data.length + "\n");
+	data = data.toLowerCase().replace(/\u00a0/g, " ");
 	var res = new String("");
 	//dump(data.charAt(0));
 	res = String.concat(res, String.toUpperCase(data.charAt(0)));
 	for(var i = 1; i < data.length; i++){
-		if(data.charAt(i-1) === ' '){
+		if(data.charAt(i-1) === ' ' || data.charAt(i-1) === "'" || 
+		(data.charAt(i-1) === "c" && data.charAt(i-2) === "m") || data.charAt(i-1) === "-"){
 			res = String.concat(res, String.toUpperCase(data.charAt(i)));
 		}
 		else{

@@ -1,44 +1,13 @@
 jQuery.noConflict();
 jQuery(document).ready(function($){
-	//test();
-	
-	function test() {
-		alert($(".byline").text());
-	}
-	
-	
+
 	setSource();
-	//$('#HiddenAuthor').trigger('click');
 	setAuthor();
 	
 	function setAuthor() {
 		//alert("setAuthor");
 	
-		var author = null;
-		
-		for (var attempt = 0; attempt < 3; attempt++) {
-			if (attempt == 0) 
-				author = getAuthorFromMeta();
-			else if (attempt == 1)
-				author = getAuthorByAttr();
-			else
-				author = getAuthorByRegex();
-				
-			if (author != null)
-				break;
-		}
-		//alert(author);
-		if (author == null) {
-			doAuthorFromRSS();
-		}
-		else {
-			match = /^(?:By[\s:]+)?\s*([\w\s\-]*)/i.exec(author);
-			//select.text().replace(/^By\s+/, "");
-			if (match != null)
-				author = match[1];
-			EditAuthorElement(author);
-			$('#HiddenAuthor').trigger('click');
-		}
+		getAuthorFromMeta();
 	}
 	
 	function setSource() {
@@ -129,15 +98,15 @@ jQuery(document).ready(function($){
 		return source
 	}
 	
-	function doAuthorFromRSS() {
-		//alert("doAuthorFromRSS");
+	function getAuthorFromRSS() {
+		alert("doAuthorFromRSS");
 		var author = null;
 		var title = $("meta[property='og:title']").attr("content"); //get title from og:title
 		if (title==null) {
 			var select = $("h1");
 			if (select == null) {
-				XMLAccessError();
-				return null;
+				getAuthorByAttr();
+				return;
 			}
 			//alert(select.first().text().indexOf("\u00a0"));
 			title = select.first().text().replace(/\u00a0/g, " ");
@@ -149,8 +118,8 @@ jQuery(document).ready(function($){
 		if ($rss == null) {
 			$rss = $("link[type='application/atom+xml']").attr("href");
 			if ($rss == null) {
-				XMLAccessError();
-				return null;
+				getAuthorByAttr();
+				return;
 			}
 		}
 		
@@ -185,10 +154,10 @@ jQuery(document).ready(function($){
 			dump("author: " + author + "\n");
 
 			if (author == null)
-				XMLAccessError();
+				getAuthorByAttr();
 			else {
-				EditAuthorElement(author);
-				$('#HiddenAuthor').trigger('click');
+				alert(159);
+				setAuthorAndClick(author);
 			}
 		};
 		
@@ -201,36 +170,42 @@ jQuery(document).ready(function($){
 				url: $rss,
 				dataType: "xml",
 				success: parseRSS,
-				error: XMLAccessError
+				error: getAuthorByAttr
 			});
 		};
 	};
 	function XMLAccessError() {
-		//alert("XML Access Error");
-		EditAuthorElement('RSS error');
-		$('#HiddenAuthor').trigger('click');
+		alert("XMLAccessError");
+		alert(180);
+		setAuthorAndClick('RSS error');
 	};
 	
 	function getAuthorByAttr() {
-		//alert("getAuthorByAttr");
+		alert("getAuthorByAttr");
+		
 		var author = getBylineAttribute();
 		if (author == null) {
 			author = getAuthorAttribute();
 			if (author == null) {
 				//alert("if: "+String(author));
-				return null;
+				getAuthorByRegex();
+				return;
 			}
 		}
 		else if (/\d/.test(author)){
 			var author2 = getAuthorAttribute();
-			if (author2 != null)
-				return author2;
+			if (author2 != null) {
+				alert(197);
+				setAuthorAndClick(author2);
+				return;
+			}
 		}
-		return author;
+		alert(201);
+		setAuthorAndClick(author);
 	}
 	
 	function getAuthorAttribute() {
-		var select = $("body[id='author'],[class='author'],[name='author'],[rel='author'],[href*=author]");
+		var select = $("body [id='author'],body [class='author'],body [name='author'],body [rel='author'],body [href*=author]");
 		if (select.length == 0)
 			return null;
 
@@ -238,7 +213,7 @@ jQuery(document).ready(function($){
 	}
 	
 	function getBylineAttribute() {
-		var select = $("body[id='byline'],[class='byline'],[name='byline'],[rel='byline']");
+		var select = $("body [id='byline'],body [class='byline'],body [name='byline'],body [rel='byline']");
 		if (select.length == 0)
 			return null;
 
@@ -248,23 +223,26 @@ jQuery(document).ready(function($){
 	
 	
 	function getAuthorFromMeta() {
-		//alert("getAuthorFromMeta");
+		alert("getAuthorFromMeta");
 		var author = $("meta[name='author']").attr("content");
 		if (author == null)
-			return null;
-		return author;
+			getAuthorFromRSS();
+		else {
+			alert(228);
+			setAuthorAndClick(author);
+		}
 	}
 	
 	function getAuthorByRegex() {
-		//alert("getAuthorByRegex");
+		alert("getAuthorByRegex");
 		//return null;
 
 		var html = $("body").html();
 		html = html.replace(/<\s*br\s*>/ig, "<br/>");
 		//alert("body: "+html);
 		
+		var match = /<([^\/<]*)>(\s*By[:\s]+)/i.exec(html);		
 		
-		var match = /<([^\/<]*)>\s*By[:\s]+/i.exec(html);
 		//alert(match.length);
 		if (match != null) {
 			//alert(match[1]);
@@ -272,22 +250,23 @@ jQuery(document).ready(function($){
 			var author = null;
 			select.each(function() {
 				//alert($(this).text());
-				if (/^By[\s:]+/i.test($(this).text())) {
+				//alert($(this).text()+'\n'+$(this).text().indexOf(match[2]));
+				if ($(this).text().indexOf(match[2]) == 0) {
 					//alert("match");
-					var match = /^By[\s:]+([\w\s\-]*)/i.exec($(this).text());
-					if (match != null) {
-						author = match[1].replace(/\s*show author\s*/i, "");
-						//alert(author);
-						return false;
-					}
+					author = $(this).text().replace(/\s*show author\s*/i, "");
+					return false;
 				}
 			});
 			//alert(author);
-			return author;
+			if (author == null)
+				XMLAccessError();
+			else {
+				alert(261);
+				setAuthorAndClick(author);
+			}
 		}
 		else {
-			//last tag before 1st <p>
-			return null;
+			XMLAccessError();
 		}
 	}
 	
@@ -404,6 +383,16 @@ function EditAuthorElement(author) {dump('editauthor');
 
 	EditElementValue('HiddenAuthor', author);
 }
+
+function setAuthorAndClick(author) {
+	alert("setAuthorAndClick");
+	author = author.replace(/^(?:By[\s:]+)?\s*((?:[\s\-\.]?[A-Z]?[a-z]?)+).*$/i, "$1")
+	.replace(/\.$/,"").replace(/[ \u00a0]+/, " ").split(/\s+and\s+/)[0];
+
+	EditAuthorElement(author);
+	$('#HiddenAuthor').trigger('click');
+}
+	
 
 function EditPublicationElement(source) {dump('editpub');
 	EditElementValue('HiddenPublication', source);
