@@ -31,29 +31,6 @@ var addNewSite = {
 			alert("Use form: 'www.nytimes.com'");
 			return;
 		}
-		// Look for domains
-		var dsize = 4;
-		var domain = site.indexOf('.com');
-		if (domain === -1)
-		{
-			domain = site.indexOf('.net');
-			if (domain === -1)
-			{
-				domain = site.indexOf('.org');
-				if (domain === -1)
-				{
-					domain = site.indexOf('.co');
-					dsize = 3;
-				}
-			}		
-		}
-		if (domain === -1)
-		{
-			alert("Use form: 'www.nytimes.com'");
-			return;
-		}
-		// cut off any part of url after domain
-		site = site.slice(0, domain + dsize);
 		//alert(site);
 		
 		// Add site to file

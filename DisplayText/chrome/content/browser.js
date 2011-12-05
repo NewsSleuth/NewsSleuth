@@ -26,6 +26,93 @@ function TitleLocation(TitleElement)
 	}
 	return siteInFile;
 }
+function CheckSourceList( )
+{
+	var site = GetHost( );
+	var file = GetSourcePath( );
+	if ( !file.exists() )
+		return;
+	
+	// Check if url is in file
+	var fileContents = FileIO.read(file);
+	var line = fileContents.split("\n"),
+		len = line.length-1;
+	var siteInFile = false;
+	while(len--)
+	{
+		var split = line[len].split('@');
+		//alert(split[0] + ' : ' + split[1]);
+		if ( site === split[0] )
+		{
+			//alert('returning: ' + split[1]);
+			return split[1];
+		}
+	}
+	//alert('Site is not in file');
+	return null;
+}
+function FindAuthor()
+{
+	var ae = new Object();
+	if (AuthorLocation(ae)){
+		var e = ae.item;
+		//alert(e.innerHTML);
+		
+		// strip any <a> from line
+		var cn = e.childNodes;
+		var len = cn.length;
+		//alert(cn.length);
+		line = '';
+		if (cn.length>0)
+		for(var i = 0; i < len; i++)
+		{
+			//alert(cn[i].data + ' ' +cn[i].tagName);
+			if (cn[i].tagName && cn[i].tagName.toLowerCase() === 'a') {
+				//alert(cn[i].innerHTML);
+				line += cn[i].innerHTML;
+			}else
+				line += cn[i].data;
+//			alert(cn[0].data + ' ' + cn[0].innerHTML);
+		}
+		//alert(line);
+		line = line.toLowerCase();
+		var by = line.indexOf('by ');
+		if (by == 0) {
+			line = line.substr(3, line.length-3);
+		}
+		return line;
+		
+	}else
+		return null;
+		
+	
+}
+function AuthorLocation(AuthorElement)
+{
+	var site = GetHost( );
+	var file = GetAuthLocPath ( );
+	if ( !file.exists() )
+		return;
+	
+	// Check if url is in file
+	var fileContents = FileIO.read(file);
+	var line = fileContents.split("\n"),
+		len = line.length;
+	var siteInFile = false;
+	while(len--)
+	{
+		var split = line[len].split('@');
+		if ( site === split[0] )
+		{
+			// Find and return the title element of page
+			if(GetTitleElement(line[len], AuthorElement))
+				return true;
+			siteInFile = true;
+		}
+	}
+	//alert('Site is not in file');
+	return siteInFile;
+}
 function GetTitleElement( path, TitleElement )
 {
 	var doc = content.document;
@@ -77,16 +164,12 @@ function GetTitleElement( path, TitleElement )
 
 var popup = false;
 //These variables allow us to pass the wikipedia results to callback functions.
-var authorData = new String("");
-var publisherData = new String("");
+//var authorData = new String("");
+//var publisherData = new String("");
 //These variables allow the callback functions to know the state of the program,
 //since we can't pass arguments in. Option lets callWikipediaAPI know how it 
 //should call controversiesP. doAuthor lets successDump konw whether it should call
 //controversiesP.
-var option0 = false;
-var option1 = false;
-var option2 = false;
-var doAuthor = false;
 var numLookups = 0;
 var paragraphCount = 0;
 var infoArray;
@@ -94,7 +177,25 @@ var isAuthArray;
 
 var DisplayText = {
 	onCommand: function(event) {
-		changeInfoLocation();
+		var doc = content.document;
+		var ae = new Object();
+		if (AuthorLocation(ae)){
+			var e = ae.item;
+			alert(e.innerHTML);
+			var line = e.innerHTML.toLowerCase();
+			var by = line.indexOf('by ');
+			if (by == 0) {
+				line = line.substr(3, line.length-3);
+			}
+			alert(line);
+		}else
+			alert('author not found');
+		
+		return;
+		var p = doc.getElementById('pSummary_id');
+		var a = doc.getElementById('aSummary_id');
+		alert(p.innerHTML + ' ' + a.innerHTML);
+		//changeInfoLocation();
 		return;
 		
 		var div = content.document.getElementById('lookup_id');
@@ -131,7 +232,7 @@ function changeInfoLocation ( )
 		div.parentNode.removeChild(div);
 	}
 	// createTopBar with different text
-	text = 'Choose location to display info';
+	text = 'Click here to change NewsSleuth infobox location';
 	createTopBar('', text);
 	
 }
@@ -167,7 +268,8 @@ function selectTitle()
 	while(len--) {
 		div.removeChild(cn[len]);
 	}
-	var text = content.document.createTextNode("click on the title of the article and select 'accept'");
+	var text = content.document.createTextNode
+	("Click an element on the page to place the infobox there");
 	div.appendChild(text);
 	
 	content.document.addEventListener("mousedown", mouseHandler, true);
@@ -303,7 +405,9 @@ function setUpTitleLocation( element )
 	}
 	else
 	{
-		alert('not a unique element');
+		alert('The element you selected is not unique. '+
+		'NewsSleuth will display the infobox there for now, '+ 
+		+'but will not remember the location.');
 		var pn = element.parentNode;
 		var div = content.document.createElement('div');
 		div.id = boxId();
@@ -341,37 +445,77 @@ function AuthorFound ( )
 	var publication = doc.getElementById('HiddenPublication').value;
 	if (publication === 'none')
 		publication = null;
+	var pub;
+	if ((pub = CheckSourceList( )))
+	{//alert('load publication');
+		publication = pub;
+		doc.getElementById('HiddenPublication').value = pub;
+	}
 	//alert("'"+author+"'" + ' ' + "'"+publication+"'");
 	if (!author || author === 'none' || author == "RSS error")
 	{
-		if (publication && publication != 'none'){
-			callWikipediaAPI(null, publication);
-		}
+		if (!(author = FindAuthor()))
+		{
+			if (publication && publication != 'none'){
+				callWikipediaAPI(null, publication);
+			} else {
+				AuthorNotFound(doc.getElementById('publication_id'), false, 'Publication name not found. Input here:');
+			}
 
-		AuthorNotFound( );
-		return;
+			AuthorNotFound(doc.getElementById('info_id'), true, 'Author name not found. Input here:');
+			return;
+		}
+		else 
+		{
+			// set hiddenauthor value
+			AuthorElement.value = author;
+		}
 	}
+	
+	if (!publication)
+		AuthorNotFound(doc.getElementById('publication_id'), false, 'Publication name not found. Input here:');
+		
 	author = fixAuthor(author);
 	
 	callWikipediaAPI(author, publication);
 }
 
-function AuthorNotFound ( )
+function AuthorNotFound (lookupDiv, isAuth, text)
 {
 	var doc = content.document;
+
+	// check if both not found
+	var slide = false;
+	if(isAuth) {
+		if (doc.getElementById('sourceInputId'))
+			slide = true;
+	} else {
+		if (doc.getElementById('authorInputId'))
+			slide = true;
+	}
+	if (slide)
+	{
+		div = doc.getElementById('content_id');
+		doc.getElementById('toggle_id').click();
+		div.hidden = false;
+		div.value = false;
+	}
 //	var lookupDiv = doc.getElementById('lookup_id');
-	var lookupDiv = doc.getElementById('info_id');
+//	var lookupDiv = doc.getElementById('info_id');
 	
 	var div = doc.createElement('div');
 	div.id = 'lookupLabelId';
-	var text = doc.createTextNode("Failed to access RSS feed. Enter author name for info");
+	var text = doc.createTextNode(text);//"Failed to access RSS feed. Enter author name for info");
 	div.appendChild(text);
 	lookupDiv.appendChild(div);
 	
 	div = doc.createElement('div');
 	var input = doc.createElement('input');
 	input.label = 'Author';
-	input.id = 'authorInputId';
+	if (isAuth)
+		input.id = 'authorInputId';
+	else
+		input.id = 'sourceInputId';
 	div.appendChild(input);
 	lookupDiv.appendChild(div);
 	
@@ -379,22 +523,43 @@ function AuthorNotFound ( )
 	var button = doc.createElement('input');
 	button.type = 'button';
 	button.value = 'look up';
-	button.id = 'lookupButtonId';
+	var b2;
+	if (isAuth)
+		button.id = 'lookupButtonId';
+	else
+	{
+		button.id = 'sourceButtonId';
+		// add 'lookup and save' button
+		b2 = doc.createElement('input');
+		b2.type = 'button';
+		b2.id = 'sourceButtonId';
+		b2.value = 'lookup & save for this site';
+	}
 	div.appendChild(button);
+	if (!isAuth) div.appendChild(b2);
 	lookupDiv.appendChild(div);
 	
-	button.addEventListener('click', lookUpAuthor, true);
-	input.addEventListener('keypress', function(event) { checkReturn(event); }, false);
-
-	if (DisplayOnLoad ( )) {
-	//	setTimeout("content.document.getElementById('toggle_id').click();",100);	
+	if (isAuth) {
+		button.addEventListener('click', lookUpAuthor, true);
+		input.addEventListener('keypress', function(event) { checkAReturn(event); }, false);
+	}else{
+		button.addEventListener('click', lookUpSource, true);
+		input.addEventListener('keypress', function(event) { checkSReturn(event); }, false);
+		b2.addEventListener('click', lookupSaveSource, true);
 	}
+
 }
 
-function checkReturn (e){
+function checkAReturn (e){
 	// check if the user hit the return key
 	if (e.keyCode === 13) {
-		content.document.getElementById('lookupButtonId').click();
+			content.document.getElementById('lookupButtonId').click();
+	}
+}
+function checkSReturn (e){
+	// check if the user hit the return key
+	if (e.keyCode === 13) {
+			content.document.getElementById('sourceButtonId').click();
 	}
 }
 
@@ -409,8 +574,6 @@ function lookUpAuthor ()
 	var hidden = doc.getElementById('HiddenAuthor');
 	hidden.value = author;
 	
-//	var toggle = doc.getElementById('toggle_id');
-//	toggle.click();
 	var aslide = doc.getElementById('a_slide_id');
 	aslide.click();
 	aslide.value = 'slide';
@@ -424,8 +587,77 @@ function lookUpAuthor ()
 		div.removeChild(cn[len]);
 	}
 
-	//findAuthor(author);
+	findAuthor(author);
 	callWikipediaAPI(fixAuthor(author), null);
+}
+function lookupSaveSource()
+{
+	//alert('save source');
+	var doc = content.document;
+	var source = doc.getElementById('sourceInputId').value;
+
+	if (source === ''){
+		//alert('null');
+		return;
+	}
+	var hidden = doc.getElementById('HiddenPublication');
+	hidden.value = source;
+	
+	var pslide = doc.getElementById('p_slide_id');
+	pslide.click();
+	pslide.value = 'slide';
+
+	// Delete source lookup elements
+	var div = doc.getElementById('publication_id'),
+		cn = div.childNodes,
+		len = cn.length;
+	while (len--)
+	{
+		div.removeChild(cn[len]);
+	}
+	source = fixAuthor(source);
+
+	// write to file
+	var file = GetSourcePath( );
+	if ( !file.exists() ) {
+		FileIO.create(file);
+	}
+	var site = GetHost( );
+	var entry = site + '@' + source;
+	//alert(entry);
+	FileIO.write(file, entry + '\n', 'a');
+	
+	callWikipediaAPI(null, source);
+}
+
+function lookUpSource ()
+{
+	dump("lookUpAuthor()\n");
+	var doc = content.document;
+	var source = doc.getElementById('sourceInputId').value;
+
+	if (source === ''){
+		//alert('null');
+		return;
+	}
+	var hidden = doc.getElementById('HiddenPublication');
+	hidden.value = source;
+	
+	var pslide = doc.getElementById('p_slide_id');
+	pslide.click();
+	pslide.value = 'slide';
+
+	// Delete source lookup elements
+	var div = doc.getElementById('publication_id'),
+		cn = div.childNodes,
+		len = cn.length;
+	while (len--)
+	{
+		div.removeChild(cn[len]);
+	}
+	source = fixAuthor(source);
+	//findAuthor(source);
+	callWikipediaAPI(null, source);
 }
 
 function findAuthor(searchText, searchNode) {
@@ -444,6 +676,11 @@ function findAuthor(searchText, searchNode) {
             continue;
         }
 
+		//alert(currentNode.data);
+		var split = currentNode.data.split(' ');
+		if (split.length > 3)
+			continue;
+//		var split = currentNode.
 		checkElement(currentNode);
     }
 }
@@ -452,13 +689,14 @@ function checkElement(node)
 {
 	var doc = content.document;
 	var cn = node.parentNode;
-	var path = '';
+	var path = GetHost();
 	var count = 0;
 	var unique = false;
 	while (count++ < 3)
 	{
 		if (doc.getElementsByTagName(cn.tagName).length === 1) {
-			path += cn.tagName + ' ';
+			//alert('unique tag ' + cn.tagName);
+			path += '@tag@' +cn.tagName;
 			unique = true;
 			break;
 		}/* else if (cn.className && doc.getElementsByClassName(cn.className).length === 1) {
@@ -466,7 +704,7 @@ function checkElement(node)
 			unique = true;
 			break;
 		} */else if (cn.id) {
-			path += cn.id + ' ';
+			path += '@id@' + cn.id;
 			unique = true;
 			break;
 		}
@@ -486,15 +724,27 @@ function checkElement(node)
 			}
 		}
 		if (tagCount === 1)
-			path += cn.tagName + ' ';
+			path += '@tag@'+cn.tagName;
 		else if (classCount === 1)
-			path += cn.className + ' ';
+			path += '@class@'+cn.className;
 		else
 			break;
 //		path += cn.tagName + ' ';
 		cn = cn.parentNode;
 	}
-	alert(unique + ": " + path);
+//	alert(unique + ": " + path);
+	if (unique)
+	{
+		// write path to file
+		var file = GetAuthLocPath( );
+		if ( !file.exists() ) {
+			FileIO.create(file);
+		}
+		var site = GetHost( );
+		var entry = path;
+		//alert(entry);
+		FileIO.write(file, entry + '\n', 'a');
+	}
 	return;
 }
 
@@ -640,13 +890,13 @@ function EditPage (DisplayInfo)
 		} 
 		else
 		{
-			var text1 = 'NewsSleuth was unable to find the title for this page. ';
-			var text2 = 'Select title to view information';
+			var text1 = 'NewsSleuth couldn\t find a header for this page.';
+			var text2 = 'Click here to select where to place the infobox.';
 			createTopBar (text1, text2);
 		}
 	}
 }
-var testdisplay = true;
+
 function DisplayAuthorInfo (info, page)
 {
 	//alert(page + ' ' + "'"+info+"'");
@@ -660,6 +910,7 @@ function DisplayAuthorInfo (info, page)
 	if (!page)
 	{
 		nameValue = doc.getElementById('HiddenPublication').value;
+		nameValue = fixAuthor(nameValue);
 		div = doc.getElementById('publication_id');
 		if (div.childNodes.length > 0)
 		{
@@ -668,6 +919,7 @@ function DisplayAuthorInfo (info, page)
 			// add option to expand summary
 			var exp = doc.getElementById('pExpand_id');
 			addExpandOption(exp, 'p_row_id');
+			//exp.appendChild(doc.createTextNode('expand');
 		}
 	}
 	else 
@@ -766,12 +1018,38 @@ function DisplayAuthorInfo (info, page)
 			var name = doc.createElement('div');
 			name.id = 'name_id';
 			name.appendChild(doc.createTextNode(nameValue));
+			var text;
+			if (page)
+				text = 'wrong author';
+			else
+				text = 'wrong source';
+			var wrongA = doc.createElement('div');
+			wrongA.id = 'wrongA_id';
+			wrongA.appendChild(doc.createTextNode(text));
+			if (page)
+				wrongA.addEventListener('click', wrongAuthor, true);
+			else
+				wrongA.addEventListener('click', wrongSource, true);
+			
+			var nameRow = doc.createElement('tr'),
+				c1 = doc.createElement('td'),
+				c2 = doc.createElement('td');
+			c1.appendChild(name);
+			c2.appendChild(wrongA);
+			nameRow.appendChild(c1);
+			nameRow.appendChild(c2);
+			var box = doc.getElementById(boxId());
+			c1.width = box.offsetWidth - 150;
+			c2.width = 150;
+//			nameRow.width = div.offsetWidth;
 			
 			var p = doc.createElement('div');
 			p.id = 'mainpar_id';
 			var copy = doc.createTextNode(info);
 			p.appendChild(copy);
-			div.appendChild(name);
+
+//			div.appendChild(name);
+			div.appendChild(nameRow);
 			div.appendChild(p);
 		}
 		
@@ -794,6 +1072,42 @@ function DisplayAuthorInfo (info, page)
 	}
 }
 
+function wrongAuthor ( )
+{
+	//alert('wrong author');
+	var doc = content.document;
+	// remove all info from author div
+	var div = doc.getElementById('info_id'),
+		cn = div.childNodes,
+		len = cn.length;
+	while(len--)
+	{
+		div.removeChild(cn[len]);
+	}
+	doc.getElementById('aExpand_id').hidden = true;
+	
+	// add lookup elements to box
+	AuthorNotFound(doc.getElementById('info_id'), true, "Enter author name:");
+}
+
+function wrongSource ( )
+{
+	//alert('wrong source');
+	var doc = content.document;
+	// remove all info from author div
+	var div = doc.getElementById('publication_id'),
+		cn = div.childNodes,
+		len = cn.length;
+	while(len--)
+	{
+		div.removeChild(cn[len]);
+	}
+	doc.getElementById('pExpand_id').hidden = true;
+
+	// add lookup elements to box
+	AuthorNotFound(doc.getElementById('publication_id'), false, "Enter name of publication:");
+}
+
 function addExpandOption (exp, id)
 {
 	var doc = content.document;
@@ -809,9 +1123,10 @@ function addExpandOption (exp, id)
 	c1.appendChild(doc.createTextNode('v'));
 	c2.appendChild(doc.createTextNode('v'));
 	c3.appendChild(doc.createTextNode('v'));
-	c1.width = exp.offsetWidth/3;
-	c2.width = exp.offsetWidth/3;
-	c3.width = exp.offsetWidth/3;
+	var div = doc.getElementById(boxId());
+	c1.width = div.offsetWidth/3;
+	c2.width = div.offsetWidth/3;
+	c3.width = div.offsetWidth/3;
 	exp.appendChild(row);
 }
 
@@ -910,7 +1225,26 @@ function GetPath ( )
 	file.append("SiteList.txt");
 	return file;	
 }
-
+function GetAuthLocPath ( )
+{
+	var file = DirIO.get("ProfD");
+	file.append("extensions");
+//	file.append("newssleuth@news.sleuth");
+//	if (!file.exists())
+//		DirIO.create(file);
+	file.append("AuthorLocation.txt");
+	return file;
+}
+function GetSourcePath( )
+{
+	var file = DirIO.get("ProfD");
+	file.append("extensions");
+//	file.append("newssleuth@news.sleuth");
+//	if (!file.exists())
+//		DirIO.create(file);
+	file.append("SiteSource.txt");
+	return file;
+}
 function GetLocPath( ) 
 {
 	var file = DirIO.get("ProfD");

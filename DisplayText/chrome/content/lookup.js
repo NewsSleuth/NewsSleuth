@@ -356,8 +356,27 @@ function controversiesP(data, isAuth)
 		condensed = String.concat(condensed, "\n\n");
 	}
 	dump(condensed);
-	var compression = 10;
-	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=10&Text1=");
+	var compression = 0;
+	if(condensed.length > 0){
+		compression = 40000/condensed.length;
+		compression = Math.floor(compression);
+	}
+	else{
+		numLookups++;
+		dump("nothing to summarize- cutting off call\n");
+		if(numLookups < paragraphCount){
+			dump("calling controversiesP:\n" + infoArray[numLookups] + "\nisAuthArray[numLookups]: " + isAuthArray[numLookups] + "\nnumLookups: " + numLookups + "\n");
+			controversiesP(infoArray[numLookups], isAuthArray[numLookups]);
+		}
+		return;
+	}
+	dump("compression: " + compression + "\n");
+	if(compression > 100){
+		compression = 100;
+	}
+	var pageUrl = new String("http://www.clips.ua.ac.be/cgi-bin/iris/daesosum.pl?compression=");
+	pageUrl = String.concat(pageUrl, compression);
+	pageUrl = String.concat(pageUrl, "&Text1=");
 	pageUrl = String.concat(pageUrl, condensed);
 	pageUrl = String.concat(pageUrl, "&Text2=''&Text3=''");
 	jQuery.noConflict();
@@ -394,20 +413,22 @@ function successDump(data, isAuth)
 	data = fixSpaces(data);
 	data = parseSummary(data);
 	dump(data);
-
-	var doc = content.document;
-	var StoredInfo = doc.getElementById('HiddenInfo');
-	StoredInfo.value = String.concat(StoredInfo.value, data);
-	if (popup)
-	{
-		//second option
-		AuthorWindow(wikipediaPage, data);
-		DisplayHideOrShow (false);
+	if(/^[^\w]$/.test(data)){
+		dump("no alphanumeric characters in summarization\n");
 	}
-	else
-	{
-		//second option
-		DisplayAuthorInfo(data, isAuth);
+	else{
+		var doc = content.document;
+		if (popup)
+		{
+			//second option
+			AuthorWindow(wikipediaPage, data);
+			DisplayHideOrShow (false);
+		}
+		else
+		{
+			//second option
+			DisplayAuthorInfo(data, isAuth);
+		}
 	}
 	numLookups++;
 	if(numLookups < paragraphCount){
@@ -499,7 +520,6 @@ function parseSummary(data)
 
 //if either argument is null, doesn't do that call
 function callWikipediaAPI(authorPage, publicationPage) {
-	var wikipediaPage = authorPage;
 	paragraphCount = 0;
 	infoArray = new Array();
 	isAuthArray = new Array();
@@ -582,12 +602,11 @@ function lookUpPage(wikipediaPage, isAuthor){
 				//second option
 				DisplayAuthorInfo('Information not found', isAuth);
 				numLookups--;
-				//call controversiesP?
 				return;
 			}
 				var data;
 				data = res;
-				if(data[0] === '#' && data[1] === 'R'){
+				if(data[0] === '#' && (data[1] === 'R' || data[1] === 'r')){
 					var i = 0;
 					var redirect = new String("");
 					for(i = 0; i < data.length; i++){
@@ -616,7 +635,13 @@ function lookUpPage(wikipediaPage, isAuthor){
 				//dump(result);
 				result = removeBrackets(result);
 				//dump(result);
-				
+				var mayReferTo = firstP(result).indexOf("may refer to:");
+				dump("mayReferTo: " + mayReferTo + "\n");
+				if(mayReferTo > -1){
+					DisplayAuthorInfo("Information not found", isAuth);
+					numLookups--;
+					return;
+				}
 				isAuthArray[paragraphCount] = isAuth;
 				infoArray[paragraphCount] = result;
 				paragraphCount++;

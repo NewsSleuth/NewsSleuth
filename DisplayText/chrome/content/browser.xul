@@ -23,7 +23,8 @@
            src="chrome://DisplayText/content/jquery.js"/>
   <script type="application/x-javascript"
            src="chrome://DisplayText/content/extraction.js"/>
-
+  <script type="application/x-javascript"
+           src="chrome://DisplayText/content/summarize.js"/>
   <statusbar id="status-bar">
     <button label="Display Text!" insertafter="statusbar-display"
             oncommand="DisplayText.onCommand(event)"/>
@@ -39,7 +40,7 @@
         <menuitem id="context-item1" label="Display Site List" oncommand="DisplaySiteList.onCommand(event)"/>
         <menuitem id="context-item2" label="Add Site" oncommand="AddSite.onCommand(event)"/>
         <menuitem id="context-item3" label="Remove Site" oncommand="RemoveSite.onCommand(event)"/>
-        <menuitem id="context-item4" label="Change info location" oncommand="changeInfoLocation()"/>
+        <menuitem id="context-item4" label="Change Infobox location" oncommand="changeInfoLocation()"/>
       </menupopup>
     </menu>
   </popup>

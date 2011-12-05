@@ -100,6 +100,8 @@ var sites = ['www.counterpunch.org', 'www.nytimes.com', 'www.huffingtonpost.com'
 function setUpDefaultSiteList ( )
 {
 	setUpTitleLocationFile( );
+	setUpAuthorLocationFile( );
+	setUpSourceFile( );
 	
 	var file = DirIO.get("ProfD"); 
 	file.append("extensions");
@@ -120,8 +122,40 @@ function setUpDefaultSiteList ( )
 		FileIO.write(file, sites[i] + '\n', 'a');
 	}
 }
+function setUpSourceFile( )
+{
+	var file = DirIO.get("ProfD");
+	file.append('extensions');
+	//file.append("newssleuth@news.sleuth");
+	//if (!file.exists())
+	//	DirIO.create(file);
+	
+	file.append("SiteSource.txt");
+	
+	if (!file.exists()) {
+		FileIO.create(file);
+	} else {
+		return;
+	}
 
+}
 
+function setUpAuthorLocationFile ( )
+{
+	var file = DirIO.get("ProfD");
+	file.append('extensions');
+	//file.append("newssleuth@news.sleuth");
+	//if (!file.exists())
+	//	DirIO.create(file);
+	
+	file.append("AuthorLocation.txt");
+	
+	if (!file.exists()) {
+		FileIO.create(file);
+	} else {
+		return;
+	}
+}
 var loc = ['www.counterpunch.org@tag@h1', 'www.nytimes.com@tag@h1', 'www.huffingtonpost.com@tag@h1'];
 function setUpTitleLocationFile ( )
 {
